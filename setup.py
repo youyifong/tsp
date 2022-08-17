@@ -1,9 +1,7 @@
 import setuptools
 from setuptools import setup
 
-install_deps = ['numpy>=1.20.0', 
-                'matplotlib.pyplot>=3.5.1',
-                'glob>=0.7'
+install_deps = ['numpy>=1.20.0'
                 ]
 
     
