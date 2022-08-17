@@ -12,5 +12,5 @@ pip install git+https://github.com/youyifong/syotil.git#egg=syotil
 
 ## References
 
-Some functions in Syotil.py refer to https://github.com/MouseLand/cellpose/blob/main/cellpose
+We copied imread, imsave, and masks_to_outlines https://github.com/MouseLand/cellpose/blob/main/cellpose
 
