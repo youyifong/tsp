@@ -4,8 +4,103 @@ import matplotlib.pyplot as plt
 import glob
 from read_roi import read_roi_file # pip install read-roi
 from PIL import Image, ImageDraw
-from cellpose import utils, io
+#from cellpose import utils, io
+import cv2
+import tifffile
+from tqdm import tqdm
+from scipy.ndimage import find_objects
 
+
+# Import image
+def imread(filename):
+    ext = os.path.splitext(filename)[-1]
+    if ext== '.tif' or ext=='.tiff':
+        with tifffile.TiffFile(filename) as tif:
+            ltif = len(tif.pages)
+            try:
+                full_shape = tif.shaped_metadata[0]['shape']
+            except:
+                try:
+                    page = tif.series[0][0]
+                    full_shape = tif.series[0].shape
+                except:
+                    ltif = 0
+            if ltif < 10:
+                img = tif.asarray()
+            else:
+                page = tif.series[0][0]
+                shape, dtype = page.shape, page.dtype
+                ltif = int(np.prod(full_shape) / np.prod(shape))
+                #io_logger.info(f'reading tiff with {ltif} planes')
+                img = np.zeros((ltif, *shape), dtype=dtype)
+                for i,page in enumerate(tqdm(tif.series[0])):
+                    img[i] = page.asarray()
+                img = img.reshape(full_shape)            
+        return img
+    elif ext != '.npy':
+        try:
+            img = cv2.imread(filename, -1)#cv2.LOAD_IMAGE_ANYDEPTH)
+            if img.ndim > 2:
+                img = img[..., [2,1,0]]
+            return img
+        except Exception as e:
+            io_logger.critical('ERROR: could not read file, %s'%e)
+            return None
+    else:
+        try:
+            dat = np.load(filename, allow_pickle=True).item()
+            masks = dat['masks']
+            return masks
+        except Exception as e:
+            io_logger.critical('ERROR: could not read masks from file, %s'%e)
+            return None
+
+# Save image
+def imsave(filename, arr):
+    ext = os.path.splitext(filename)[-1]
+    if ext== '.tif' or ext=='.tiff':
+        tifffile.imsave(filename, arr)
+    else:
+        if len(arr.shape)>2:
+            arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
+        cv2.imwrite(filename, arr)
+
+# Masks to outlines
+def masks_to_outlines(masks):
+    """ get outlines of masks as a 0-1 array 
+    
+    Parameters
+    ----------------
+
+    masks: int, 2D or 3D array 
+        size [Ly x Lx] or [Lz x Ly x Lx], 0=NO masks; 1,2,...=mask labels
+
+    Returns
+    ----------------
+
+    outlines: 2D or 3D array 
+        size [Ly x Lx] or [Lz x Ly x Lx], True pixels are outlines
+
+    """
+    if masks.ndim > 3 or masks.ndim < 2:
+        raise ValueError('masks_to_outlines takes 2D or 3D array, not %dD array'%masks.ndim)
+    outlines = np.zeros(masks.shape, bool)
+    
+    if masks.ndim==3:
+        for i in range(masks.shape[0]):
+            outlines[i] = masks_to_outlines(masks[i])
+        return outlines
+    else:
+        slices = find_objects(masks.astype(int))
+        for i,si in enumerate(slices):
+            if si is not None:
+                sr,sc = si
+                mask = (masks[sr, sc] == (i+1)).astype(np.uint8)
+                contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                pvc, pvr = np.concatenate(contours[-2], axis=0).squeeze().T            
+                vr, vc = pvr + sr.start, pvc + sc.start 
+                outlines[vr, vc] = 1
+        return outlines
 
 # IoU
 def compute_iou(mask_true, mask_pred):
@@ -111,20 +206,20 @@ def roifiles2mask(roi_files, width, height):
     masks = np.array(masks, dtype=np.uint16) # resulting masks
     plt.imshow(masks, cmap='gray') # display ground-truth masks
     plt.show()
-    io.imsave(os.path.split(roi_files)[0]+'_masks.png', masks)
+    imsave(os.path.split(roi_files)[0]+'_masks.png', masks)
     
-    outlines = utils.masks_to_outlines(masks)
+    outlines = masks_to_outlines(masks)
     plt.imsave(os.path.split(roi_files)[0] + "_masks_outline.png", outlines, cmap='gray')
 
 def maskfile2outline(mask_file):
-    masks = io.imread(mask_file)
-    outlines = utils.masks_to_outlines(masks)
+    masks = imread(mask_file)
+    outlines = masks_to_outlines(masks)
     plt.imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines, cmap='gray')
 
 # Coloring FP in mask map and FN in gt mask map
 def color_fp_fn(mask_file, pred_file):
-    mask = io.imread(mask_file)
-    pred = io.imread(pred_file)
+    mask = imread(mask_file)
+    pred = imread(pred_file)
     mask_idx = np.setdiff1d(np.unique(mask), np.array([0])) # remove background 0
     pred_idx = np.setdiff1d(np.unique(pred), np.array([0])) # remove background 0
     
@@ -141,8 +236,8 @@ def color_fp_fn(mask_file, pred_file):
         if(sum(idx == fp_idx) == 0):
             temp = np.where(pred_fp == idx)
             pred_fp[temp[0], temp[1]] = 0
-    total_outlines = utils.masks_to_outlines(pred)
-    fp_outlines = utils.masks_to_outlines(pred_fp)
+    total_outlines = masks_to_outlines(pred)
+    fp_outlines = masks_to_outlines(pred_fp)
     res = np.zeros((pred.shape[0], pred.shape[1], 3), dtype=np.uint8)
     res[np.where(total_outlines)[0], np.where(total_outlines)[1], :] = 255
     res[np.where(fp_outlines)[0], np.where(fp_outlines)[1], 0] = 0
@@ -156,8 +251,8 @@ def color_fp_fn(mask_file, pred_file):
         if(sum(idx == fn_idx) == 0):
             temp = np.where(mask_fn == idx)
             mask_fn[temp[0], temp[1]] = 0
-    total_outlines = utils.masks_to_outlines(mask)
-    fn_outlines = utils.masks_to_outlines(mask_fn)
+    total_outlines = masks_to_outlines(mask)
+    fn_outlines = masks_to_outlines(mask_fn)
     res = np.zeros((mask.shape[0], mask.shape[1], 3), dtype=np.uint8)
     res[np.where(total_outlines)[0], np.where(total_outlines)[1], :] = 255
     res[np.where(fn_outlines)[0],    np.where(fn_outlines)[1],    1] = 0
