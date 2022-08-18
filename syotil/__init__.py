@@ -10,7 +10,9 @@ import tifffile
 from tqdm import tqdm
 from scipy.ndimage import find_objects
 
+# the first three functions are copied from cellpose
 
+# copied from cellpose
 # Import image
 def imread(filename):
     ext = os.path.splitext(filename)[-1]
@@ -55,6 +57,7 @@ def imread(filename):
             io_logger.critical('ERROR: could not read masks from file, %s'%e)
             return None
 
+# copied from cellpose
 # Save image
 def imsave(filename, arr):
     ext = os.path.splitext(filename)[-1]
@@ -65,6 +68,7 @@ def imsave(filename, arr):
             arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
         cv2.imwrite(filename, arr)
 
+# copied from cellpose
 # Masks to outlines
 def masks_to_outlines(masks):
     """ get outlines of masks as a 0-1 array 
