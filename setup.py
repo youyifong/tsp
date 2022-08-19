@@ -6,12 +6,12 @@ install_deps = ['numpy>=1.20.0'
 
     
 setup(
-    name="syotil",
+    name="cellmask",
     license="BSD",
     author="Sunwoo Han and Youyi Fong",
-    author_email="sunwooya@gmail.com",
-    description="utility functions",
-    url="https://github.com/youyifong/syotil",
+    author_email="youyifong@gmail.com",
+    description="Cell segmentation using Mask R-CNN",
+    url="https://github.com/youyifong/cellmask",
     packages=setuptools.find_packages(),
     use_scm_version=True,
     install_requires = install_deps,

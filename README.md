@@ -1,16 +1,15 @@
-# Syotil
+# Cellmask 
 
-Utility functions from Sunwoo Han and Youyi Fong.
+Cell segmentation using Mask R-CNN.
 
 ## Instructions
 
 1. Install:
 
 ```
-pip install git+https://github.com/youyifong/syotil.git#egg=syotil
+pip install git+https://github.com/youyifong/cellmask.git#egg=cellmask
 ```
 
 ## References
 
-We copied imread, imsave, and masks_to_outlines https://github.com/MouseLand/cellpose/blob/main/cellpose
 
