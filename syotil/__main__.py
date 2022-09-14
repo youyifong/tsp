@@ -24,13 +24,13 @@ def main():
         thresholds = [0.5,0.6,0.7,0.8,0.9,1.0]
         res_mat = []
         for i in range(len(pred_name)):
-            y_pred = io.imread(pred_name[i])
+            y_pred = imread(pred_name[i])
             
             filename = pred_name[i].split('/')[-1]
             filename = filename.split('_img_cp_masks.png')[0]
             filename = '../testmasks/' + filename + '_masks.png'
             
-            labels = io.imread(filename)
+            labels = imread(filename)
             
             if args.metric=='bias':
                 res_temp = bias(labels, y_pred)
