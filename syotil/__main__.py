@@ -1,7 +1,10 @@
 import argparse, glob
 import numpy as np
 from syotil import *
-from cv2 import imread
+# this function differs from cellpose.imread, which does additional things like 
+# if img.ndim > 2: img[..., [2,1,0]], which reverses the order of the last dimension, which is the color channel
+from cv2 import imread 
+
 
 def main():
     
