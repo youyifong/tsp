@@ -1,7 +1,7 @@
 import setuptools
 from setuptools import setup
 
-#install_deps = ['numpy>=1.20.0']
+install_deps = []
 
     
 setup(
