@@ -27,7 +27,8 @@ def main():
         maskfile2outline(args.name)
 
     elif args.action=='AP':
-        csi(imread(args.mask1), imread(args.mask2))
+        out=csi(imread(args.mask1), imread(args.mask2))
+        print(out)
 
     elif args.action=='checkprediction':
         pred_name = sorted(glob.glob(args.name+'/*_masks.png')) 
