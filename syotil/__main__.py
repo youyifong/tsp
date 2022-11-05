@@ -9,9 +9,13 @@ from cv2 import imread
 def main():
     
     parser = argparse.ArgumentParser(description='syotil parameters')
-    parser.add_argument('--action', type=str, help='maskfile2outline or checkprediction')
+    parser.add_argument('--action', type=str, help='maskfile2outline, checkprediction, AP')
     parser.add_argument('--name', 
                         type=str, help='maskfile or prediction folder', required=False)
+    parser.add_argument('--mask1', 
+                        type=str, help='mask file 1', required=False)
+    parser.add_argument('--mask2', 
+                        type=str, help='mask file 2', required=False)
     parser.add_argument('--metric', 
                         default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)    
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
@@ -21,6 +25,9 @@ def main():
     if args.action=='maskfile2outline':
         #for i in range(len(args.maskfiles)):
         maskfile2outline(args.name)
+
+    elif args.action=='AP':
+        csi(imread(args.mask1), imread(args.mask2))
 
     elif args.action=='checkprediction':
         pred_name = sorted(glob.glob(args.name+'/*_masks.png')) 
