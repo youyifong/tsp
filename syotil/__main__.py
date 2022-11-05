@@ -9,7 +9,7 @@ from cv2 import imread
 def main():
     
     parser = argparse.ArgumentParser(description='syotil parameters')
-    parser.add_argument('--action', type=str, help='maskfile2outline, checkprediction, AP')
+    parser.add_argument('action', type=str, help='maskfile2outline, checkprediction, AP')
     parser.add_argument('--name', 
                         type=str, help='maskfile or prediction folder', required=False)
     parser.add_argument('--mask1', 
