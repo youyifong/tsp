@@ -4,6 +4,7 @@ from syotil import *
 # this function differs from cellpose.imread, which does additional things like 
 # if img.ndim > 2: img[..., [2,1,0]], which reverses the order of the last dimension, which is the color channel
 from cv2 import imread 
+import os
 
 
 def main():
@@ -27,9 +28,23 @@ def main():
         maskfile2outline(args.name)
 
     elif args.action=='AP':
-        out=csi(imread(args.mask1), imread(args.mask2))
+        filename1, file_extension1 = os.path.splitext(args.mask1)
+        if file_extension1=="png":
+            mask1=imread(args.mask1)
+        elif file_extension1=="npy":
+            masks1 = np.load(args.mask1, allow_pickle=True).item() 
+            masks1 = mask1['masks']
+            
+        filename2, file_extension2 = os.path.splitext(args.mask2)
+        if file_extension2=="png":
+            mask2=imread(args.mask2)
+        elif file_extension2=="npy":
+            masks2 = np.load(args.mask2, allow_pickle=True).item() 
+            masks2 = mask2['masks']
+            
+        out=csi(mask1, mask2)
         print(out)
-
+        
     elif args.action=='checkprediction':
         pred_name = sorted(glob.glob(args.name+'/*_masks.png')) 
         
