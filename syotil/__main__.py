@@ -45,7 +45,7 @@ def main():
             mask2 = mask2['masks']
             
         out=csi(mask1, mask2)
-        print(out)
+        print('{:.3}'.format(out))
         
     elif args.action=='checkprediction':
         pred_name = sorted(glob.glob(args.name+'/*_masks.png')) 
