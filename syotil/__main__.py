@@ -45,7 +45,6 @@ def main():
             mask2 = np.load(args.mask2, allow_pickle=True)
             mask2 = mask2['masks']
         
-        print(mask1.shape)
         out=csi(mask1, mask2)
         print('{:.3}'.format(out))
         
