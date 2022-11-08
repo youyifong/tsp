@@ -3,7 +3,8 @@ import numpy as np
 from syotil import *
 # this function differs from cellpose.imread, which does additional things like 
 # if img.ndim > 2: img[..., [2,1,0]], which reverses the order of the last dimension, which is the color channel
-from cv2 import imread 
+from skimage.io import imread 
+# cv2.imread handle will make the masks 3 channel
 import os
 
 
@@ -43,7 +44,8 @@ def main():
         elif file_extension2==".npz":
             mask2 = np.load(args.mask2, allow_pickle=True)
             mask2 = mask2['masks']
-            
+        
+        print(mask1.shape)
         out=csi(mask1, mask2)
         print('{:.3}'.format(out))
         
