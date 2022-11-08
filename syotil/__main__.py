@@ -34,6 +34,8 @@ def main():
         elif file_extension1=="npy":
             masks1 = np.load(args.mask1, allow_pickle=True).item() 
             masks1 = mask1['masks']
+        else:
+            print(file_extension1)
             
         filename2, file_extension2 = os.path.splitext(args.mask2)
         if file_extension2=="png":
