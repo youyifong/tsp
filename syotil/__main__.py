@@ -57,7 +57,7 @@ def main():
             
             filename = pred_name[i].split('/')[-1]
             filename = filename.split('_img_cp_masks.png')[0]
-            filename = '../testmasks/' + filename + '_masks.png'
+            filename = 'testmasks/' + filename + '_masks.png'
             
             labels = imread(filename)
             
