@@ -27,7 +27,11 @@ def main():
         maskfile2outline(args.name)
 
     elif args.action=='AP':
-        out=csi(imread(args.mask1), imread(args.mask2))
+        masks1 = np.load(args.mask1, allow_pickle=True).item() # suppose args.mask1 is _seg.npy file
+        masks1 = mask1['masks']
+        masks2 = np.load(args.mask2, allow_pickle=True).item() # suppose args.mask2 is _seg.npy file
+        masks2 = mask2['masks']
+        out=csi(masks1, masks2)
         print(out)
 
     elif args.action=='checkprediction':
