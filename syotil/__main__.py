@@ -31,16 +31,16 @@ def main():
         filename1, file_extension1 = os.path.splitext(args.mask1)
         if file_extension1==".png":
             mask1=imread(args.mask1)
-        elif file_extension1==".npy":
+        elif file_extension1==".npz":
             masks1 = np.load(args.mask1, allow_pickle=True).item() 
             masks1 = mask1['masks']
         else:
-            print(file_extension1)
+            print("file type not supported: "+file_extension1)
             
         filename2, file_extension2 = os.path.splitext(args.mask2)
         if file_extension2==".png":
             mask2=imread(args.mask2)
-        elif file_extension2==".npy":
+        elif file_extension2==".npz":
             masks2 = np.load(args.mask2, allow_pickle=True).item() 
             masks2 = mask2['masks']
             
