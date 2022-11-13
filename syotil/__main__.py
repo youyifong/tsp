@@ -11,13 +11,17 @@ import os
 def main():
     
     parser = argparse.ArgumentParser(description='syotil parameters')
-    parser.add_argument('action', type=str, help='maskfile2outline, checkprediction, AP')
-    parser.add_argument('--name', 
-                        type=str, help='maskfile or prediction folder', required=False)
+    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction')
     parser.add_argument('--mask1', 
-                        type=str, help='mask file 1', required=False)
+                        type=str, help='AP mask file 1', required=False)
     parser.add_argument('--mask2', 
-                        type=str, help='mask file 2', required=False)
+                        type=str, help='AP mask file 2', required=False)
+    parser.add_argument('--maskfile', 
+                        type=str, help='maskfile2outline mask file', required=False)
+    parser.add_argument('--predfolder', 
+                        type=str, help='checkprediction prediction folder', required=False)
+    parser.add_argument('--gtfolder', 
+                        type=str, help='checkprediction ground truth folder', required=False)
     parser.add_argument('--metric', 
                         default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)    
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
@@ -26,7 +30,7 @@ def main():
 
     if args.action=='maskfile2outline':
         #for i in range(len(args.maskfiles)):
-        maskfile2outline(args.name)
+        maskfile2outline(args.maskfile)
 
     elif args.action=='AP':
         filename1, file_extension1 = os.path.splitext(args.mask1)
@@ -49,7 +53,7 @@ def main():
         print('{:.3}'.format(out))
         
     elif args.action=='checkprediction':
-        pred_name = sorted(glob.glob(args.name+'/*_masks.png')) 
+        pred_name = sorted(glob.glob(args.predfolder+'/*_masks.png')) 
         
         thresholds = [0.5,0.6,0.7,0.8,0.9,1.0]
         res_mat = []
@@ -58,7 +62,7 @@ def main():
             
             filename = pred_name[i].split('/')[-1]
             filename = filename.split('_img_cp_masks.png')[0]
-            filename = 'images/testmasks/' + filename + '_masks.png'
+            filename = args.gtfolder + '/' + filename + '_masks.png'
             
             labels = imread(filename)
             
