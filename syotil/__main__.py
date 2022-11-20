@@ -11,13 +11,17 @@ import os
 def main():
     
     parser = argparse.ArgumentParser(description='syotil parameters')
-    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction')
+    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, x')
     parser.add_argument('--mask1', 
-                        type=str, help='AP mask file 1', required=False)
+                        type=str, help='mask file 1 for AP or addmasks', required=False)
     parser.add_argument('--mask2', 
-                        type=str, help='AP mask file 2', required=False)
+                        type=str, help='mask file 2 for AP or addmasks', required=False)
     parser.add_argument('--maskfile', 
-                        type=str, help='maskfile2outline mask file', required=False)
+                        type=str, help='mask file for maskfile2outline', required=False)
+    parser.add_argument('--imagefile', 
+                        type=str, help='image file for addmasks', required=False)
+    parser.add_argument('--saveas', 
+                        type=str, help='save file name for addmasks', required=False)
     parser.add_argument('--predfolder', 
                         type=str, help='checkprediction prediction folder', required=False)
     parser.add_argument('--gtfolder', 
@@ -29,9 +33,44 @@ def main():
 
 
     if args.action=='maskfile2outline':
-        #for i in range(len(args.maskfiles)):
-        maskfile2outline(args.maskfile)
+        filename, extension = os.path.splitext(args.maskfile)
+        if extension:
+            maskfile2outline(args.maskfile)
+        else:
+            for i in os.listdir():
+                maskfile2outline(i)
 
+    elif args.action=='addmasks':
+        # add masks to images    
+        img  =imread(args.imagefile)
+        img0 = normalize99(img)
+        imgout = image_to_rgb(img0)
+        
+        if args.mask1:
+            masks=imread(args.mask1)    
+            outlines = masks_to_outlines(masks)
+            outX, outY = np.nonzero(outlines)
+            imgout[outX, outY] = np.array([255,0,0]) # pure red
+
+        if args.mask2:
+            masks=imread(args.mask2)    
+            outlines = masks_to_outlines(masks)
+            outX, outY = np.nonzero(outlines)
+            imgout[outX, outY] = np.array([0,255,0]) # pure green
+        
+        # one more time and turn overlap into yellow
+        if args.mask1:
+            masks=imread(args.mask1)    
+            outlines = masks_to_outlines(masks)
+            outX, outY = np.nonzero(outlines)
+            imgout[outX, outY, 0] = 255
+        
+        if args.saveas:
+            newfilename=args.imagefile.replace("_img.png","_img_{}.png".format(args.saveas))
+        else:
+            newfilename=args.imagefile.replace("_img.png","_img_masksadded.png")
+        imsave(newfilename,  imgout)
+                
     elif args.action=='AP':
         filename1, file_extension1 = os.path.splitext(args.mask1)
         if file_extension1==".png":

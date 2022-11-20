@@ -12,6 +12,40 @@ from scipy.ndimage import find_objects
 
 # the first three functions are copied from cellpose
 
+def normalize99(Y, lower=1,upper=99):
+    """ normalize image so 0.0 is 1st percentile and 1.0 is 99th percentile """
+    X = Y.copy()
+    x01 = np.percentile(X, lower)
+    x99 = np.percentile(X, upper)
+    X = (X - x01) / (x99 - x01)
+    return X
+
+def image_to_rgb(img0, channels=[0,0]):
+    """ image is 2 x Ly x Lx or Ly x Lx x 2 - change to RGB Ly x Lx x 3 """
+    img = img0.copy()
+    img = img.astype(np.float32)
+    if img.ndim<3:
+        img = img[:,:,np.newaxis]
+    if img.shape[0]<5:
+        img = np.transpose(img, (1,2,0))
+    if channels[0]==0:
+        img = img.mean(axis=-1)[:,:,np.newaxis]
+    for i in range(img.shape[-1]):
+        if np.ptp(img[:,:,i])>0:
+            img[:,:,i] = np.clip(normalize99(img[:,:,i]), 0, 1)
+            img[:,:,i] = np.clip(img[:,:,i], 0, 1)
+    img *= 255
+    img = np.uint8(img)
+    RGB = np.zeros((img.shape[0], img.shape[1], 3), np.uint8)
+    if img.shape[-1]==1:
+        RGB = np.tile(img,(1,1,3))
+    else:
+        RGB[:,:,channels[0]-1] = img[:,:,0]
+        if channels[1] > 0:
+            RGB[:,:,channels[1]-1] = img[:,:,1]
+    return RGB
+
+
 # copied from cellpose
 # Import image
 def imread(filename):
