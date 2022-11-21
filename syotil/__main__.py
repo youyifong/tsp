@@ -11,17 +11,17 @@ import os
 def main():
     
     parser = argparse.ArgumentParser(description='syotil parameters')
-    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, x')
+    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, overlaymasks')
     parser.add_argument('--mask1', 
-                        type=str, help='mask file 1 for AP or addmasks', required=False)
+                        type=str, help='mask file 1 for AP or overlaymasks', required=False)
     parser.add_argument('--mask2', 
-                        type=str, help='mask file 2 for AP or addmasks', required=False)
+                        type=str, help='mask file 2 for AP or overlaymasks', required=False)
     parser.add_argument('--maskfile', 
                         type=str, help='mask file for maskfile2outline', required=False)
     parser.add_argument('--imagefile', 
-                        type=str, help='image file for addmasks', required=False)
+                        type=str, help='image file for overlaymasks', required=False)
     parser.add_argument('--saveas', 
-                        type=str, help='save file name for addmasks', required=False)
+                        type=str, help='save file name for overlaymasks', required=False)
     parser.add_argument('--predfolder', 
                         type=str, help='checkprediction prediction folder', required=False)
     parser.add_argument('--gtfolder', 
@@ -40,7 +40,7 @@ def main():
             for i in os.listdir():
                 maskfile2outline(i)
 
-    elif args.action=='addmasks':
+    elif args.action=='overlaymasks':
         # add masks to images    
         img  =imread(args.imagefile)
         img0 = normalize99(img)
@@ -92,18 +92,17 @@ def main():
         print('{:.3}'.format(out))
         
     elif args.action=='checkprediction':
-        pred_name = sorted(glob.glob(args.predfolder+'/*_masks.png')) 
+        gt_file_names = sorted(os.listdir(args.gtfolder)) # file names only, no path
         
         thresholds = [0.5,0.6,0.7,0.8,0.9,1.0]
         res_mat = []
-        for i in range(len(pred_name)):
-            y_pred = imread(pred_name[i])
-            
-            filename = pred_name[i].split('/')[-1]
-            filename = filename.split('_img_cp_masks.png')[0]
-            filename = args.gtfolder + '/' + filename + '_masks.png'
-            
-            labels = imread(filename)
+        for gt_file_name in gt_file_names:
+            img_name = gt_file_name.split('_masks')[0]
+            gt_path = sorted(glob.glob(args.gtfolder+'/'+img_name+"*"))[0] 
+            pred_path = sorted(glob.glob(args.predfolder+'/'+img_name+"*"))[0] 
+                        
+            y_pred = imread(pred_path)
+            labels = imread(gt_path)
             
             if args.metric=='bias':
                 res_temp = bias(labels, y_pred)
@@ -118,7 +117,7 @@ def main():
                 res_vec = tpfpfn(labels, y_pred, threshold=0.5) 
                 res_mat.append(res_vec)
             elif args.metric=='coloring':
-                color_fp_fn(masks_name[i], pred_name[i])
+                color_fp_fn(gt_path, pred_path)
                         
         if args.metric=='bias':
             res_temp = np.array([res_mat])
