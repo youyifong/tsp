@@ -11,7 +11,7 @@ import os
 def main():
     
     parser = argparse.ArgumentParser(description='syotil parameters')
-    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, overlaymasks')
+    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, overlaymasks, roifiles2mask')
     parser.add_argument('--mask1', 
                         type=str, help='mask file 1 for AP or overlaymasks', required=False)
     parser.add_argument('--mask2', 
@@ -26,6 +26,12 @@ def main():
                         type=str, help='checkprediction prediction folder', required=False)
     parser.add_argument('--gtfolder', 
                         type=str, help='checkprediction ground truth folder', required=False)
+    parser.add_argument('--roifolder', 
+                        type=str, help='folder that contains the roi files for roifiles2mask, e.g. M926910_Pos6_RoiSet_49', required=False)
+    parser.add_argument('--width', 
+                        type=int, help='width of image', required=False, default=1392)
+    parser.add_argument('--height', 
+                        type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', 
                         default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)    
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
@@ -39,6 +45,9 @@ def main():
         else:
             for i in os.listdir():
                 maskfile2outline(i)
+                
+    elif args.action=="roifiles2mask":
+        roifiles2mask(args.roifolder+"/*", args.width, args.height)
 
     elif args.action=='overlaymasks':
         # add masks to images    
