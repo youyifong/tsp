@@ -1,3 +1,13 @@
+"""
+roifiles2mask
+    roifolder: path to the folder containing the roi files
+    height and width: dimension of the image, default to 1240x1392
+the function creates two files, one mask png file and one mask outline png file.
+
+
+"""
+
+
 import argparse, glob
 import numpy as np
 from syotil import *

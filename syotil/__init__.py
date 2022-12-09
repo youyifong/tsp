@@ -232,7 +232,7 @@ def roifiles2mask(roi_files, width, height):
     for idx in range(len(files)):
         print(idx)
         mask_temp = read_roi_file(files[idx])
-        filename = files[idx].split('\\')[-1][:-4]
+        filename = files[idx].split(os.sep)[-1][:-4]
         x = mask_temp[filename]['x']
         y = mask_temp[filename]['y']
             
