@@ -10,7 +10,6 @@ import tifffile
 from tqdm import tqdm
 from scipy.ndimage import find_objects
 
-# the first three functions are copied from cellpose
 
 def normalize99(Y, lower=1,upper=99):
     """ normalize image so 0.0 is 1st percentile and 1.0 is 99th percentile """
@@ -148,14 +147,16 @@ def compute_iou(mask_true, mask_pred):
     true_objects = (np.unique(mask_true))
     pred_objects = (np.unique(mask_pred))
     
+    # Compute areas (needed for finding the union between all objects)
+    area_true = np.histogram(mask_true, bins=np.append(true_objects, np.inf))[0]
+    area_pred = np.histogram(mask_pred, bins=np.append(pred_objects, np.inf))[0]
+
     # Compute intersection between all objects
     # compute the 2D histogram of two data samples; it returns frequency in each bin
     # important to append n.inf otherwise the number of bins will be 1 less than the number of unique masks
     intersection = np.histogram2d(mask_true.flatten(), mask_pred.flatten(), bins=(np.append(true_objects, np.inf),np.append(pred_objects, np.inf)))[0] 
     
-    # Compute areas (needed for finding the union between all objects)
-    area_true = np.histogram(mask_true, bins=np.append(true_objects, np.inf))[0]
-    area_pred = np.histogram(mask_pred, bins=np.append(pred_objects, np.inf))[0]
+        
     area_true = np.expand_dims(area_true, -1) # makes true_objects * 1
     area_pred = np.expand_dims(area_pred, 0) # makes 1 * pred_objects
     
