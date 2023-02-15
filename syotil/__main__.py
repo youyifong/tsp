@@ -17,11 +17,14 @@ from skimage.io import imread
 # cv2.imread handle will make the masks 3 channel
 import os
 
+from skimage.color import rgb2gray
+from skimage.transform import warp
+from skimage.registration import optical_flow_tvl1, optical_flow_ilk
 
 def main():
     
     parser = argparse.ArgumentParser(description='syotil parameters')
-    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, overlaymasks, roifiles2mask')
+    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, overlaymasks, roifiles2mask, alignimages')
     # overlaymasks
         # add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images
     # colortp
@@ -31,11 +34,19 @@ def main():
     # maskfile2outline --maskfile 
         # makes outlines
     # checkprediction --metric   --predfolder   --gtfolder   --min_size
+    
+    # alignimages --image1 xx  --image2 xx
+        # align image2 to image 1 with elastic alignment
+    
         
     parser.add_argument('--mask1', 
                         type=str, help='mask file 1 for AP or overlaymasks', required=False)
     parser.add_argument('--mask2', 
                         type=str, help='mask file 2 for AP or overlaymasks', required=False)
+    parser.add_argument('--image1', 
+                        type=str, help='image file 1', required=False)
+    parser.add_argument('--image2', 
+                        type=str, help='image file 2', required=False)
     parser.add_argument('--maskfile', 
                         type=str, help='mask file for maskfile2outline', required=False)
     parser.add_argument('--imagefile', 
@@ -77,6 +88,27 @@ def main():
     elif args.action=="roifiles2mask":
         roifiles2mask(args.roifolder+"/*", args.width, args.height)
 
+    elif args.action=="alignimages":
+        image1=imread(args.image1)
+        image2=imread(args.image2)
+
+        # --- Convert the images to gray level: color is not supported.
+        image1 = rgb2gray(image1)
+        image2 = rgb2gray(image2)
+        
+        # --- Compute the optical flow
+        v, u = optical_flow_tvl1(image1, image2)
+        
+        # --- Use the estimated optical flow for registration        
+        nr, nc = image1.shape        
+        row_coords, col_coords = np.meshgrid(np.arange(nr), np.arange(nc), indexing='ij')        
+        image2_warp = warp(image2, np.array([row_coords + v, col_coords + u]), mode='edge')
+        image2_warp=image_to_rgb(image2_warp)
+        
+        filename, file_extension = os.path.splitext(args.image2)
+        imsave(filename+"_aligned"+file_extension,  image2_warp)
+
+        
     elif args.action=='overlaymasks':
         # add masks to images    
         img  =imread(args.imagefile)
@@ -128,9 +160,9 @@ def main():
         out=csi(mask1, mask2)
         print('{:.3}'.format(out))
         
-    elif args.action=='checkprediction':
-        gt_file_names = sorted(os.listdir(args.gtfolder)) # file names only, no path
         
+    elif args.action=='checkprediction':
+        gt_file_names = sorted(os.listdir(args.gtfolder)) # file names only, no path        
         thresholds = [0.5,0.6,0.7,0.8,0.9,1.0]
         res_mat = []
         csi_vec=[]
@@ -138,6 +170,7 @@ def main():
             img_name = gt_file_name.split('_masks')[0]
             print(img_name, end="\t")
             gt_path = sorted(glob.glob(args.gtfolder+'/'+img_name+"*"))[0] 
+            # print(args.predfolder+'/'+img_name+"*")
             pred_path = sorted(glob.glob(args.predfolder+'/'+img_name+"*"))[0] 
             y_pred = imread(pred_path)
             labels = imread(gt_path)
@@ -276,7 +309,7 @@ def main():
         elif args.metric=='csi':
             #APs at threshold of 0.5
             res_temp = list(list(zip(*res_mat))[0]) # AP at threshold of 0.5
-            res_temp.append(np.mean(res_temp))
+            # res_temp.append(np.mean(res_temp))
             res_temp = np.array([res_temp]) 
             #print(" \\\\\n".join([" & ".join(map(str,line)) for line in res_temp])) # latex table format
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format

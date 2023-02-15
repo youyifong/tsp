@@ -11,6 +11,7 @@ from tqdm import tqdm
 from scipy.ndimage import find_objects
 
 
+
 def normalize99(Y, lower=1,upper=99):
     """ normalize image so 0.0 is 1st percentile and 1.0 is 99th percentile """
     X = Y.copy()
@@ -171,7 +172,7 @@ def tp_fp_fn(threshold, iou, index=False):
     Computes true positive (TP), false positive (FP), and false negative (FN) at a given threshold
     '''
     matches = iou >= threshold
-    true_positives = np.sum(matches, axis=1) >= 1 # predicted masks are matched to true masks
+    true_positives  = np.sum(matches, axis=1) >= 1 # predicted masks are matched to true masks
     false_positives = np.sum(matches, axis=0) == 0 # predicted masks are matched to false masks (number of predicted masks - TP)
     false_negatives = np.sum(matches, axis=1) == 0 # true masks are not matched to predicted masks (number of true masks - TP)
     if index:
