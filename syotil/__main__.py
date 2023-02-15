@@ -19,7 +19,7 @@ import os
 
 from skimage.color import rgb2gray
 from skimage.transform import warp
-from skimage.registration import optical_flow_tvl1, optical_flow_ilk
+from skimage.registration import optical_flow_tvl1
 
 def main():
     
@@ -71,6 +71,10 @@ def main():
                         type=int, help='minimal value of total intensity', required=False, default=0)
     parser.add_argument('--min_avgintensity', 
                         type=int, help='minimal value of average intensity', required=False, default=0)
+    parser.add_argument('--attachment', 
+                        type=int, help='alignment parameter', required=False, default=5)
+    parser.add_argument('--tightness', 
+                        type=float, help='alignment parameter', required=False, default=0.7)
     parser.add_argument('--metric', 
                         default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)    
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
@@ -91,19 +95,22 @@ def main():
     elif args.action=="alignimages":
         image1=imread(args.image1)
         image2=imread(args.image2)
+        image2_max = np.max(image2)
+        print(image2_max)
 
         # --- Convert the images to gray level: color is not supported.
         image1 = rgb2gray(image1)
         image2 = rgb2gray(image2)
         
         # --- Compute the optical flow
-        v, u = optical_flow_tvl1(image1, image2)
+        v, u = optical_flow_tvl1(image1, image2, attachment=args.attachment, tightness=args.tightness) # default attachment is 15, default tightness is 0.3
         
         # --- Use the estimated optical flow for registration        
         nr, nc = image1.shape        
         row_coords, col_coords = np.meshgrid(np.arange(nr), np.arange(nc), indexing='ij')        
         image2_warp = warp(image2, np.array([row_coords + v, col_coords + u]), mode='edge')
         image2_warp=image_to_rgb(image2_warp)
+        print(np.max(image2_warp))
         
         filename, file_extension = os.path.splitext(args.image2)
         imsave(filename+"_aligned"+file_extension,  image2_warp)
