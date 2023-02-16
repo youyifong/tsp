@@ -34,16 +34,16 @@ def main():
         # makes outlines
     # checkprediction --metric   --predfolder   --gtfolder   --min_size
     
-    # alignimages --image1 xx  --image2 xx
-        # align image2 to image 1 with elastic alignment. requires elastix executable
+    # alignimages --ref_image xx  --image2 xx
+        # align image2 to ref_image with elastic alignment. requires elastix executable
     
         
     parser.add_argument('--mask1', 
                         type=str, help='mask file 1 for AP or overlaymasks', required=False)
     parser.add_argument('--mask2', 
                         type=str, help='mask file 2 for AP or overlaymasks', required=False)
-    parser.add_argument('--image1', 
-                        type=str, help='image file 1', required=False)
+    parser.add_argument('--ref_image', 
+                        type=str, help='reference image', required=False)
     parser.add_argument('--image2', 
                         type=str, help='image file 2', required=False)
     parser.add_argument('--maskfile', 
@@ -93,7 +93,7 @@ def main():
 
     elif args.action=="alignimages":
         filename, file_extension = os.path.splitext(args.image2)
-        image1=imread(args.image1)
+        image1=imread(args.ref_image)
         image2=imread(args.image2)
         image2_max = np.max(image2)
 
