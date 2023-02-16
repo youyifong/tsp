@@ -19,6 +19,7 @@ import os
 
 # for alignment
 import pyelastix
+from skimage.color import rgb2gray
 
 def main():
     
