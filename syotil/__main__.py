@@ -17,9 +17,8 @@ from skimage.io import imread
 # cv2.imread handle will make the masks 3 channel
 import os
 
-from skimage.color import rgb2gray
-from skimage.transform import warp
-from skimage.registration import optical_flow_tvl1
+# for alignment
+import pyelastix
 
 def main():
     
@@ -36,7 +35,7 @@ def main():
     # checkprediction --metric   --predfolder   --gtfolder   --min_size
     
     # alignimages --image1 xx  --image2 xx
-        # align image2 to image 1 with elastic alignment
+        # align image2 to image 1 with elastic alignment. requires elastix executable
     
         
     parser.add_argument('--mask1', 
@@ -93,26 +92,25 @@ def main():
         roifiles2mask(args.roifolder+"/*", args.width, args.height)
 
     elif args.action=="alignimages":
+        filename, file_extension = os.path.splitext(args.image2)
         image1=imread(args.image1)
         image2=imread(args.image2)
         image2_max = np.max(image2)
-        print(image2_max)
 
-        # --- Convert the images to gray level: color is not supported.
+        # Convert the images to gray level: color is not supported.
         image1 = rgb2gray(image1)
         image2 = rgb2gray(image2)
+
+        # Get params and change a few values
+        params = pyelastix.get_default_params(type="AFFINE")
+        # params.MaximumNumberOfIterations = 200
+        # params.FinalGridSpacingInVoxels = 10
         
-        # --- Compute the optical flow
-        v, u = optical_flow_tvl1(image1, image2, attachment=args.attachment, tightness=args.tightness) # default attachment is 15, default tightness is 0.3
-        
-        # --- Use the estimated optical flow for registration        
-        nr, nc = image1.shape        
-        row_coords, col_coords = np.meshgrid(np.arange(nr), np.arange(nc), indexing='ij')        
-        image2_warp = warp(image2, np.array([row_coords + v, col_coords + u]), mode='edge')
+        # Apply the registration (im1 and im2 can be 2D or 3D)
+        image2_warp, field = pyelastix.register(image2, image1, params)
+                
+        # save to file
         image2_warp=image_to_rgb(image2_warp)
-        print(np.max(image2_warp))
-        
-        filename, file_extension = os.path.splitext(args.image2)
         imsave(filename+"_aligned"+file_extension,  image2_warp)
 
         
