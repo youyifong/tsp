@@ -24,7 +24,9 @@ def normalize100(Y, lower=0,upper=100):
     """ normalize image so 0.0 is 1st percentile and 1.0 is 99th percentile """
     X = Y.copy()
     x01 = np.percentile(X, lower)
+    # print(x01)
     x99 = np.percentile(X, upper)
+    # print(x99)
     X = (X - x01) / (x99 - x01)
     return X
 
@@ -41,7 +43,6 @@ def image_to_rgb(img0, channels=[0,0]):
     for i in range(img.shape[-1]):
         if np.ptp(img[:,:,i])>0:
             img[:,:,i] = np.clip(normalize100(img[:,:,i]), 0, 1) # replacing normalize99 with normalize100 makes a big difference for some images
-            img[:,:,i] = np.clip(img[:,:,i], 0, 1)
     img *= 255
     img = np.uint8(img)
     RGB = np.zeros((img.shape[0], img.shape[1], 3), np.uint8)
