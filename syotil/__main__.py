@@ -103,16 +103,19 @@ def main():
         image1=imread(args.ref_image)
         image2=imread(args.image2)    
 
-        sz = image1.shape
-    
         # Convert images to grayscale for computing the rotation via ECC method
+        sz = image1.shape    
         if len(sz)==3:
             im1_gray = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
-            im2_gray = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)         
         elif len(sz)==2:
             im1_gray = image1
-            im2_gray = image2
         
+        sz2 = image2.shape    
+        if len(sz2)==3:
+            im2_gray = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)         
+        elif len(sz2)==2:
+            im2_gray = image2
+
         # motion models: MOTION_HOMOGRAPHY, MOTION_AFFINE, MOTION_EUCLIDEAN (rigid), MOTION_TRANSLATION 
         warp_mode = cv2.MOTION_HOMOGRAPHY  
         warp_matrix = np.eye(3 if warp_mode == cv2.MOTION_HOMOGRAPHY else 2, 3, dtype=np.float32)
