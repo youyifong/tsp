@@ -37,7 +37,7 @@ def main():
     # checkprediction --metric   --predfolder   --gtfolder   --min_size
     
     # alignimages --ref_image xx  --image2 xx
-        # align image2 to ref_image with elastic alignment. requires elastix executable
+        # align image2 to ref_image 
     
         
     parser.add_argument('--mask1', 
