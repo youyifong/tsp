@@ -1,13 +1,13 @@
-# Syotil
+# THP - The Hutch Pipeline for Deep Learning Methods for Cell and Tissue Imaging Analysis
 
-Utility functions from Sunwoo Han and Youyi Fong
+
 
 ## Instructions
 
 1. Install:
 
 ```
-pip install git+https://github.com/youyifong/syotil.git#egg=syotil
+pip install git+https://github.com/youyifong/thp.git#egg=thp
 ```
 
 ## References
