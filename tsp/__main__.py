@@ -1,31 +1,25 @@
-"""
-roifiles2mask
-    roifolder: path to the folder containing the roi files
-    height and width: dimension of the image, default to 1240x1392
-the function creates two files, one mask png file and one mask outline png file.
-
-
-"""
-
-
-import argparse, glob
+import argparse, glob, os
 import numpy as np
-from tsp import *
-# this function differs from cellpose.imread, which does additional things like 
-# if img.ndim > 2: img[..., [2,1,0]], which reverses the order of the last dimension, which is the color channel
-from skimage.io import imread 
-# cv2.imread handle will make the masks 3 channel
-import os
-import cv2
+from tsp import imread, imsave, image_to_rgb, normalize99
+from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
+from tsp.alignment import doalign
 
-# for alignment
-# import pyelastix
-# from skimage.color import rgb2gray
 
 def main():
     
     parser = argparse.ArgumentParser(description='tsp parameters')
-    parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, overlaymasks, roifiles2mask, alignimages')
+    parser.add_argument('action', type=str, help='\
+        alignimages, \
+        runcellpose, \
+        AP, checkprediction, \
+        multistaining, \
+        maskfile2outline, roifiles2mask, overlaymasks')
+    # alignimages --ref_image xx  --image2 xx
+        # align image2 to ref_image 
+
+    # checkprediction --metric   --predfolder   --gtfolder   --min_size
+        # compare two folders of masks
+
     # overlaymasks
         # add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images
     # colortp
@@ -34,16 +28,12 @@ def main():
         # makes masks png file
     # maskfile2outline --maskfile 
         # makes outlines
-    # checkprediction --metric   --predfolder   --gtfolder   --min_size
-    
-    # alignimages --ref_image xx  --image2 xx
-        # align image2 to ref_image 
     
         
     parser.add_argument('--mask1', 
-                        type=str, help='mask file 1 for AP or overlaymasks', required=False)
+                        type=str, help='mask file 1', required=False)
     parser.add_argument('--mask2', 
-                        type=str, help='mask file 2 for AP or overlaymasks', required=False)
+                        type=str, help='mask file 2', required=False)
     parser.add_argument('--ref_image', 
                         type=str, help='reference image', required=False)
     parser.add_argument('--image2', 
@@ -72,10 +62,6 @@ def main():
                         type=int, help='minimal value of total intensity', required=False, default=0)
     parser.add_argument('--min_avgintensity', 
                         type=int, help='minimal value of average intensity', required=False, default=0)
-    parser.add_argument('--attachment', 
-                        type=int, help='alignment parameter', required=False, default=5)
-    parser.add_argument('--tightness', 
-                        type=float, help='alignment parameter', required=False, default=0.7)
     parser.add_argument('--metric', 
                         default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)    
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
@@ -91,81 +77,11 @@ def main():
                 maskfile2outline(args.maskfile+"/"+i)
                 
     elif args.action=="roifiles2mask":
-        roifiles2mask(args.roifolder+"/*", args.width, args.height)
-
-
-        
+        roifiles2mask (args.roifolder+"/*", args.width, args.height)
 
     elif args.action=="alignimages":
-        
-        filename, file_extension = os.path.splitext(args.image2)
+        doalign (args.ref_image, args.image2)
 
-        image1=imread(args.ref_image)
-        image2=imread(args.image2)    
-
-        # Convert images to grayscale for computing the rotation via ECC method
-        sz = image1.shape    
-        if len(sz)==3:
-            im1_gray = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
-        elif len(sz)==2:
-            im1_gray = image1
-        
-        sz2 = image2.shape    
-        if len(sz2)==3:
-            im2_gray = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)         
-        elif len(sz2)==2:
-            im2_gray = image2
-
-        # motion models: MOTION_HOMOGRAPHY, MOTION_AFFINE, MOTION_EUCLIDEAN (rigid), MOTION_TRANSLATION 
-        warp_mode = cv2.MOTION_HOMOGRAPHY  
-        warp_matrix = np.eye(3 if warp_mode == cv2.MOTION_HOMOGRAPHY else 2, 3, dtype=np.float32)
-        
-        number_of_iterations = 15000;         
-        termination_eps = 1e-2; # Specify the threshold of the increment in the correlation coefficient between two iterations
-        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, number_of_iterations,  termination_eps)
-         
-        # Run the ECC algorithm. The results are stored in warp_matrix.
-        (cc, warp_matrix) = cv2.findTransformECC (im1_gray, im2_gray, warp_matrix, warp_mode, criteria, None, 1)
-                 
-        if warp_mode == cv2.MOTION_HOMOGRAPHY :
-            image2_warp = cv2.warpPerspective (image2, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_NEAREST + cv2.WARP_INVERSE_MAP); # INTER_LINEAR or INTER_NEAREST
-        else :        
-            image2_warp = cv2.warpAffine (image2, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_NEAREST + cv2.WARP_INVERSE_MAP);
-        
-        imsave(filename+"_aligned"+file_extension,  image2_warp)
-
-         
-        ## elastix outcomes are blurred. In histograms, the background value 0 is not a peak
-        # # Convert the images to gray level: color is not supported. This step can be changed to average across channels
-        # image1 = rgb2gray(image1)
-        # image2 = rgb2gray(image2)
-        # # image1 = image1[:,:,0]
-        # # image2 = image2[:,:,0]
-        
-        # # Get params and change a few values
-        # params = pyelastix.get_default_params(type="RIGID")
-        # params.Transform="SimilarityTransform"
-        # params.Interpolator = "NearestNeighborInterpolator"   
-        # params.NumberOfResolutions = 1
-        # # params.FixedInternalImagePixelType = "int"
-        # # params.MovingInternalImagePixelType = "int"
-        
-        # # params.ResampleInterpolator = "NearestNeighborResampleInterpolator" # component not installed
-        # # params.MaximumNumberOfIterations = 200
-        # # params.FinalGridSpacingInVoxels = 10
-        
-        # # Apply the registration (im1 and im2 can be 2D or 3D)
-        # image2_warp, field = pyelastix.register(image2, image1, params)
-
-        ## check the frequency of 0 in intensity distribution
-        # print(np.histogram(image2_warp, bins=np.append(np.unique(image2_warp), np.inf)))
-                
-        # save to file
-        # print(image2_warp.shape) %3D image after cv2
-        # image2_warp=image_to_rgb(image2_warp) # now 3D
-        # print(np.histogram(image2_warp, bins=np.append(np.unique(image2_warp), np.inf)))
-
-        
     elif args.action=='overlaymasks':
         # add masks to images    
         img  =imread(args.imagefile)
@@ -327,7 +243,7 @@ def main():
                 color_fp_fn(gt_path, pred_path)
             elif args.metric=='colortp':
                 # add masks to images, color tp yellow and fp green                
-                labels_idx = np.setdiff1d(np.unique(labels), np.array([0])) # remove background 0
+                # labels_idx = np.setdiff1d(np.unique(labels), np.array([0])) # remove background 0
                 y_pred_idx = np.setdiff1d(np.unique(y_pred), np.array([0])) # remove background 0
             
                 # paint all y_predicted labelss yellow
