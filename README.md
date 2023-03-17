@@ -1,4 +1,4 @@
-# THP - The Hutch Pipeline for Deep Learning Methods for Cell and Tissue Imaging Analysis
+# TSP - The Seattle Pipeline for Deep Learning Methods for Cell and Tissue Imaging Analysis
 
 
 
@@ -7,7 +7,7 @@
 1. Install:
 
 ```
-pip install git+https://github.com/youyifong/thp.git#egg=thp
+pip install git+https://github.com/youyifong/tsp.git#egg=tsp
 ```
 
 ## References
