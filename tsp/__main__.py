@@ -10,7 +10,7 @@ the function creates two files, one mask png file and one mask outline png file.
 
 import argparse, glob
 import numpy as np
-from syotil import *
+from tsp import *
 # this function differs from cellpose.imread, which does additional things like 
 # if img.ndim > 2: img[..., [2,1,0]], which reverses the order of the last dimension, which is the color channel
 from skimage.io import imread 
@@ -24,7 +24,7 @@ import cv2
 
 def main():
     
-    parser = argparse.ArgumentParser(description='syotil parameters')
+    parser = argparse.ArgumentParser(description='tsp parameters')
     parser.add_argument('action', type=str, help='AP, maskfile2outline, checkprediction, overlaymasks, roifiles2mask, alignimages')
     # overlaymasks
         # add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images

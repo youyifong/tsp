@@ -5,12 +5,12 @@ install_deps = []
 
     
 setup(
-    name="syotil",
+    name="tsp",
     license="BSD",
     author="Sunwoo Han and Youyi Fong",
     author_email="youyifong@gmail.com",
     description="Utility Functions from Sunwoo Han and Youyi Fong",
-    url="https://github.com/youyifong/syotil",
+    url="https://github.com/youyifong/tsp",
     packages=setuptools.find_packages(),
     use_scm_version=True,
     install_requires = install_deps,
