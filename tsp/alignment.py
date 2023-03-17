@@ -6,7 +6,7 @@ Created on Fri Mar 17 11:49:24 2023
 """
 import os, cv2
 import numpy as np
-from tsp.utils import imsave
+from tsp import imsave
 
 def doalign (ref_image, image2):
     filename, file_extension = os.path.splitext(image2)

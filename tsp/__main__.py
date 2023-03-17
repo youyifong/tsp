@@ -14,9 +14,12 @@ def main():
         AP, checkprediction, \
         multistaining, \
         maskfile2outline, roifiles2mask, overlaymasks')
+        
     # alignimages --ref_image xx  --image2 xx
         # align image2 to ref_image 
-
+        
+    # runcellpose --
+    
     # checkprediction --metric   --predfolder   --gtfolder   --min_size
         # compare two folders of masks
 
@@ -30,40 +33,31 @@ def main():
         # makes outlines
     
         
-    parser.add_argument('--mask1', 
-                        type=str, help='mask file 1', required=False)
-    parser.add_argument('--mask2', 
-                        type=str, help='mask file 2', required=False)
-    parser.add_argument('--ref_image', 
-                        type=str, help='reference image', required=False)
-    parser.add_argument('--image2', 
-                        type=str, help='image file 2', required=False)
-    parser.add_argument('--maskfile', 
-                        type=str, help='mask file for maskfile2outline', required=False)
-    parser.add_argument('--imagefile', 
-                        type=str, help='image file for overlaymasks', required=False)
-    parser.add_argument('--saveas', 
-                        type=str, help='save file name for overlaymasks or colortp', required=False)
-    parser.add_argument('--predfolder', 
-                        type=str, help='checkprediction prediction folder', required=False)
-    parser.add_argument('--gtfolder', 
-                        type=str, help='checkprediction ground truth folder', required=False)
-    parser.add_argument('--imgfolder', 
-                        type=str, help='checkprediction image folder', required=False)
-    parser.add_argument('--roifolder', 
-                        type=str, help='folder that contains the roi files for roifiles2mask, e.g. M926910_Pos6_RoiSet_49', required=False)
-    parser.add_argument('--width', 
-                        type=int, help='width of image', required=False, default=1392)
-    parser.add_argument('--height', 
-                        type=int, help='height of image', required=False, default=1240)
-    parser.add_argument('--min_size', 
-                        type=int, help='minimal size of masks', required=False, default=0)
-    parser.add_argument('--min_totalintensity', 
-                        type=int, help='minimal value of total intensity', required=False, default=0)
-    parser.add_argument('--min_avgintensity', 
-                        type=int, help='minimal value of average intensity', required=False, default=0)
-    parser.add_argument('--metric', 
-                        default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)    
+    parser.add_argument('--mask1', type=str, help='mask file 1', required=False)
+    parser.add_argument('--mask2', type=str, help='mask file 2', required=False)
+    parser.add_argument('--ref_image', type=str, help='reference image', required=False)
+    parser.add_argument('--image2', type=str, help='image file 2', required=False)
+    parser.add_argument('--maskfile', type=str, help='mask file for maskfile2outline', required=False)
+    parser.add_argument('--imagefile', type=str, help='image file for overlaymasks', required=False)
+    parser.add_argument('--saveas', type=str, help='save file name for overlaymasks or colortp', required=False)
+    parser.add_argument('--predfolder', type=str, help='checkprediction prediction folder', required=False)
+    parser.add_argument('--gtfolder', type=str, help='checkprediction ground truth folder', required=False)
+    parser.add_argument('--imgfolder', type=str, help='checkprediction image folder', required=False)
+    parser.add_argument('--roifolder', type=str, help='folder that contains the roi files for roifiles2mask, e.g. M926910_Pos6_RoiSet_49', required=False)
+    parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
+    parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
+    parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
+    parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
+    parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)
+    parser.add_argument('--metric', default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)   
+    
+    # cellpose inference parameters
+    parser.add_argument('--f', type=str, help='file name pattern, e.g. *.png', required=False)
+    
+    
+    
+    
+    
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
     args = parser.parse_args()
 
