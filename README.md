@@ -1,15 +1,19 @@
 # TSP - The Seattle Pipeline for Deep Learning Methods for Cell and Tissue Imaging Analysis
 
 
+## To convert roi files into mask png files: 
 
-## Instructions
+> python -m tsp roifiles2mask --roifolder eg1 --height 1040 --width 1392 
 
-1. Install:
+Where roifolder is the path to the folder containing the unzipped roi files, height and width are the dimension of the image. The program creates two png files, one mask file and one mask outline file. 
 
-```
-pip install git+https://github.com/youyifong/tsp.git#egg=tsp
-```
+To unzip, e.g.: 
 
-## References
+unzip CF_Les_Pos7_CD3+CD8+_RoiSet_865.zip -d CF_Les_Pos7_CD3+CD8+_RoiSet_865 
 
 
+## To align images: 
+
+> python -m tsp alignimages --ref_image xx  --image2 xx 
+
+ 
