@@ -34,8 +34,8 @@ def main():
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
     
-    # shared by runcellpose and cellphenotyping
-    parser.add_argument('--f', type=str, help='file names (runcellpose) or pattern (cellphenotyping)') 
+    # shared by runcellpose and cellphenotyping, and intensityanalysis
+    parser.add_argument('--f', type=str, help='pattern (cellphenotyping) or file names (runcellpose, intensityanalysis)') 
     parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)', required=False) 
     
     # for runcellpose 
@@ -90,6 +90,13 @@ def main():
         
         StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], 
                          channels=channels, methods=methods, plot=True, output=args.r)
+        
+        
+    elif args.action=='intensityanalysis':        
+        # remove [] and make a list
+        files = args.f[1:-1].split(",")         
+        
+        StainingAnalysis(files=files, channels=channels)
         
         
     elif args.action=='maskfile2outline':

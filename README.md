@@ -114,10 +114,20 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 ## Intensity statistics 
 
-multistaining.sh -f [M926910_Position1_CD3-BUV395.tiff,M926910_Position1_CD4-PerCP-Cy5_5.tiff,M926910_Position1_CD8a-AF488.tiff] -p [True,True] -c [0.5,0.5] -m [Mask,Mask] 
+> python -m tsp intensityanalysis --f [file1.png,file2.png,file3.png] 
 
-Try it out in /fh/fast/fong_y/images/CF_Lesion/CF_Lesion_individual_markers/Intensity 
+Measures the intensities of all markers in each marker 1 mask.
 
-The command above measures the intensities of CD3, CD4, and CD8 markers on a map of CD3 marker masks (Cellpose resulting masks). The way of using the arguments is the same as the above example but using the argument -i performs intensity analysis, not multiple staining analysis. 
+- --f Required. List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_seg.npy. For the following files, e.g. file2.png, the program expects to find the image file. 
 
-Output: The program writes three intensity (total intensity, average normalized intensity, and total normalized intensity) and the x-y coordinates for each cell (mask) in a simple text file named  
+- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
+
+#### Output 
+- _total intensity, 
+
+- _average normalized intensity
+
+_total normalized intensity) 
+
+- _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
+
