@@ -7,7 +7,7 @@
  
 ## Working with masks
 
-### To convert roi files into mask png files
+To convert roi files into mask png files
 > python -m tsp roifiles2mask --roifolder eg1 --height 1040 --width 1392 
 > 
 Where roifolder is the path to the folder containing the unzipped roi files, height and width are the dimension of the image. The program creates two png files, one mask file and one mask outline file. 
@@ -16,21 +16,21 @@ To unzip, e.g.
 
 > unzip CF_Les_Pos7_CD3+CD8+_RoiSet_865.zip -d CF_Les_Pos7_CD3+CD8+_RoiSet_865 
 
-### To compare two mask files to get AP
+To compare two mask files to get AP
 > python -m tsp AP --mask1 testmasks/M872956_JML_Position10_CD3_test_masks.png --mask2  testmasks/M872956_JML_Position10_CD3_test_masks.png 
 > 
 > python -m tsp AP --mask1 M926910_Position1_CD45+CD56+_seg.npz --mask2 M926910_Position1_CD45+CD56+CD3-CD271-_seg.npz 
 
-### To compare two folders of masks
+To compare two folders of masks
 > python -m tsp checkprediction --metric   --predfolder   --gtfolder   --min_size
 
-### To add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images
+To add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images
 > python -m tsp overlaymasks
 
-### To add mask2 in green and highlight tp (based on comparing with mask1) in yellow, on top of images
+To add mask2 in green and highlight tp (based on comparing with mask1) in yellow, on top of images
 > python -m tsp colortp
 
-### To make outlines
+To make outlines
 > python -m tsp maskfile2outline --maskfile 
 
 
