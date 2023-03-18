@@ -1,13 +1,13 @@
 # TSP - The Seattle Pipeline for Deep Learning Methods for Cell and Tissue Imaging Analysis
 
-## To align images: 
+## Image alignment
 
 > python -m tsp alignimages --ref_image xx  --image2 xx 
 
  
 ## Working with masks
 
-### To convert roi files into mask png files: 
+### To convert roi files into mask png files
 > python -m tsp roifiles2mask --roifolder eg1 --height 1040 --width 1392 
 > 
 Where roifolder is the path to the folder containing the unzipped roi files, height and width are the dimension of the image. The program creates two png files, one mask file and one mask outline file. 
@@ -16,7 +16,7 @@ To unzip, e.g.
 
 > unzip CF_Les_Pos7_CD3+CD8+_RoiSet_865.zip -d CF_Les_Pos7_CD3+CD8+_RoiSet_865 
 
-### To compare two mask files to get average precision (AP)
+### To compare two mask files to get AP
 > python -m tsp AP --mask1 testmasks/M872956_JML_Position10_CD3_test_masks.png --mask2  testmasks/M872956_JML_Position10_CD3_test_masks.png 
 > 
 > python -m tsp AP --mask1 M926910_Position1_CD45+CD56+_seg.npz --mask2 M926910_Position1_CD45+CD56+CD3-CD271-_seg.npz 
@@ -34,7 +34,7 @@ To unzip, e.g.
 > python -m tsp maskfile2outline --maskfile 
 
 
-## To run cellpose to do cell segmentation: 
+## Cell segmentation with cellpose 
 > python -m tsp runcellpose --f '*.png' 
 
 Output 
