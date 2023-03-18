@@ -4,6 +4,7 @@ from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
 from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
+from tps.cellphenotyping import StainingAnalysis
 
 
 def main():
@@ -35,26 +36,23 @@ def main():
     
     # for runcellpose 
     parser.add_argument('--model', type=str, help='Pre-trained model', required=False, default="cytotrain7")
+    parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
-    parser.add_argument('--c', type=float, help='Cell probability threshold', required=False, default=0)
-    parser.add_argument('--l', type=str, help='Channel', required=False)
     parser.add_argument('--s', action='store_true', help='plot results') # saves 4 types of mask png files: outline, text, point, fill
-    parser.add_argument('--r', action='store_true', help='Cellpose output') # saves mask info as npy files and _sizes_coordinates.txt
     
     # for cellphenotyping 
-    parser.add_argument('-p', type=str, help='(True/False). Positive or Negative')
-    parser.add_argument('-c', type=str, help='Cutoff')
-    parser.add_argument('-i', type=str, help='(True/False). Intensity analysis')
-    parser.add_argument('-m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
-    parser.add_argument('-r', type=str, help='(True/False). Save double-stained-mask')
-    parser.add_argument('-l', type=str, help='Channel')
-    parser.add_argument('-n', type=str, help='marker names')
+    parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
+    parser.add_argument('--c', type=float, help='cutoff') 
+    parser.add_argument('--p', type=str, help='(True/False). Positive or Negative')
+    parser.add_argument('--n', type=str, help='marker names')
             
     # shared, but processed differently by different actions
-    parser.add_argument('--f', type=str, help='file names or pattern', required=False) # runcellpose, cellphenotyping
+    parser.add_argument('--f', type=str, help='file names (runcellpose) or pattern (cellphenotyping)', required=False) 
+    parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)') 
     
     # shared
+    parser.add_argument('--l', type=str, help='Channel', required=False)
     parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
     parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
     parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)    
@@ -62,23 +60,36 @@ def main():
 
     args = parser.parse_args()
 
+    if(args.l == None):
+        channels=[3,0]
+    else:
+        channels = args.l
+        channels = channels[1:-1] # remove []
+        channels = channels.split(",")
+        for i in range(len(channels)): channels[i] = int(channels[i])
+    
     if args.action=='runcellpose':
-        if(args.l == None):
-            channels=[3,0]
-        else:
-            channels = args.l
-            channels = channels[1:-1] # remove []
-            channels = channels.split(",")
-            for i in range(len(channels)): channels[i] = int(channels[i])
-        
         files = glob.glob(args.f)
         print('working on: ', end=" ")
         print(files)
+        
         run_cellpose(files=files, 
                      pretrained=args.model, 
                      diameter=args.d, flow=args.o, cellprob=args.c, 
                      minsize=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      plot=args.s, output=args.r, channels=channels) 
+        
+        
+    elif args.action=='cellphenotyping':        
+        # remove [] and make a list
+        files = args.f[1:-1].split(",")         
+        positive = args.p[1:-1].split(",") 
+        cutoff = args.c[1:-1].split(",") 
+        method = args.m[1:-1].split(",")             
+        marker_names = args.n[1:-1].split(",")
+        
+        StainingAnalysis(files=files, marker_names=marker_names, positive=[p=='True' for p in positive], cutoff=[float(c) for c in cutoff], 
+                         channels=channels, method=method, plot=True, output=args.r)
         
         
     elif args.action=='maskfile2outline':
@@ -89,11 +100,14 @@ def main():
             for i in os.listdir(args.maskfile):
                 maskfile2outline(args.maskfile+"/"+i)
                 
+                
     elif args.action=="roifiles2mask":
         roifiles2mask (args.roifolder+"/*", args.width, args.height)
 
+
     elif args.action=="alignimages":
         doalign (args.ref_image, args.image2)
+
 
     elif args.action=='overlaymasks':
         # add masks to images    

@@ -45,11 +45,11 @@ To make outlines
 
 - --model Cellpose model to use. The default is 'cytotrain7' to use the trained model on seven training images from K. This can be changed to 'tissuenet' to use the trained model on tissuenet images and to 'cyto' to use the pre-trained cellpose model on cytoplasm cellpose images. The trained models are saved under /fh/fast/fong_y/ cellpose_trained_models/  
 
-- --d Cellpose tuning parameter, cell diameter. Default is good. 
+- --d Cellpose tuning parameter, cell diameter. Default 0. 
 
-- --o Cellpose tuning parameter, flow threshold. Default is good.  
+- --o Cellpose tuning parameter, flow threshold. Default 0.4.  
 
-- --c Cellpose tuning parameter, cellprob threshold. Default is good. 
+- --cellprob Cellpose tuning parameter, cellprob threshold. Default 0. 
 
 - --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
 
@@ -77,44 +77,6 @@ To make outlines
 
 
 ## Cell phenotyping 
-> python -m tsp cellphenotyping --f []
+> python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png]
 
-Output 
-- cellpose_counts_timestr.txt: number of predicted masks for each image 
-
-- _mask_fill.png (with -s): an image file containing the solid fill of the predicted cell masks 
-
-- _mask_outline.png (with -s): an image file containing the predicted cell masks 
-
-- _mask_point.png (with -s):  an image file containing a point indicating the center of the predicted cell masks 
-
-- _mask_text.png (with -s): an image file containing the identified numbers of the predicted cell masks 
-
-- _seg.npy (with -r): cellpose output file containing overall info about predicted masks and parameters used in prediction 
-
-- _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
-
-Option: 
-- --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
-
-- --p Cellpose models. The default is 'cytotrain7' to use the trained model on seven training images from K. This can be changed to 'tissuenet' to use the trained model on tissuenet images and to 'cyto' to use the pre-trained cellpose model on cytoplasm cellpose images. The trained models are saved under /fh/fast/fong_y/ cellpose_trained_models/  
-
-- --d Cellpose tuning parameter, cell diameter. Default is good. 
-
-- --o Cellpose tuning parameter, flow threshold. Default is good.  
-
-- --c Cellpose tuning parameter, cellprob threshold. Default is good. 
-
-- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
-
-- --min_size Post-processing parameter, min_size, is changed from 15 (default) to the specified value. If a cell consists of the number of pixels less than min_size, the cell is removed. 
-
-- --min_average_intensity Post-processing parameter, min_average_intensity, is changed from 0 (default) to the specified value. If an average intensity of pixels in a cell is less than min_average_intensity, the cell is removed. 
-
-- --min_average_intensity Post-processing parameter, minimum total intensity, is changed from 0 (default) to the specified value. If the total intensity of pixels in a cell is less than min_total_intensity, the cell is removed. 
-
-- --s Four image files will be saved. 1) _mask_outline.png that contains cell masks, 2) _mask_text.png that contains the identified numbers of cell masks, 3) _mask_point.png that contains the center point of cell masks, 4) _mask_fill.png that contains the solid fill of cell masks 
-
-- --r Two resulting files will be saved. 1) a cellpose output file named _seg.npy that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _sizes_coordinates.txt that contains the sizes and the x and y coordinates for each mask. 
-
-
+- --f is required. The program expects to find file1.png, file1.npy
