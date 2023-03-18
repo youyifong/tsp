@@ -23,19 +23,19 @@ unzip CF_Les_Pos7_CD3+CD8+_RoiSet_865.zip -d CF_Les_Pos7_CD3+CD8+_RoiSet_865
 
 Output 
 
-Total number of predicted masks is displayed on the command line. 
+- cellpose_counts_timestr.txt: number of predicted masks for each image 
 
-_mask_fill.png (with -s): an image file containing the solid fill of the predicted cell masks 
+- _mask_fill.png (with -s): an image file containing the solid fill of the predicted cell masks 
 
-_mask_outline.png (with -s): an image file containing the predicted cell masks 
+- _mask_outline.png (with -s): an image file containing the predicted cell masks 
 
-_mask_point.png (with -s):  an image file containing a point indicating the center of the predicted cell masks 
+- _mask_point.png (with -s):  an image file containing a point indicating the center of the predicted cell masks 
 
-_mask_text.png (with -s): an image file containing the identified numbers of the predicted cell masks 
+- _mask_text.png (with -s): an image file containing the identified numbers of the predicted cell masks 
 
-_seg.npy (with -r): cellpose output file containing overall info about predicted masks and parameters used in prediction 
+- _seg.npy (with -r): cellpose output file containing overall info about predicted masks and parameters used in prediction 
 
-_sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
+- _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
 Option: 
 
