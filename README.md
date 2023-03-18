@@ -79,11 +79,11 @@ To make outlines
 ## Cell phenotyping 
 > python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png] --m [Mask,Mask] --c [0.5,0.5] --p [True,False] --n [marker2,marker3]
 
-Assume there are K=3 markers. 
+The command above looks for marker1+marker2+marker3- cells.  Let K be the number of markers. 
 
 - --f Required. List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_seg.npy. For the following files, e.g. file2.png, the program expects to find the mask file (_seg.npy) if the method is Mask and the image file otherwise. 
 
-- --m Required. List of K-1 values from Mask, Intensity_avg_pos, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. 
+- --m Required. List of K-1 values from Mask, Intensity_avg_pos, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. Under mask, overlap between A and B is computed for individual B cells, not all B cells.
 
 - --c Required. List of K-1 cutoff values for deciding if markers are present.
 
@@ -93,3 +93,31 @@ Assume there are K=3 markers.
 
 - --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
 
+- --r If present, two additional result files will be saved for the last stage: 1) a cellpose output file named _seg.npz that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _sizes_coordinates.txt that contains the sizes and the x and y coordinates for each mask. 
+
+#### Output 
+- _counts_multistain.txt: cell counts, one row for each additional marker
+
+- _counts_lastcutoff.txt: cell counts for a series of cutoffs for the last marker
+
+- _fill.png: K files with each mask drawn as a filled shape
+
+- _outline.png: K files with each mask drawn as an outline
+
+- _point.png: K files with each mask drawn as a point
+
+- _seg.npz (with -r): cellpose output file containing overall info about image and masks, last marker only
+
+- _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
+
+
+
+## Intensity statistics 
+
+multistaining.sh -f [M926910_Position1_CD3-BUV395.tiff,M926910_Position1_CD4-PerCP-Cy5_5.tiff,M926910_Position1_CD8a-AF488.tiff] -p [True,True] -c [0.5,0.5] -m [Mask,Mask] 
+
+Try it out in /fh/fast/fong_y/images/CF_Lesion/CF_Lesion_individual_markers/Intensity 
+
+The command above measures the intensities of CD3, CD4, and CD8 markers on a map of CD3 marker masks (Cellpose resulting masks). The way of using the arguments is the same as the above example but using the argument -i performs intensity analysis, not multiple staining analysis. 
+
+Output: The program writes three intensity (total intensity, average normalized intensity, and total normalized intensity) and the x-y coordinates for each cell (mask) in a simple text file named  

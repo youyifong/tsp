@@ -2,8 +2,9 @@ import os, math
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from cellpose import utils, io
+from cellpose import utils
 from tsp.masks import GetCenterCoor
+from tsp import imread
 
 def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, plot, output):
     
@@ -13,9 +14,8 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     tmp =  [marker_names[i] + plus_minus[i] + str(cutoffs[i]) for i in range(len(marker_names))]
     staged_output_file_names = staged_output_file_names + [filenames[0]+"_"+"".join(tmp[:(i+1)]) for i in range(len(marker_names))]
     output_file_name = staged_output_file_names[-1]
-    print(staged_output_file_names)
     
-    image_base = io.imread(files[0])      
+    image_base = imread(files[0])      
     
     pos_rate = []; num_cell = []; mask_idx = []; masks = []
     for i in range(len(files)-1):
@@ -34,7 +34,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             datB = np.load(os.path.splitext(files[i+1])[0] + '_seg.npy', allow_pickle=True).item()
             maskB = datB['masks']
         elif (method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-            image_comp = io.imread(files[i+1])
+            image_comp = imread(files[i+1])
         
         # Double staining #
         if(method == 'Mask'):
@@ -179,7 +179,7 @@ def GetMaskCutoff(mask, act_mask_idx):
 
 def PlotMask_outline(mask, image, filename, positive, color):
     # Plotting #
-    img = io.imread(image)
+    img = imread(image)
     my_dpi = 96
     outlines_temp = utils.masks_to_outlines(mask)
     outX_temp, outY_temp = np.nonzero(outlines_temp)
@@ -204,7 +204,7 @@ def PlotMask_outline(mask, image, filename, positive, color):
 def PlotMask_fill(mask, image, filename, positive):
     
     # Plotting #
-    img = io.imread(image)
+    img = imread(image)
     my_dpi = 96
     fill_temp = (mask!=0)
     fillX_temp, fillY_temp = np.nonzero(fill_temp)
@@ -231,7 +231,7 @@ def PlotCenter(mask, image, filename, positive, color):
     yx_center = GetCenterCoor(mask)
     y_coor = list(zip(*yx_center))[0]
     x_coor = list(zip(*yx_center))[1]
-    img = io.imread(image)
+    img = imread(image)
     my_dpi = 96
     imgout = img.copy()
     plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
