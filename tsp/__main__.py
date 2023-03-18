@@ -16,23 +16,7 @@ def main():
         multistaining, \
         maskfile2outline, roifiles2mask, overlaymasks')
         
-    # alignimages --ref_image xx  --image2 xx
-        # align image2 to ref_image 
         
-    # runcellpose --
-    
-    # checkprediction --metric   --predfolder   --gtfolder   --min_size
-        # compare two folders of masks
-
-    # overlaymasks
-        # add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images
-    # colortp
-        # add mask2 in green and highlight tp (based on comparing with mask1) in yellow, on top of images
-    # roifiles2mask --roifolder   --width   --height  
-        # makes masks png file
-    # maskfile2outline --maskfile 
-        # makes outlines
-    
         
     parser.add_argument('--mask1', type=str, help='mask file 1', required=False)
     parser.add_argument('--mask2', type=str, help='mask file 2', required=False)
@@ -47,27 +31,28 @@ def main():
     parser.add_argument('--roifolder', type=str, help='folder that contains the roi files for roifiles2mask, e.g. M926910_Pos6_RoiSet_49', required=False)
     parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
-    parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
-    parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
-    parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)
     parser.add_argument('--metric', default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)   
     
     # cellpose inference parameters
-    parser.add_argument('--f', type=str, help='file name pattern, e.g. *.png', required=False)
+    parser.add_argument('--f', type=str, help='file name pattern, e.g. \'*.png\'. Note that the quotes are required otherwise it will be expanded by shell', required=False) 
+    parser.add_argument('--p', type=str, help='Pre-trained model', required=False, default="cytotrain7")
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
     parser.add_argument('--c', type=float, help='Cell probability threshold', required=False, default=0)
-    parser.add_argument('--s', action='store_true', help='plot results')
-    parser.add_argument('--r', action='store_true', help='Cellpose output')
     parser.add_argument('--l', type=str, help='Channel', required=False)
-    parser.add_argument('--p', type=str, help='Pre-trained model', required=False, default="cytotrain7")
-
+    parser.add_argument('--s', action='store_true', help='plot results') # saves 4 types of mask png files: outline, text, point, fill
+    parser.add_argument('--r', action='store_true', help='Cellpose output') # saves mask info as npy files and _sizes_coordinates.txt
+    
+    # shared parameteres
+    parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
+    parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
+    parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)    
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
 
     args = parser.parse_args()
 
     if args.action=='runcellpose':
-        if(args.l == 'None'):
+        if(args.l == None):
             channels=[3,0]
         else:
             channels = args.l
@@ -76,6 +61,8 @@ def main():
             for i in range(len(channels)): channels[i] = int(channels[i])
         
         files = glob.glob(args.f)
+        print('working on: ', end=" ")
+        print(files)
         run_cellpose(files=files, 
                      pretrained=args.p, 
                      diameter=args.d, flow=args.o, cellprob=args.c, 

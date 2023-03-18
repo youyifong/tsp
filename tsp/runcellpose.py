@@ -1,10 +1,9 @@
-import os
+import os, time
 import numpy as np
 import pandas as pd
 import torch
 from cellpose import utils, models, io
 import matplotlib.pyplot as plt
-import time
 
 from tsp.masks import fill_holes_and_remove_small_masks, GetCenterCoor, Intensity
 
@@ -150,7 +149,7 @@ def run_cellpose(files,
     ncell_mat = pd.DataFrame(list(zip(files,ncell)))
     ncell_mat.columns = ["File_name","Cell_count"]
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    ncell_mat.to_csv("cellpose_counts"+timestr+".txt", header=True, index=None, sep=',')
+    ncell_mat.to_csv("cellpose_counts_"+timestr+".txt", header=True, index=None, sep=',')
 
 
 
