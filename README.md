@@ -39,9 +39,9 @@ To make outlines
 
 - --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
 
-- --s Four additional image files will be saved: 1) _mask_outline.png that contains cell masks, 2) _mask_text.png that contains the identified numbers of cell masks, 3) _mask_point.png that contains the center point of cell masks, 4) _mask_fill.png that contains the solid fill of cell masks 
+- --s If present, four additional image files will be saved: 1) _mask_outline.png that contains cell masks, 2) _mask_text.png that contains the identified numbers of cell masks, 3) _mask_point.png that contains the center point of cell masks, 4) _mask_fill.png that contains the solid fill of cell masks 
 
-- --r Two additional result files will be saved: 1) a cellpose output file named _seg.npy that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _sizes_coordinates.txt that contains the sizes and the x and y coordinates for each mask. 
+- --r If present, two additional result files will be saved: 1) a cellpose output file named _seg.npy that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _sizes_coordinates.txt that contains the sizes and the x and y coordinates for each mask. 
 
 - --model Cellpose model to use. The default is 'cytotrain7' to use the trained model on seven training images from K. This can be changed to 'tissuenet' to use the trained model on tissuenet images and to 'cyto' to use the pre-trained cellpose model on cytoplasm cellpose images. The trained models are saved under /fh/fast/fong_y/ cellpose_trained_models/  
 
@@ -77,6 +77,19 @@ To make outlines
 
 
 ## Cell phenotyping 
-> python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png]
+> python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png] --m [Mask,Mask] --c [0.5,0.5] --p [True,False] --n [marker2,marker3]
 
-- --f is required. The program expects to find file1.png, file1.npy
+Assume there are K=3 markers. 
+
+- --f Required. List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_seg.npy. For the following files, e.g. file2.png, the program expects to find the mask file (_seg.npy) if the method is Mask and the image file otherwise. 
+
+- --m Required. List of K-1 values from Mask, Intensity_avg_pos, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. 
+
+- --c Required. List of K-1 cutoff values for deciding if markers are present.
+
+- --p Required. List of K-1 values from True or False. Marker is required to be present if True and abscent if False.
+
+- --n Required. List of K-1 names for markers (first marker excluded). 
+
+- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
+

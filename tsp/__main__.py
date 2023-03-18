@@ -4,7 +4,7 @@ from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
 from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
-from tps.cellphenotyping import StainingAnalysis
+from tsp.cellphenotyping import StainingAnalysis
 
 
 def main():
@@ -17,46 +17,46 @@ def main():
         AP, checkprediction, maskfile2outline, roifiles2mask, overlaymasks')
     
     # for alignimages
-    parser.add_argument('--ref_image', type=str, help='reference image', required=False)
-    parser.add_argument('--image2', type=str, help='image file 2', required=False)
+    parser.add_argument('--ref_image', type=str, help='reference image')
+    parser.add_argument('--image2', type=str, help='image file 2')
     
     # for mask-related actions
-    parser.add_argument('--mask1', type=str, help='mask file 1', required=False)
-    parser.add_argument('--mask2', type=str, help='mask file 2', required=False)
-    parser.add_argument('--maskfile', type=str, help='mask file for maskfile2outline', required=False)
-    parser.add_argument('--imagefile', type=str, help='image file for overlaymasks', required=False)
-    parser.add_argument('--saveas', type=str, help='save file name for overlaymasks or colortp', required=False)
-    parser.add_argument('--predfolder', type=str, help='checkprediction prediction folder', required=False)
-    parser.add_argument('--gtfolder', type=str, help='checkprediction ground truth folder', required=False)
-    parser.add_argument('--imgfolder', type=str, help='checkprediction image folder', required=False)
-    parser.add_argument('--roifolder', type=str, help='folder that contains the roi files for roifiles2mask, e.g. M926910_Pos6_RoiSet_49', required=False)
+    parser.add_argument('--mask1', type=str, help='mask file 1')
+    parser.add_argument('--mask2', type=str, help='mask file 2')
+    parser.add_argument('--maskfile', type=str, help='mask file for maskfile2outline')
+    parser.add_argument('--imagefile', type=str, help='image file for overlaymasks')
+    parser.add_argument('--saveas', type=str, help='save file name for overlaymasks or colortp')
+    parser.add_argument('--predfolder', type=str, help='checkprediction prediction folder')
+    parser.add_argument('--gtfolder', type=str, help='checkprediction ground truth folder')
+    parser.add_argument('--imgfolder', type=str, help='checkprediction image folder')
+    parser.add_argument('--roifolder', type=str, help='folder that contains the roi files for roifiles2mask, e.g. M926910_Pos6_RoiSet_49')
     parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
-    parser.add_argument('--metric', default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)   
+    parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
+    
+    # shared by runcellpose and cellphenotyping
+    parser.add_argument('--f', type=str, help='file names (runcellpose) or pattern (cellphenotyping)') 
+    parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)', required=False) 
     
     # for runcellpose 
     parser.add_argument('--model', type=str, help='Pre-trained model', required=False, default="cytotrain7")
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
-    parser.add_argument('--s', action='store_true', help='plot results') # saves 4 types of mask png files: outline, text, point, fill
+    parser.add_argument('--s', action='store_true', help='plot results', required=False) # saves 4 types of mask png files: outline, text, point, fill
     
     # for cellphenotyping 
     parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
-    parser.add_argument('--c', type=float, help='cutoff') 
+    parser.add_argument('--c', type=str, help='cutoff') 
     parser.add_argument('--p', type=str, help='(True/False). Positive or Negative')
     parser.add_argument('--n', type=str, help='marker names')
             
-    # shared, but processed differently by different actions
-    parser.add_argument('--f', type=str, help='file names (runcellpose) or pattern (cellphenotyping)', required=False) 
-    parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)') 
-    
     # shared
     parser.add_argument('--l', type=str, help='Channel', required=False)
     parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
     parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
     parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)    
-    parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
+    parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log', required=False)    
 
     args = parser.parse_args()
 
@@ -83,13 +83,13 @@ def main():
     elif args.action=='cellphenotyping':        
         # remove [] and make a list
         files = args.f[1:-1].split(",")         
-        positive = args.p[1:-1].split(",") 
-        cutoff = args.c[1:-1].split(",") 
-        method = args.m[1:-1].split(",")             
+        positives = args.p[1:-1].split(",") 
+        cutoffs = args.c[1:-1].split(",") 
+        methods = args.m[1:-1].split(",")             
         marker_names = args.n[1:-1].split(",")
         
-        StainingAnalysis(files=files, marker_names=marker_names, positive=[p=='True' for p in positive], cutoff=[float(c) for c in cutoff], 
-                         channels=channels, method=method, plot=True, output=args.r)
+        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], 
+                         channels=channels, methods=methods, plot=True, output=args.r)
         
         
     elif args.action=='maskfile2outline':

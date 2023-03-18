@@ -5,6 +5,115 @@ import matplotlib.pyplot as plt
 from cellpose import utils, io
 from tsp.masks import GetCenterCoor
 
+def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, plot, output):
+    
+    plus_minus = ['+' if positives[l] else '-' for l in range(len(marker_names))]
+    filenames=[os.path.splitext(f)[0] for f in files]
+    staged_output_file_names = [filenames[0]]
+    tmp =  [marker_names[i] + plus_minus[i] + str(cutoffs[i]) for i in range(len(marker_names))]
+    staged_output_file_names = staged_output_file_names + [filenames[0]+"_"+"".join(tmp[:(i+1)]) for i in range(len(marker_names))]
+    output_file_name = staged_output_file_names[-1]
+    print(staged_output_file_names)
+    
+    image_base = io.imread(files[0])      
+    
+    pos_rate = []; num_cell = []; mask_idx = []; masks = []
+    for i in range(len(files)-1):
+        positive=positives[i]
+        cutoff=cutoffs[i]
+        method=methods[i]
+
+        if(i == 0):
+            datA = np.load(os.path.splitext(files[0])[0] + '_seg.npy', allow_pickle=True).item()
+            maskA = datA['masks']
+            masks.append(maskA)
+            num_cell.append(maskA.max())
+            
+        # Method (Positivity or Intensity) #
+        if(method == 'Mask'):
+            datB = np.load(os.path.splitext(files[i+1])[0] + '_seg.npy', allow_pickle=True).item()
+            maskB = datB['masks']
+        elif (method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
+            image_comp = io.imread(files[i+1])
+        
+        # Double staining #
+        if(method == 'Mask'):
+            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channels=channels, method=method)
+        elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
+            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channels=channels, method=method)
+
+        # last i
+        if(i == len(files)-2):
+            if(method == 'Mask'):
+                cutoff_all = list(np.around(np.linspace(start=0, stop=1, num=11),1)) # [0,0.1,...,0.9,1]                
+            elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
+                cutoff_all = list(np.around(np.quantile(pos_rate, np.linspace(currentwd=0, stop=1, num=11)),1)) # quantile
+                #cutoff_all = [0.0,0.5,0.7,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,4.9,5.0,5.5,6.0,7.0,8.0,9.0,10.0] # for severity analysis
+            
+            num_double_cell_cutoff = [] # number of double stained cell over all cutoffs
+            for k in cutoff_all: 
+                num_cell_temp = []
+                for j in np.arange(0,len(pos_rate)) :
+                    if positive: 
+                        num_cell_temp.append(pos_rate[j] >= k)
+                    else:
+                        num_cell_temp.append(pos_rate[j] <= k)
+                num_double_cell_cutoff.append(sum(num_cell_temp))
+            ncell_res_temp = pd.DataFrame(list(zip(cutoff_all, num_double_cell_cutoff)))
+            ncell_res_temp.columns = ["Cutoff", "Cell_count"]
+            ncell_res_temp.to_csv(output_file_name + "_counts_lastcutoff.txt", header=True, index=None, sep=',')
+        
+        pos_rate.append(pos_rate)
+        num_cell.append(num_double_cell)
+        mask_idx.append(double_mask_idx)
+        if(len(files) == 2):
+            masks.append(GetMaskCutoff(mask=maskA, act_mask_idx=mask_idx[i]))
+        if(len(files) > 2):
+            maskA = GetMaskCutoff(mask=maskA, act_mask_idx=mask_idx[i])
+            masks.append(maskA)
+    
+    # Plotting #
+    if(plot):
+        mask_color = [255,250,240]
+        for i in range(len(masks)):
+            PlotMask_outline(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color=mask_color)
+            PlotMask_fill(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive)
+            PlotCenter(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color='r')
+    
+    # Save output #
+    if(output):
+        for i in range(len(files)-1):
+            np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
+            
+            # Size
+            size_masks = []
+            act_mask = np.delete(np.unique(masks[i+1]),0)
+            for idx in act_mask:
+                mask_pixel = np.where(masks[i+1] == idx)
+                size_masks.append(len(mask_pixel[0]))
+            
+            # XY coordinates 
+            outlines = GetCenterCoor(masks[i+1])
+            mask_res = pd.DataFrame([size_masks,outlines]).T
+            mask_res.columns = ["size","xy_coordinate"]
+            cellnames = []
+            for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
+            mask_res.index = cellnames
+            mask_res.to_csv(output_file_name + "_sizes_coordinates.txt", header=True, index=True, sep=',')
+    
+    filenames_save = [files[0]] # first filename
+    for i in range(len(files)-1):
+        if positives[i]: 
+            filenames_save.append("+" + files[i+1])
+        else:
+            filenames_save.append("-" + files[i+1])
+    ncell_res = pd.DataFrame(list(zip(filenames_save, num_cell)))
+    ncell_res.columns = ["File_name", "Cell_count"]
+    ncell_res.to_csv(output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
+
+
+
+
 # Utilites for double staining analysis
 def DoubleStain(maskA, maskB, positive, cutoff, channels, method):
     # Pre-processing #
@@ -139,111 +248,5 @@ def PlotCenter(mask, image, filename, positive, color):
     if(img.ndim == 3):
         plt.savefig(filename + '_point.png', bbox_inches = 'tight', pad_inches = 0)
     plt.close('all')
-
-
-def StainingAnalysis(self, files, marker_names, positives, cutoffs, channels, methods, plot, output):
-    
-    plus_minuses = ['+' if positives[l] else '-' for l in range(len(marker_names))]
-    tmp = [os.path.splitext(f)[0] for f in files]
-    staged_output_file_names = [tmp[0]]
-    tmp =  [marker_names[i] + plus_minuses[i] + str(cutoffs[i]) for i in range(len(marker_names))]
-    staged_output_file_names = staged_output_file_names + [tmp[0]+"_"+"".join(tmp[:(i+1)]) for i in range(len(marker_names))]
-    output_file_name = staged_output_file_names[-1]
-    
-    image_base = io.imread(files[0])      
-    
-    pos_rate = []; num_cell = []; mask_idx = []; masks = []
-    for i in range(len(files)-1):
-        positive=positives[i]
-        cutoff=cutoffs[i]
-        method=methods[i]
-
-        if(i == 0):
-            datA = np.load(os.path.splitext(files[0])[0] + '_seg.npy', allow_pickle=True).item()
-            maskA = datA['masks']
-            masks.append(maskA)
-            num_cell.append(maskA.max())
-            
-        # Method (Positivity or Intensity) #
-        if(method == 'Mask'):
-            datB = np.load(os.path.splitext(files[i+1])[0] + '_seg.npy', allow_pickle=True).item()
-            maskB = datB['masks']
-        elif (method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-            image_comp = io.imread(files[i+1])
-        
-        # Double staining #
-        if(method == 'Mask'):
-            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channels=channels, method=method)
-        elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channels=channels, method=method)
-
-        # last i
-        if(i == (len(files)-2)):
-
-            if(method == 'Mask'):
-                cutoff_all = list(np.around(np.linspace(start=0, stop=1, num=11),1)) # [0,0.1,...,0.9,1]                
-            elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-                cutoff_all = list(np.around(np.quantile(pos_rate, np.linspace(currentwd=0, stop=1, num=11)),1)) # quantile
-                #cutoff_all = [0.0,0.5,0.7,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,4.9,5.0,5.5,6.0,7.0,8.0,9.0,10.0] # for severity analysis
-            
-            num_double_cell_cutoff = [] # number of double stained cell over all cutoffs
-            for k in cutoff_all: 
-                num_cell_temp = []
-                for j in np.arange(0,len(pos_rate)) :
-                    if positive: 
-                        num_cell_temp.append(pos_rate[j] >= k)
-                    else:
-                        num_cell_temp.append(pos_rate[j] <= k)
-                num_double_cell_cutoff.append(sum(num_cell_temp))
-            ncell_res_temp = pd.DataFrame(list(zip(cutoff_all, num_double_cell_cutoff)))
-            ncell_res_temp.columns = ["Cutoff", "Cell_count"]
-            ncell_res_temp.to_csv(output_file_name + "_cutoff_counts.txt", header=True, index=None, sep=',')
-        
-        pos_rate.append(pos_rate)
-        num_cell.append(num_double_cell)
-        mask_idx.append(double_mask_idx)
-        if(len(files) == 2):
-            masks.append(GetMaskCutoff(mask=maskA, act_mask_idx=mask_idx[i]))
-        if(len(files) > 2):
-            maskA = GetMaskCutoff(mask=maskA, act_mask_idx=mask_idx[i])
-            masks.append(maskA)
-    
-    # Plotting #
-    if(plot == True):
-        mask_color = [255,250,240]
-        for i in range(len(masks)):
-            PlotMask_outline(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color=mask_color)
-            PlotMask_fill(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive)
-            PlotCenter(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color='r')
-    
-    # Save output #
-    if(output == True):
-        for i in range(len(files)-1):
-            np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
-            
-            # Size
-            size_masks = []
-            act_mask = np.delete(np.unique(masks[i+1]),0)
-            for idx in act_mask:
-                mask_pixel = np.where(masks[i+1] == idx)
-                size_masks.append(len(mask_pixel[0]))
-            
-            # XY coordinates 
-            outlines = GetCenterCoor(masks[i+1])
-            mask_res = pd.DataFrame([size_masks,outlines]).T
-            mask_res.columns = ["size","xy_coordinate"]
-            cellnames = []
-            for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
-            mask_res.index = cellnames
-            mask_res.to_csv(output_file_name + "_sizes_coordinates.txt", header=True, index=True, sep=',')
-    
-    filenames_save = [files[0]] # first filename
-    for i in range(len(files)-1):
-        if(positive[i] == True): filenames_save.append("+" + files[i+1])
-        if(positive[i] == False): filenames_save.append("-" + files[i+1])
-    ncell_res = pd.DataFrame(list(zip(filenames_save, num_cell)))
-    ncell_res.columns = ["File_name", "Cell_count"]
-    ncell_res.to_csv(output_file_name + "_multistain_counts.txt", header=True, index=None, sep=',')
-
 
 
