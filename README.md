@@ -123,11 +123,4 @@ Measures the intensities of all markers in each marker 1 mask.
 - --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
 
 #### Output 
-- _total intensity, 
-
-- _average normalized intensity
-
-_total normalized intensity) 
-
-- _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
-
+- _intensity.txt: contains three intensity (total intensity, average normalized intensity, and total normalized intensity) and the x-y coordinates for each mask of marker 1

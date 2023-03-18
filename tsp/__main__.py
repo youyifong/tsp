@@ -5,6 +5,7 @@ from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_
 from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
+from tsp.intensityanalysis import IntensityAnalysis
 
 
 def main():
@@ -96,7 +97,7 @@ def main():
         # remove [] and make a list
         files = args.f[1:-1].split(",")         
         
-        StainingAnalysis(files=files, channels=channels)
+        IntensityAnalysis(files=files, channels=channels)
         
         
     elif args.action=='maskfile2outline':
