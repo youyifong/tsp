@@ -3,6 +3,7 @@ import numpy as np
 from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
 from tsp.alignment import doalign
+from tsp.runcellpose import run_cellpose
 
 
 def main():
@@ -53,16 +54,36 @@ def main():
     
     # cellpose inference parameters
     parser.add_argument('--f', type=str, help='file name pattern, e.g. *.png', required=False)
-    
-    
-    
-    
-    
+    parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
+    parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
+    parser.add_argument('--c', type=float, help='Cell probability threshold', required=False, default=0)
+    parser.add_argument('--s', action='store_true', help='plot results')
+    parser.add_argument('--r', action='store_true', help='Cellpose output')
+    parser.add_argument('--l', type=str, help='Channel', required=False)
+    parser.add_argument('--p', type=str, help='Pre-trained model', required=False, default="cytotrain7")
+
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log')    
+
     args = parser.parse_args()
 
-
-    if args.action=='maskfile2outline':
+    if args.action=='runcellpose':
+        if(args.l == 'None'):
+            channels=[3,0]
+        else:
+            channels = args.l
+            channels = channels[1:-1] # remove []
+            channels = channels.split(",")
+            for i in range(len(channels)): channels[i] = int(channels[i])
+        
+        files = glob.glob(args.f)
+        run_cellpose(files=files, 
+                     pretrained=args.p, 
+                     diameter=args.d, flow=args.o, cellprob=args.c, 
+                     minsize=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
+                     plot=args.s, output=args.r, channels=channels) 
+        
+        
+    elif args.action=='maskfile2outline':
         filename, extension = os.path.splitext(args.maskfile)
         if extension:
             maskfile2outline(args.maskfile)
