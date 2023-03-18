@@ -12,16 +12,16 @@ def main():
     parser.add_argument('action', type=str, help='\
         alignimages, \
         runcellpose, \
-        AP, checkprediction, \
-        multistaining, \
-        maskfile2outline, roifiles2mask, overlaymasks')
-        
-        
-        
-    parser.add_argument('--mask1', type=str, help='mask file 1', required=False)
-    parser.add_argument('--mask2', type=str, help='mask file 2', required=False)
+        cellphenotyping, \
+        AP, checkprediction, maskfile2outline, roifiles2mask, overlaymasks')
+    
+    # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image', required=False)
     parser.add_argument('--image2', type=str, help='image file 2', required=False)
+    
+    # for mask-related actions
+    parser.add_argument('--mask1', type=str, help='mask file 1', required=False)
+    parser.add_argument('--mask2', type=str, help='mask file 2', required=False)
     parser.add_argument('--maskfile', type=str, help='mask file for maskfile2outline', required=False)
     parser.add_argument('--imagefile', type=str, help='image file for overlaymasks', required=False)
     parser.add_argument('--saveas', type=str, help='save file name for overlaymasks or colortp', required=False)
@@ -33,9 +33,8 @@ def main():
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', default='csi', type=str, help='csi or bias or tpfpfn or coloring', required=False)   
     
-    # cellpose inference parameters
-    parser.add_argument('--f', type=str, help='file name pattern, e.g. \'*.png\'. Note that the quotes are required otherwise it will be expanded by shell', required=False) 
-    parser.add_argument('--p', type=str, help='Pre-trained model', required=False, default="cytotrain7")
+    # for runcellpose 
+    parser.add_argument('--model', type=str, help='Pre-trained model', required=False, default="cytotrain7")
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
     parser.add_argument('--c', type=float, help='Cell probability threshold', required=False, default=0)
@@ -43,7 +42,19 @@ def main():
     parser.add_argument('--s', action='store_true', help='plot results') # saves 4 types of mask png files: outline, text, point, fill
     parser.add_argument('--r', action='store_true', help='Cellpose output') # saves mask info as npy files and _sizes_coordinates.txt
     
-    # shared parameteres
+    # for cellphenotyping 
+    parser.add_argument('-p', type=str, help='(True/False). Positive or Negative')
+    parser.add_argument('-c', type=str, help='Cutoff')
+    parser.add_argument('-i', type=str, help='(True/False). Intensity analysis')
+    parser.add_argument('-m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
+    parser.add_argument('-r', type=str, help='(True/False). Save double-stained-mask')
+    parser.add_argument('-l', type=str, help='Channel')
+    parser.add_argument('-n', type=str, help='marker names')
+            
+    # shared, but processed differently by different actions
+    parser.add_argument('--f', type=str, help='file names or pattern', required=False) # runcellpose, cellphenotyping
+    
+    # shared
     parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
     parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
     parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)    
@@ -64,7 +75,7 @@ def main():
         print('working on: ', end=" ")
         print(files)
         run_cellpose(files=files, 
-                     pretrained=args.p, 
+                     pretrained=args.model, 
                      diameter=args.d, flow=args.o, cellprob=args.c, 
                      minsize=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      plot=args.s, output=args.r, channels=channels) 
@@ -145,7 +156,6 @@ def main():
             img_name = gt_file_name.split('_masks')[0]
             print(img_name, end="\t")
             gt_path = sorted(glob.glob(args.gtfolder+'/'+img_name+"*"))[0] 
-            # print(args.predfolder+'/'+img_name+"*")
             pred_path = sorted(glob.glob(args.predfolder+'/'+img_name+"*"))[0] 
             y_pred = imread(pred_path)
             labels = imread(gt_path)

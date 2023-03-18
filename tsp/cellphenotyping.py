@@ -10,14 +10,7 @@ import sys
 
 # Arguments
 ap = argparse.ArgumentParser()
-ap.add_argument('-f', nargs='?', type=str, help='File name')
-ap.add_argument('-p', nargs='?', type=str, help='(True/False). Positive or Negative')
-ap.add_argument('-c', nargs='?', type=str, help='Cutoff')
-ap.add_argument('-i', nargs='?', type=str, help='(True/False). Intensity analysis')
-ap.add_argument('-m', nargs='?', type=str, help='(Mask/Intensity_avg/Intensity_total)')
-ap.add_argument('-r', nargs='?', type=str, help='(True/False). Save double-stained-mask')
-ap.add_argument('-l', nargs='?', type=str, help='Channel')
-ap.add_argument('-n', nargs='?', type=str, help='marker names')
+
 args = ap.parse_args()
 if(args.i == 'False'): intensity = False
 if(args.i == 'True'): intensity = True
