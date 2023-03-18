@@ -30,9 +30,6 @@ To unzip, e.g.
 ### To add mask2 in green and highlight tp (based on comparing with mask1) in yellow, on top of images
 > python -m tsp colortp
 
-### To makes masks png file
-> python -m tsp roifiles2mask --roifolder   --width   --height  
-
 ### To make outlines
 > python -m tsp maskfile2outline --maskfile 
 
