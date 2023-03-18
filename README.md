@@ -59,7 +59,7 @@ To make outlines
 
 - --min_average_intensity Post-processing parameter, minimum total intensity, is changed from 0 (default) to the specified value. If the total intensity of pixels in a cell is less than min_total_intensity, the cell is removed. 
 
-Output 
+#### Output 
 - cellpose_counts_timestr.txt: number of predicted masks for each image 
 
 - _mask_fill.png (with -s): an image file containing the solid fill of the predicted cell masks 
