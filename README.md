@@ -65,7 +65,5 @@ Option:
 
 > python -m tsp AP --mask1 testmasks/M872956_JML_Position10_CD3_test_masks.png --mask2  testmasks/M872956_JML_Position10_CD3_test_masks.png 
 
-Or  
-
-e.g. yfong@volta:/fh/fast/fong_y/images_from_K/CF_Lesion/CF_Lesion_individual_markers/Staining/Multiple/nk_cell$ python -m tsp AP --mask1 M926910_Position1_CD45+CD56+_seg.npz --mask2 M926910_Position1_CD45+CD56+CD3-CD271-_seg.npz 
+> python -m tsp AP --mask1 M926910_Position1_CD45+CD56+_seg.npz --mask2 M926910_Position1_CD45+CD56+CD3-CD271-_seg.npz 
 
