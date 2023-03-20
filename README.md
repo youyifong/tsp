@@ -41,7 +41,7 @@ To make outlines
 
 - --s If present, four additional image files will be saved: 1) _mask_outline.png that contains cell masks, 2) _mask_text.png that contains the identified numbers of cell masks, 3) _mask_point.png that contains the center point of cell masks, 4) _mask_fill.png that contains the solid fill of cell masks 
 
-- --r If present, two additional result files will be saved: 1) a cellpose output file named _seg.npy that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _sizes_coordinates.txt that contains the sizes and the x and y coordinates for each mask. 
+- --r If present, three additional result files about masks for each image will be saved: 1) _seg.npy 2) _sizes_coordinates.txt, 3) _cp_outlines.txt
 
 - --model Cellpose model to use. The default is 'cytotrain7' to use the trained model on seven training images from K. This can be changed to 'tissuenet' to use the trained model on tissuenet images and to 'cyto' to use the pre-trained cellpose model on cytoplasm cellpose images. The trained models are saved under /fh/fast/fong_y/ cellpose_trained_models/  
 
@@ -59,6 +59,7 @@ To make outlines
 
 - --min_average_intensity Post-processing parameter, minimum total intensity, is changed from 0 (default) to the specified value. If the total intensity of pixels in a cell is less than min_total_intensity, the cell is removed. 
 
+
 #### Output 
 - cellpose_counts_timestr.txt: number of predicted masks for each image 
 
@@ -74,6 +75,7 @@ To make outlines
 
 - _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
+- _cp_outlines.txt (with -r): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
 
 
 ## Cell phenotyping 

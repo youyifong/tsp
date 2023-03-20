@@ -76,7 +76,7 @@ def main():
         
         run_cellpose(files=files, 
                      pretrained=args.model, 
-                     diameter=args.d, flow=args.o, cellprob=args.c, 
+                     diameter=args.d, flow=args.o, cellprob=args.cellprob, 
                      minsize=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      plot=args.s, output=args.r, channels=channels) 
         

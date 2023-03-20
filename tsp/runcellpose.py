@@ -49,10 +49,16 @@ def run_cellpose(files,
         
         ncell.append((len(np.unique(masks))-1))
         
-        # Save output #
         save_path = filename
+
+        # Save masks info #        
         if(output == True):
-            io.masks_flows_to_seg(img,masks,flows,diams, file_names=save_path + '.npy') # save .npy file
+            # save _cp_outline to convert to roi by ImageJ
+            outlines = utils.outlines_list(masks)
+            io.outlines_to_text(save_path, outlines)
+            
+            # save .npy file
+            io.masks_flows_to_seg(img,masks,flows,diams, file_names=save_path + '.npy') 
             
             # Size #
             size_masks = []
@@ -70,16 +76,17 @@ def run_cellpose(files,
             mask_res.to_csv(filename + "_sizes_coordinates.txt", header=True, index=True, sep=',')
         
         # Save plot #
+
+        # always save a plot of masks only
+        outlines = utils.masks_to_outlines(masks)
+        plt.imsave(save_path + "_masks.png", outlines, cmap='gray')
+        
         if(plot == True) :
-            # Mask plot (outliine) #
+            # Mask plot (outline) #
             my_dpi = 96
-            outlines = utils.masks_to_outlines(masks)
             outX, outY = np.nonzero(outlines)
-            if(channels == [0,0]):
-                imgout = outlines
-            else:
-                imgout= img.copy()
-                imgout[outX, outY] = np.array([255,75,75]) # np.array([255,255,255]) white for severity analysis
+            imgout= img.copy()
+            imgout[outX, outY] = np.array([255,75,75]) # np.array([255,255,255]) white for severity analysis
             plt.figure(figsize=(img.shape[1]/my_dpi, img.shape[0]/my_dpi), dpi=my_dpi)
             plt.gca().set_axis_off()
             plt.imshow(imgout)
@@ -87,10 +94,7 @@ def run_cellpose(files,
             plt.margins(0,0)
             plt.gca().xaxis.set_major_locator(plt.NullLocator())
             plt.gca().yaxis.set_major_locator(plt.NullLocator())
-            if(channels == [0,0]):
-                plt.imsave(save_path + "_mask_outline.png", imgout, cmap='gray')
-            else:
-                plt.savefig(save_path + "_mask_outline.png", bbox_inches = 'tight', pad_inches = 0)
+            plt.savefig(save_path + "_mask_outline.png", bbox_inches = 'tight', pad_inches = 0)
             plt.close('all')
             
             # Mask plot (fill) #
