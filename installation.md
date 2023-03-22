@@ -1,19 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 21 20:06:13 2023
-
-@author: Youyi
-"""
-
-# Setup Instructions for Running The Seattle Pipeline 
-
- 
- 
- 
+# Setup Instructions for Running The Seattle Pipeline  
 
  
 ## one-time setups 
- 
 
 Load modules  
 
