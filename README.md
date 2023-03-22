@@ -2,14 +2,19 @@
 
 ## Image alignment
 
-> python -m tsp alignimages --ref_image xx  --image2 xx 
+> python -m tsp alignimages --ref_image xx  --image2 xx --l [1,1]
+
+The --l argument is used to extract the channels of interest from the two images. 
+In the example above, the second channel of image2 will be aligned against the second channel of ref_image
+
+A new image file named _aligned.png will be saved
 
  
 ## Working with masks
 
 To convert roi files into mask png files
 > python -m tsp roifiles2mask --roifolder eg1 --height 1040 --width 1392 
-> 
+ 
 Where roifolder is the path to the folder containing the unzipped roi files, height and width are the dimension of the image. The program creates two png files, one mask file and one mask outline file. 
 
 To unzip, e.g.

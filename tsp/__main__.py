@@ -114,7 +114,7 @@ def main():
 
 
     elif args.action=="alignimages":
-        doalign (args.ref_image, args.image2)
+        doalign (args.ref_image, args.image2, channels)
 
 
     elif args.action=='overlaymasks':

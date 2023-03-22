@@ -8,7 +8,7 @@ import os, cv2
 import numpy as np
 from tsp import imsave
 
-def doalign (ref_image, image2):
+def doalign (ref_image, image2, channels):
     filename, file_extension = os.path.splitext(image2)
 
     image1=cv2.imread(ref_image)
@@ -17,13 +17,18 @@ def doalign (ref_image, image2):
     # Convert images to grayscale for computing the rotation via ECC method
     sz = image1.shape    
     if len(sz)==3:
-        im1_gray = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
+        # im1_gray = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
+        image1 = image1[:,:,channels[0]]
+        im1_gray = image1
     elif len(sz)==2:
         im1_gray = image1
     
     sz2 = image2.shape    
     if len(sz2)==3:
-        im2_gray = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)         
+        # im2_gray = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)         
+        image2 = image2[:,:,channels[1]]
+        im2_gray = image2
+        file_extension = ".png"
     elif len(sz2)==2:
         im2_gray = image2
 
