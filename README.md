@@ -43,7 +43,7 @@ To make outlines
 
 - --r If present, three additional result files about masks for each image will be saved: 1) _seg.npy 2) _sizes_coordinates.txt, 3) _cp_outlines.txt
 
-- --model Cellpose model to use. The default is 'cytotrain7' to use the trained model on seven training images from K. This can be changed to 'tissuenet' to use the trained model on tissuenet images and to 'cyto' to use the pre-trained cellpose model on cytoplasm cellpose images. The trained models are saved under /fh/fast/fong_y/ cellpose_trained_models/  
+- --model Cellpose model to use, including cyto and cytotrain7. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al.
 
 - --d Cellpose tuning parameter, cell diameter. Default 0. 
 

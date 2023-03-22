@@ -40,7 +40,7 @@ def main():
     parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)', required=False) 
     
     # for runcellpose 
-    parser.add_argument('--model', type=str, help='Pre-trained model', required=False, default="cytotrain7")
+    parser.add_argument('--model', type=str, help='Pre-trained model', required=False, default="cyto")
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
