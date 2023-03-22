@@ -1,4 +1,4 @@
-import argparse, glob, os
+import argparse, glob, os, sys
 import numpy as np
 from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
@@ -61,16 +61,10 @@ def main():
 
     args = parser.parse_args()
 
-    if(args.l == None):
-        channels=[3,0]
-    else:
-        channels = args.l
-        channels = channels[1:-1] # remove []
-        channels = channels.split(",")
-        for i in range(len(channels)): channels[i] = int(channels[i])
     
     if args.action=='runcellpose':
         files = glob.glob(args.f)
+        channels = [int(i) for i in args.l[1:-1].split(",")]
         print('working on: ', end=" ")
         print(files)
         
@@ -88,6 +82,7 @@ def main():
         cutoffs = args.c[1:-1].split(",") 
         methods = args.m[1:-1].split(",")             
         marker_names = args.n[1:-1].split(",")
+        channels = [int(i) for i in args.l[1:-1].split(",")]
         
         StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], 
                          channels=channels, methods=methods, plot=True, output=args.r)
@@ -96,6 +91,7 @@ def main():
     elif args.action=='intensityanalysis':        
         # remove [] and make a list
         files = args.f[1:-1].split(",")         
+        channels = [int(i) for i in args.l[1:-1].split(",")]
         
         IntensityAnalysis(files=files, channels=channels)
         
@@ -114,6 +110,8 @@ def main():
 
 
     elif args.action=="alignimages":
+        if args.l == None: sys.exit("ERROR: --l is required")            
+        channels = [int(i) for i in args.l[1:-1].split(",")]
         doalign (args.ref_image, args.image2, channels)
 
 
