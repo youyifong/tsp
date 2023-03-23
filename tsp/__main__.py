@@ -6,7 +6,7 @@ from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
-
+from tsp.adddist2line import adddist2line
 
 def main():
     
@@ -62,16 +62,14 @@ def main():
 
     # adddist2line
     parser.add_argument('--lineroi', type=str, help='roi file containing the line', required=False)
-    parser.add_argument('--lineroi', type=str, help='roi file containing the line', required=False)
+    parser.add_argument('--cellcoord', type=str, help='a csv file containing the cell center coordinates', required=False)
     
-    
-
     args = parser.parse_args()
 
     
     if args.action=='adddist2line':
-        args.roi
-        
+        adddist2line(args.cellcoord, args.lineroi)
+
         
     elif args.action=='runcellpose':
         files = glob.glob(args.f)

@@ -135,6 +135,11 @@ Measures the intensities of all markers in each marker 1 mask.
 
 ## Add distance from cell center to a boundary line
 
-> python -m tsp adddist2line --line_roi file.roi  --imagefile
+Appends a column of the shortest distance from cell centers to the boundary line to the input csv file
 
-- --imagefile is used to get image dimension
+> python -m tsp adddist2line --line_roi file.roi  --cellcoord
+
+- --lineroi: roi file containing the line
+
+- --cellcoord: a csv file containing the cell center coordinates
+
