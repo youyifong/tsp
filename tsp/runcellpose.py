@@ -142,7 +142,7 @@ def run_cellpose(files,
             plt.gca().set_axis_off()
             plt.imshow(imgout)
             for i in range(masks.max()):
-                plt.plot(y_coor[i], x_coor[i], marker='o', color='r', ls='', markersize=2)
+                plt.plot(y_coor[i], x_coor[i], marker='o', color='r', ls='', markersize=4)
             plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
             plt.margins(0,0)
             plt.gca().xaxis.set_major_locator(plt.NullLocator())

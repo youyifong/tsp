@@ -111,7 +111,7 @@ def main():
 
     elif args.action=="alignimages":
         if args.l == None: sys.exit("ERROR: --l is required")            
-        channels = [int(i) for i in args.l[1:-1].split(",")]
+        channels = [int(i)-1 for i in args.l[1:-1].split(",")]
         doalign (args.ref_image, args.image2, channels)
 
 

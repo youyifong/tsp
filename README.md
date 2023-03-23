@@ -2,7 +2,7 @@
 
 ## Image alignment
 
-> python -m tsp alignimages --ref_image xx  --image2 xx --l [1,1]
+> python -m tsp alignimages --ref_image xx  --image2 xx --l [2,2]
 
 The --l argument is used to extract the channels of interest from the two images. 
 In the example above, the second channel of image2 will be aligned against the second channel of ref_image.
