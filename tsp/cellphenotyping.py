@@ -94,12 +94,13 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             
             # XY coordinates 
             outlines = GetCenterCoor(masks[i+1])
-            mask_res = pd.DataFrame([size_masks,outlines]).T
-            mask_res.columns = ["size","xy_coordinate"]
+            mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
+            mask_res.columns = ["size","center_x","center_y"]
+            
             cellnames = []
             for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
             mask_res.index = cellnames
-            mask_res.to_csv(output_file_name + "_sizes_coordinates.txt", header=True, index=True, sep=',')
+            mask_res.to_csv(output_file_name + "_sizes_coordinates.csv", header=True, index=True, sep=',')
     
     filenames_save = [files[0]] # first filename
     for i in range(len(files)-1):

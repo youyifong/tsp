@@ -46,7 +46,7 @@ To make outlines
 
 - --s If present, four additional image files will be saved: 1) _mask_outline.png that contains cell masks, 2) _mask_text.png that contains the identified numbers of cell masks, 3) _mask_point.png that contains the center point of cell masks, 4) _mask_fill.png that contains the solid fill of cell masks 
 
-- --r If present, three additional result files about masks for each image will be saved: 1) _seg.npy 2) _sizes_coordinates.txt, 3) _cp_outlines.txt
+- --r If present, three additional result files about masks for each image will be saved: 1) _seg.npy 2) _sizes_coordinates.csv, 3) _cp_outlines.txt
 
 - --model Cellpose model to use, including cyto and cytotrain7. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al.
 
@@ -78,7 +78,7 @@ To make outlines
 
 - _seg.npy (with -r): cellpose output file containing overall info about predicted masks and parameters used in prediction 
 
-- _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
+- _sizes_coordinates.csv (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
 - _cp_outlines.txt (with -r): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
 
@@ -100,7 +100,7 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 - --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
 
-- --r If present, two additional result files will be saved for the last stage: 1) a cellpose output file named _seg.npz that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _sizes_coordinates.txt that contains the sizes and the x and y coordinates for each mask. 
+- --r If present, two additional result files will be saved for the last stage: 1) a cellpose output file named _seg.npz that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _sizes_coordinates.csv that contains the sizes and the x and y coordinates for each mask. 
 
 #### Output 
 - _counts_multistain.txt: cell counts, one row for each additional marker
@@ -115,7 +115,7 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 - _seg.npz (with -r): cellpose output file containing overall info about image and masks, last marker only
 
-- _sizes_coordinates.txt (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
+- _sizes_coordinates.csv (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
 
 
 
@@ -131,3 +131,10 @@ Measures the intensities of all markers in each marker 1 mask.
 
 #### Output 
 - _intensity.txt: contains three intensity (total intensity, average normalized intensity, and total normalized intensity) and the x-y coordinates for each mask of marker 1
+
+
+## Add distance from cell center to a boundary line
+
+> python -m tsp adddist2line --line_roi file.roi  --imagefile
+
+- --imagefile is used to get image dimension

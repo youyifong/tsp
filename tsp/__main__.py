@@ -15,6 +15,7 @@ def main():
         alignimages, \
         runcellpose, \
         cellphenotyping, \
+        adddist2line, \
         AP, checkprediction, maskfile2outline, roifiles2mask, overlaymasks')
     
     # for alignimages
@@ -25,7 +26,6 @@ def main():
     parser.add_argument('--mask1', type=str, help='mask file 1')
     parser.add_argument('--mask2', type=str, help='mask file 2')
     parser.add_argument('--maskfile', type=str, help='mask file for maskfile2outline')
-    parser.add_argument('--imagefile', type=str, help='image file for overlaymasks')
     parser.add_argument('--saveas', type=str, help='save file name for overlaymasks or colortp')
     parser.add_argument('--predfolder', type=str, help='checkprediction prediction folder')
     parser.add_argument('--gtfolder', type=str, help='checkprediction ground truth folder')
@@ -38,7 +38,7 @@ def main():
     # shared by runcellpose and cellphenotyping, and intensityanalysis
     parser.add_argument('--f', type=str, help='pattern (cellphenotyping) or file names (runcellpose, intensityanalysis)') 
     parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)', required=False) 
-    
+        
     # for runcellpose 
     parser.add_argument('--model', type=str, help='Pre-trained model', required=False, default="cyto")
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
@@ -57,12 +57,23 @@ def main():
     parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
     parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
     parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)    
+    parser.add_argument('--imagefile', type=str, help='image file')
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log', required=False)    
+
+    # adddist2line
+    parser.add_argument('--lineroi', type=str, help='roi file containing the line', required=False)
+    parser.add_argument('--lineroi', type=str, help='roi file containing the line', required=False)
+    
+    
 
     args = parser.parse_args()
 
     
-    if args.action=='runcellpose':
+    if args.action=='adddist2line':
+        args.roi
+        
+        
+    elif args.action=='runcellpose':
         files = glob.glob(args.f)
         channels = [int(i) for i in args.l[1:-1].split(",")]
         print('working on: ', end=" ")
