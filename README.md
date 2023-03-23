@@ -44,9 +44,9 @@ To make outlines
 
 - --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
 
-- --s If present, four additional image files will be saved: 1) _mask_outline.png that contains cell masks, 2) _mask_text.png that contains the identified numbers of cell masks, 3) _mask_point.png that contains the center point of cell masks, 4) _mask_fill.png that contains the solid fill of cell masks 
+- --s If present, some additional image files will be saved.
 
-- --r If present, three additional result files about masks for each image will be saved: 1) _seg.npy 2) _masks.csv, 3) _cp_outlines.txt
+- --r If present, some additional files with info on the masks will be saved.
 
 - --model Cellpose model to use, including cyto and cytotrain7. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al.
 
@@ -68,6 +68,8 @@ To make outlines
 #### Output 
 - cellpose_counts_timestr.txt: number of predicted masks for each image 
 
+- _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
+
 - _mask_fill.png (with -s): an image file containing the solid fill of the predicted cell masks 
 
 - _mask_outline.png (with -s): an image file containing the predicted cell masks 
@@ -77,8 +79,6 @@ To make outlines
 - _mask_text.png (with -s): an image file containing the identified numbers of the predicted cell masks 
 
 - _seg.npy (with -r): cellpose output file containing overall info about predicted masks and parameters used in prediction. This file can be huge.
-
-- _masks.csv (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
 - _cp_outlines.txt (with -r): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
 
@@ -133,15 +133,27 @@ Measures the intensities of all markers in each marker 1 mask.
 - _intensity.txt: contains three intensity (total intensity, average normalized intensity, and total normalized intensity) and the x-y coordinates for each mask of marker 1
 
 
-## Add distance from cell center to a boundary line
 
-Appends a column of the shortest distance from cell centers to the boundary to the input csv file and save as a new _d2b.csv file.
+## Compute distance from cell center to a boundary polyline
 
-> python -m tsp adddist2line --cells .csv  --boundaryroi .roi
+Appends a dist2boundary column of the shortest distance from cell centers to the boundary to the input csv file and save as a new _d2b.csv file.
+
+> python -m tsp adddist2line --cells masks.csv  --boundaryroi boundary.roi
 
 - --cells: a csv file containing the cell center coordinates
 
 - --boundaryroi: an roi file defining the boundary
 
 
+
+## Compute region membership
+
+
+> python -m tsp regionmembership --cells masks.csv  --regionroi [region1.roi,region2.roi]
+
+- --cells: a csv file containing the cell center coordinates
+
+- --boundaryroi: an roi file defining the boundary
+
+ 
 

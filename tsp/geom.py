@@ -10,6 +10,7 @@ p is a single point
 P0 and P1 are nx2 2D arrays. P0 contains n starting points, P1 contains n ending points
 returns a vector of length n
 '''
+
 def pnt2line(P0, P1, p):
     # Calculate the vector T and V
     T = P1 - P0
@@ -26,24 +27,37 @@ def pnt2line(P0, P1, p):
 
 
 def dist2boundary(cell_file, boundary_roi_file):
-
-    cell_file="M872956_JML_Position8_CD3_img_sizes_coordinates.csv"
-    boundary_roi_file="DD_Les_skin_boundary.roi"
     
     boundary = read_roi_file(boundary_roi_file)    
-    val = list(boundary.values()) # line_boundary is a dictionary of one item. This line turns it into a list of one item, the item is still a dict
-    pts = np.vstack((val[0]["x"], val[0]["y"])).T
-    n=len(val[0]["x"])
+    # line_boundary is a dictionary of one item. This line turns it into a list of one item, the item is still a dict
+    val = list(boundary.values()) [0]
+    pts = np.vstack((val["x"], val["y"])).T
+    n=len(val["x"])
     
     data = pd.read_csv(cell_file)    
-
     min_dist=[]
     for index, row in data.iterrows():
         tmp=pnt2line(P0=pts[0:(n-1),:], P1=pts[1:n,:], p=[row["center_x"], row["center_y"]])
         min_dist.append(np.min(tmp))
     
-    data = data.join(pd.DataFrame({'min_dist': min_dist}))
+    data = data.join(pd.DataFrame({'dist2boundary': min_dist}))    
+    filename, file_extension = os.path.splitext(cell_file)    
+    data.to_csv(filename + '_d2b' + file_extension, header=True, index=None, sep=',')
+
+
+def region_membership(cell_file, region_roi_files):
     
-    filename, file_extension = os.path.splitext(cell_file)
+    data = pd.read_csv(cell_file)    
     
+    for region_roi_file in region_roi_files:
+        region = read_roi_file(region_roi_file)    
+        val = list(region.values()) [0]
+        
+        membership=[]
+        for index, row in data.iterrows():
+            membership.append()
+        
+        data = data.join(pd.DataFrame({val['name']: membership}))    
+
+    filename, file_extension = os.path.splitext(cell_file)    
     data.to_csv(filename + '_d2b' + file_extension, header=True, index=None, sep=',')

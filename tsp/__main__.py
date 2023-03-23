@@ -6,7 +6,7 @@ from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
-from tsp.geom import dist2boundary
+from tsp.geom import dist2boundary, region_membership
 
 def main():
     
@@ -15,7 +15,7 @@ def main():
         alignimages, \
         runcellpose, \
         cellphenotyping, \
-        dist2boundary, \
+        dist2boundary, regionmembership, \
         AP, checkprediction, maskfile2outline, roifiles2mask, overlaymasks')
     
     # for alignimages
@@ -40,7 +40,7 @@ def main():
     parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)', required=False) 
         
     # for runcellpose 
-    parser.add_argument('--model', type=str, help='Pre-trained model', required=False, default="cyto")
+    parser.add_argument('--model', type=str, help='Pre-trained model')
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
@@ -64,14 +64,31 @@ def main():
     parser.add_argument('--cells', type=str, help='a csv file containing the cell center coordinates', required=False)
     parser.add_argument('--boundaryroi', type=str, help='roi file containing the line', required=False)
     
+    # regionmembership
+    parser.add_argument('--regionroi', type=str, help='roi files defining regions, e.g. [region1.roi,region2.roi]', required=False)
+    
     args = parser.parse_args()
 
     
-    if args.action=='dist2boundary':
+    if args.action=='regionmembership':
+        if args.cells == None or args.regionroi == None:
+            sys.exit("ERROR: --cells, --regionroi are required arguments")            
+        
+        region_roi_files = args.regionroi[1:-1].split(",")         
+
+        region_membership(args.cells, region_roi_files)
+
+        
+    elif args.action=='dist2boundary':
+        if args.cells == None or args.boundaryroi == None:
+            sys.exit("ERROR: --cells, --boundaryroi are required arguments")            
         dist2boundary(args.cells, args.boundaryroi)
 
         
     elif args.action=='runcellpose':
+        if args.f == None or args.model == None or args.l == None :
+            sys.exit("ERROR: --f, --model, --l are required arguments")            
+        
         files = glob.glob(args.f)
         channels = [int(i) for i in args.l[1:-1].split(",")]
         print('working on: ', end=" ")
@@ -119,7 +136,8 @@ def main():
 
 
     elif args.action=="alignimages":
-        if args.l == None: sys.exit("ERROR: --l is required")            
+        if args.l == None: 
+            sys.exit("ERROR: --l is required")            
         channels = [int(i)-1 for i in args.l[1:-1].split(",")]
         doalign (args.ref_image, args.image2, channels)
 
