@@ -6,7 +6,7 @@ from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
-from tsp.adddist2line import adddist2line
+from tsp.geom import dist2boundary
 
 def main():
     
@@ -15,7 +15,7 @@ def main():
         alignimages, \
         runcellpose, \
         cellphenotyping, \
-        adddist2line, \
+        dist2boundary, \
         AP, checkprediction, maskfile2outline, roifiles2mask, overlaymasks')
     
     # for alignimages
@@ -60,15 +60,15 @@ def main():
     parser.add_argument('--imagefile', type=str, help='image file')
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log', required=False)    
 
-    # adddist2line
-    parser.add_argument('--lineroi', type=str, help='roi file containing the line', required=False)
-    parser.add_argument('--cellcoord', type=str, help='a csv file containing the cell center coordinates', required=False)
+    # dist2boundary
+    parser.add_argument('--cells', type=str, help='a csv file containing the cell center coordinates', required=False)
+    parser.add_argument('--boundaryroi', type=str, help='roi file containing the line', required=False)
     
     args = parser.parse_args()
 
     
-    if args.action=='adddist2line':
-        adddist2line(args.cellcoord, args.lineroi)
+    if args.action=='dist2boundary':
+        dist2boundary(args.cells, args.boundaryroi)
 
         
     elif args.action=='runcellpose':

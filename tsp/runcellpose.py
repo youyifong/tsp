@@ -51,36 +51,37 @@ def run_cellpose(files,
         
         save_path = filename
 
-        # Save masks info #        
+        # Save a plot of masks only
+        outlines = utils.masks_to_outlines(masks)
+        plt.imsave(save_path + "_masks.png", outlines, cmap='gray')
+        
+        # Save a csv file, one mask per row
+        size_masks = []
+        act_mask = np.delete(np.unique(masks),0)
+        for i in act_mask:
+            mask_pixel = np.where(masks == i)
+            size_masks.append(len(mask_pixel[0]))
+        # XY coordinates #
+        outlines = GetCenterCoor(masks)
+        mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
+        mask_res.columns = ["size","center_x","center_y"]
+        cellnames = []
+        for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
+        mask_res.index = cellnames
+        mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
+        
+        # Optional output #
+        
+        # mask info
         if(output == True):
             # save _cp_outline to convert to roi by ImageJ
             outlines = utils.outlines_list(masks)
             io.outlines_to_text(save_path, outlines)
             
             # save .npy file
-            io.masks_flows_to_seg(img,masks,flows,diams, file_names=save_path + '.npy') 
-            
-            # Size #
-            size_masks = []
-            act_mask = np.delete(np.unique(masks),0)
-            for i in act_mask:
-                mask_pixel = np.where(masks == i)
-                size_masks.append(len(mask_pixel[0]))
-            # XY coordinates #
-            outlines = GetCenterCoor(masks)
-            mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
-            mask_res.columns = ["size","center_x","center_y"]
-            cellnames = []
-            for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
-            mask_res.index = cellnames
-            mask_res.to_csv(filename + "_sizes_coordinates.csv", header=True, index=True, sep=',')
+            io.masks_flows_to_seg(img,masks,flows,diams, file_names=save_path + '.npy')             
         
-        # Save plot #
-
-        # always save a plot of masks only
-        outlines = utils.masks_to_outlines(masks)
-        plt.imsave(save_path + "_masks.png", outlines, cmap='gray')
-        
+        # additional plots
         if(plot == True) :
             # Mask plot (outline) #
             my_dpi = 96
@@ -150,6 +151,7 @@ def run_cellpose(files,
             plt.savefig(save_path + "_mask_point.png", bbox_inches = 'tight', pad_inches = 0)
             plt.close('all')
     
+    # save cell counts to a text file
     ncell_mat = pd.DataFrame(list(zip(files,ncell)))
     ncell_mat.columns = ["File_name","Cell_count"]
     timestr = time.strftime("%Y%m%d-%H%M%S")

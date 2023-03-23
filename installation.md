@@ -62,6 +62,6 @@ The Hutch Scientific Computing (Scicomp) has nodes with GPUs in the gizmo cluste
 
 To access volta, open a terminal and run ssh username@volta. For example, if your HutchNet ID is abc, you can run ssh abc@volta. For details, you can refer to https://sciwiki.fredhutch.org/scicomputing/access_credentials 
 
-Given the size of the images we can use the Fast storage under /fh/fast/fong_y (https://sciwiki.fredhutch.org/scicomputing/store_posix/). One of the advantages is that it can be accessed both as a mapped drive (https://centernet.fredhutch.org/cn/u/center-it/services/storedataprotect.html). 
+Given the size of the images we can use the Fast storage under /fh/fast/fong_y (https://sciwiki.fredhutch.org/scicomputing/store_posix/). 
 
  

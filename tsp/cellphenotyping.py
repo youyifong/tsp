@@ -72,36 +72,27 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             maskA = GetMaskCutoff(mask=maskA, act_mask_idx=mask_idx[i])
             masks.append(maskA)
     
-    # Plotting #
-    if(plot):
-        mask_color = [255,250,240]
-        for i in range(len(masks)):
-            PlotMask_outline(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color=mask_color)
-            PlotMask_fill(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive)
-            PlotCenter(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color='r')
     
-    # Save output #
-    if(output):
-        for i in range(len(files)-1):
-            np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
-            
-            # Size
-            size_masks = []
-            act_mask = np.delete(np.unique(masks[i+1]),0)
-            for idx in act_mask:
-                mask_pixel = np.where(masks[i+1] == idx)
-                size_masks.append(len(mask_pixel[0]))
-            
-            # XY coordinates 
-            outlines = GetCenterCoor(masks[i+1])
-            mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
-            mask_res.columns = ["size","center_x","center_y"]
-            
-            cellnames = []
-            for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
-            mask_res.index = cellnames
-            mask_res.to_csv(output_file_name + "_sizes_coordinates.csv", header=True, index=True, sep=',')
-    
+    # save masks to a csv file
+    for i in range(len(files)-1):
+        # Size
+        size_masks = []
+        act_mask = np.delete(np.unique(masks[i+1]),0)
+        for idx in act_mask:
+            mask_pixel = np.where(masks[i+1] == idx)
+            size_masks.append(len(mask_pixel[0]))
+        
+        # XY coordinates 
+        outlines = GetCenterCoor(masks[i+1])
+        mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
+        mask_res.columns = ["size","center_x","center_y"]
+        
+        cellnames = []
+        for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
+        mask_res.index = cellnames
+        mask_res.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
+
+    # save counts
     filenames_save = [files[0]] # first filename
     for i in range(len(files)-1):
         if positives[i]: 
@@ -113,6 +104,18 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     ncell_res.to_csv(output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
 
 
+    # optional output 
+    if(plot):
+        mask_color = [255,250,240]
+        for i in range(len(masks)):
+            PlotMask_outline(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color=mask_color)
+            PlotMask_fill(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive)
+            PlotCenter(mask=masks[i], image=files[i], filename=staged_output_file_names[i], positive=positive, color='r')
+    
+    if(output):
+        for i in range(len(files)-1):
+            np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
+            
 
 
 # Utilites for double staining analysis
