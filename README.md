@@ -1,5 +1,7 @@
 # TSP - The Seattle Pipeline for Deep Learning Methods for Cell and Tissue Imaging Analysis
 
+## Pipeline steps
+
 Preprocessing
 
 - background reduction and optimizing brightness using the ZKW DataWizard application

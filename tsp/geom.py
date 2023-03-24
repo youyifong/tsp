@@ -3,6 +3,11 @@ import pandas as pd
 from read_roi import read_roi_file 
 import os
 
+# for point membership
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
+
+
 '''
 https://discuss.datasciencedojo.com/t/shortest-distance-between-points-and-line-segments/1076
 Note that there are two implementations on this page, the two give different answers and this one matches an implementation from another web site
@@ -52,12 +57,14 @@ def region_membership(cell_file, region_roi_files):
     for region_roi_file in region_roi_files:
         region = read_roi_file(region_roi_file)    
         val = list(region.values()) [0]
+        polygon = Polygon(list(zip(val["x"], val["y"])))
         
         membership=[]
         for index, row in data.iterrows():
-            membership.append()
+            point = Point(row["center_x"], row["center_y"])            
+            membership.append(polygon.contains(point))
         
-        data = data.join(pd.DataFrame({val['name']: membership}))    
+        data = data.join(pd.DataFrame({"in_"+val['name']: membership}))    
 
     filename, file_extension = os.path.splitext(cell_file)    
-    data.to_csv(filename + '_d2b' + file_extension, header=True, index=None, sep=',')
+    data.to_csv(filename + '_regmem' + file_extension, header=True, index=None, sep=',')
