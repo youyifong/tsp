@@ -15,7 +15,6 @@ p is a single point
 P0 and P1 are nx2 2D arrays. P0 contains n starting points, P1 contains n ending points
 returns a vector of length n
 '''
-
 def pnt2line(P0, P1, p):
     # Calculate the vector T and V
     T = P1 - P0
@@ -31,8 +30,7 @@ def pnt2line(P0, P1, p):
     return np.linalg.norm(C - p, axis=1)
 
 
-def dist2boundary(cell_file, boundary_roi_file):
-    
+def dist2boundary(cell_file, boundary_roi_file):    
     boundary = read_roi_file(boundary_roi_file)    
     # line_boundary is a dictionary of one item. This line turns it into a list of one item, the item is still a dict
     val = list(boundary.values()) [0]
@@ -50,6 +48,9 @@ def dist2boundary(cell_file, boundary_roi_file):
     data.to_csv(filename + '_d2b' + file_extension, header=True, index=None, sep=',')
 
 
+'''
+Based on https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
+'''
 def region_membership(cell_file, region_roi_files):
     
     data = pd.read_csv(cell_file)    
