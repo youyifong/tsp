@@ -13,7 +13,8 @@ Preprocessing
 Analysis
 
 - cell segmentation
-- compute spatial statistics
+- compute distance to boundary
+- compute region membership
 
 
 ## Image alignment
