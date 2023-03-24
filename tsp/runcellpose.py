@@ -1,10 +1,9 @@
-import os, time
+import os, time, sys
 import numpy as np
 import pandas as pd
 import torch
 from cellpose import utils, models, io
 import matplotlib.pyplot as plt
-
 from tsp.masks import fill_holes_and_remove_small_masks, GetCenterCoor, Intensity
 
 
@@ -24,15 +23,18 @@ def run_cellpose(files,
     if(pretrained == 'cyto'):
         model = models.Cellpose(gpu=gpu, model_type='cyto')
     
-    if(pretrained == 'tissuenet'):
+    elif(pretrained == 'tissuenet'):
         model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/tissuenet_1.0/images/train/models/cellpose_residual_on_style_on_concatenation_off_train_2022_04_21_13_47_58.317948') # trained on tissuenet using cyto initial weights
         #model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/tissuenet_1.0/images/train/models/cellpose_residual_on_style_on_concatenation_off_train_2022_04_28_19_04_45.223116') # trained on tissuenet without initial weights
         #model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/cellpose_images/train/models/cellpose_residual_on_style_on_concatenation_off_train_2022_05_02_14_36_14.639818') # trained on cellpose dataset by Sunwoo
     
-    if(pretrained == 'cytotrain7'):
+    elif(pretrained == 'cytotrain7'):
         model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/cellpose_trained_models/cellpose_residual_on_style_on_concatenation_off_training7_2023_01_18_16_58_51.772584') # trained on seven training images from K
     
-    ncell = []
+    else:
+        sys.exit("model not defined")
+        
+    ncells = []
     for item in files :
         img = io.imread(item); 
         filename = os.path.splitext(item)[0]
@@ -47,13 +49,18 @@ def run_cellpose(files,
         res_intensity = Intensity(image=img, mask=masks, channels=channels, min_ave_intensity=min_ave_intensity, min_total_intensity=min_total_intensity) # intensity
         masks = res_intensity.mask
         
-        ncell.append((len(np.unique(masks))-1))
+        ncell = np.max(masks)
+        ncells.append(ncell)
         
         save_path = filename
 
         # Save a plot of masks only
         outlines = utils.masks_to_outlines(masks)
         plt.imsave(save_path + "_masks.png", outlines, cmap='gray')
+        
+
+        import timeit
+        start_time = timeit.default_timer()
         
         # Save a csv file, one mask per row
         size_masks = []
@@ -69,6 +76,28 @@ def run_cellpose(files,
         for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
         mask_res.index = cellnames
         mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
+        
+        print(timeit.default_timer() - start_time)
+
+
+        import timeit
+        start_time = timeit.default_timer()        
+        
+        size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()
+        
+        center_x=[]; center_y=[]
+        for i in range(1,ncell+1):
+            mask_pixel = np.where(masks == i)
+            center_y.append((np.max(mask_pixel[0]) + np.min(mask_pixel[0])) / 2)
+            center_x.append((np.max(mask_pixel[1]) + np.min(mask_pixel[1])) / 2)
+
+        mask_res = pd.DataFrame([size_masks, center_x, center_y]).T
+        mask_res.columns = ["size","center_x","center_y"]        
+        mask_res.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+        mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
+
+        print(timeit.default_timer() - start_time)
+
         
         # Optional output #
         
@@ -152,10 +181,10 @@ def run_cellpose(files,
             plt.close('all')
     
     # save cell counts to a text file
-    ncell_mat = pd.DataFrame(list(zip(files,ncell)))
-    ncell_mat.columns = ["File_name","Cell_count"]
+    ncells_mat = pd.DataFrame(list(zip(files,ncells)))
+    ncells_mat.columns = ["File_name","Cell_count"]
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    ncell_mat.to_csv("cellpose_counts_"+timestr+".txt", header=True, index=None, sep=',')
+    ncells_mat.to_csv("cellpose_counts_"+timestr+".txt", header=True, index=None, sep=',')
 
 
 

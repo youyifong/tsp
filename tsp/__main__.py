@@ -94,6 +94,7 @@ def main():
         print('working on: ', end=" ")
         print(files)
         
+        # pretrained="cytotrain7"; diameter=0.; flow=0.4; cellprob=0.; minsize=0; min_ave_intensity=0; min_total_intensity=0; plot=False; output=False
         run_cellpose(files=files, 
                      pretrained=args.model, 
                      diameter=args.d, flow=args.o, cellprob=args.cellprob, 
