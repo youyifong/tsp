@@ -4,14 +4,14 @@ import pandas as pd
 import torch
 from cellpose import utils, models, io
 import matplotlib.pyplot as plt
-from tsp.masks import fill_holes_and_remove_small_masks, GetCenterCoor, Intensity
+from tsp.masks import GetCenterCoor, filter_by_intensity
 
 
 ### Running Cellpose ###
 def run_cellpose(files, 
                  pretrained, 
                  diameter, flow, cellprob, 
-                 minsize, min_ave_intensity, min_total_intensity, 
+                 min_size, min_ave_intensity, min_total_intensity, 
                  plot, output, channels):
     
     if torch.cuda.is_available() :
@@ -39,15 +39,14 @@ def run_cellpose(files,
         img = io.imread(item); 
         filename = os.path.splitext(item)[0]
         if(pretrained == 'cyto'):
-            masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob)
+            masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
         else:
-            masks, flows, styles = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob)
+            masks, flows, styles = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
             diams = diameter
         
         # Post-processing (min_size, min_intensity) #
-        masks = fill_holes_and_remove_small_masks(masks, min_size=minsize) # minsize
-        res_intensity = Intensity(image=img, mask=masks, channels=channels, min_ave_intensity=min_ave_intensity, min_total_intensity=min_total_intensity) # intensity
-        masks = res_intensity.mask
+        if min_ave_intensity>0 | min_total_intensity>0: # avoid running this if can because it is slow
+            masks = filter_by_intensity(image=img, mask=masks, channels=channels, min_ave_intensity=min_ave_intensity, min_total_intensity=min_total_intensity) # intensity
         
         ncell = np.max(masks)
         ncells.append(ncell)
@@ -58,45 +57,32 @@ def run_cellpose(files,
         outlines = utils.masks_to_outlines(masks)
         plt.imsave(save_path + "_masks.png", outlines, cmap='gray')
         
-
-        import timeit
-        start_time = timeit.default_timer()
-        
-        # Save a csv file, one mask per row
-        size_masks = []
-        act_mask = np.delete(np.unique(masks),0)
-        for i in act_mask:
-            mask_pixel = np.where(masks == i)
-            size_masks.append(len(mask_pixel[0]))
-        # XY coordinates #
-        outlines = GetCenterCoor(masks)
-        mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
-        mask_res.columns = ["size","center_x","center_y"]
-        cellnames = []
-        for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
-        mask_res.index = cellnames
-        mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
-        
-        print(timeit.default_timer() - start_time)
-
-
-        import timeit
-        start_time = timeit.default_timer()        
-        
-        size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()
-        
+        # Save a csv file, one mask per row, include size, center_x, center_y        
+        size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()        
         center_x=[]; center_y=[]
         for i in range(1,ncell+1):
             mask_pixel = np.where(masks == i)
             center_y.append((np.max(mask_pixel[0]) + np.min(mask_pixel[0])) / 2)
             center_x.append((np.max(mask_pixel[1]) + np.min(mask_pixel[1])) / 2)
-
         mask_res = pd.DataFrame([size_masks, center_x, center_y]).T
         mask_res.columns = ["size","center_x","center_y"]        
         mask_res.index = [f"Cell_{i}" for i in range(1,ncell+1)]
         mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
-
-        print(timeit.default_timer() - start_time)
+        
+        ## a slower way
+        # size_masks = []
+        # act_mask = np.delete(np.unique(masks),0)
+        # for i in act_mask:
+        #     mask_pixel = np.where(masks == i)
+        #     size_masks.append(len(mask_pixel[0]))
+        # # XY coordinates #
+        # outlines = GetCenterCoor(masks)
+        # mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
+        # mask_res.columns = ["size","center_x","center_y"]
+        # cellnames = []
+        # for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
+        # mask_res.index = cellnames
+        # mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
 
         
         # Optional output #

@@ -219,67 +219,42 @@ def color_fp_fn(mask_file, pred_file):
     
 
 
-
-
-### Utilities ###
-def fill_holes_and_remove_small_masks(masks, min_size=15):
-    if masks.ndim > 3 or masks.ndim < 2:
-        raise ValueError('fill_holes_and_remove_small_masks takes 2D or 3D array, not %dD array'%masks.ndim)
-    slices = find_objects(masks)
-    j = 0
-    for i,slc in enumerate(slices):
-        if slc is not None:
-            msk = masks[slc] == (i+1)
-            npix = msk.sum()
-            if min_size > 0 and npix < min_size:
-                masks[slc][msk] = 0
-            else:
-                if msk.ndim==3:
-                    for k in range(msk.shape[0]):
-                        msk[k] = binary_fill_holes(msk[k])
-                else:
-                    msk = binary_fill_holes(msk)
-                masks[slc][msk] = (j+1)
-                j+=1
-    return masks
-
-class Intensity:
-    def __init__(self, image, mask, channels, min_ave_intensity=0, min_total_intensity=0):
-        if(channels == [0,0]):
-            img = image
+def filter_by_intensity(image, mask, channels, min_ave_intensity=0, min_total_intensity=0):
+    if(channels == [0,0]):
+        img = image
+    else:
+        img = image[:,:,(channels[0]-1)]
+    act_idx = np.unique(mask)
+    if(sum(act_idx==0) != 0): act_idx = np.delete(act_idx,0) # select masks only (remove 0)
+    intensity = []
+    for i in act_idx :
+        mask_pixel = np.where(mask == i) # mask pixels
+        pixel_int = [] # contain pixel intensity
+        for j in np.arange(0,len(mask_pixel[0])) :
+            pixel_int.append(img[mask_pixel[0][j], mask_pixel[1][j]])
+        if(min_ave_intensity != 0): intensity.append(np.mean(pixel_int)) # average intensity for each mask
+        if(min_total_intensity != 0): intensity.append(sum(pixel_int)) # total intensity for each mask
+    remove_masks_idx = []
+    for i in range(len(intensity)):
+        if(min_ave_intensity != 0 ):
+            if(intensity[i] < min_ave_intensity): remove_masks_idx.append(i+1)
+        if(min_total_intensity != 0 ):
+            if(intensity[i] < min_total_intensity): remove_masks_idx.append(i+1)
+    remove_masks_idx = np.array(remove_masks_idx)
+    mask_new = np.zeros([mask.shape[0], mask.shape[1]], dtype=np.int32)
+    idx = 1
+    for i in act_idx:
+        if(sum(i == remove_masks_idx) == 0):
+            pixel_new = np.where(mask == i)
+            for j in range(len(pixel_new[0])):
+                mask_new[pixel_new[0][j], pixel_new[1][j]] = idx
+            idx = idx+1
         else:
-            img = image[:,:,(channels[0]-1)]
-        act_idx = np.unique(mask)
-        if(sum(act_idx==0) != 0): act_idx = np.delete(act_idx,0) # select masks only (remove 0)
-        intensity = []
-        for i in act_idx :
-            mask_pixel = np.where(mask == i) # mask pixels
-            pixel_int = [] # contain pixel intensity
-            for j in np.arange(0,len(mask_pixel[0])) :
-                pixel_int.append(img[mask_pixel[0][j], mask_pixel[1][j]])
-            if(min_ave_intensity != 0): intensity.append(np.mean(pixel_int)) # average intensity for each mask
-            if(min_total_intensity != 0): intensity.append(sum(pixel_int)) # total intensity for each mask
-        remove_masks_idx = []
-        for i in range(len(intensity)):
-            if(min_ave_intensity != 0 ):
-                if(intensity[i] < min_ave_intensity): remove_masks_idx.append(i+1)
-            if(min_total_intensity != 0 ):
-                if(intensity[i] < min_total_intensity): remove_masks_idx.append(i+1)
-        remove_masks_idx = np.array(remove_masks_idx)
-        mask_new = np.zeros([mask.shape[0], mask.shape[1]], dtype=np.int32)
-        idx = 1
-        for i in act_idx:
-            if(sum(i == remove_masks_idx) == 0):
-                pixel_new = np.where(mask == i)
-                for j in range(len(pixel_new[0])):
-                    mask_new[pixel_new[0][j], pixel_new[1][j]] = idx
-                idx = idx+1
-            else:
-                pixel_new = np.where(mask == i)
-                for j in range(len(pixel_new[0])):
-                    mask_new[pixel_new[0][j], pixel_new[1][j]] = 0
-        self.mask = mask_new
-        self.intensity = intensity
+            pixel_new = np.where(mask == i)
+            for j in range(len(pixel_new[0])):
+                mask_new[pixel_new[0][j], pixel_new[1][j]] = 0
+    return mask_new
+    
 
 def GetCenterCoor(masks):
     outline_list = utils.outlines_list(masks)
