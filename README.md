@@ -15,7 +15,7 @@ Analysis
 - cell segmentation
 - compute distance to boundary
 - compute region membership
-
+- statistical analysis
 
 ## Image alignment
 
