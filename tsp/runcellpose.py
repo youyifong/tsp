@@ -135,7 +135,7 @@ def run_cellpose(files,
             plt.gca().set_axis_off()
             plt.imshow(imgout)
             for i in range(masks.max()):
-                plt.text(center_y[i], center_x[i], str(i+1), dict(size=10, color='red', horizontalalignment='center', verticalalignment='center'))
+                plt.text(center_x[i], center_y[i], str(i+1), dict(size=10, color='red', horizontalalignment='center', verticalalignment='center'))
             plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
             plt.margins(0,0)
             plt.gca().xaxis.set_major_locator(plt.NullLocator())
@@ -149,7 +149,7 @@ def run_cellpose(files,
             plt.gca().set_axis_off()
             plt.imshow(imgout)
             for i in range(masks.max()):
-                plt.plot(center_y[i], center_x[i], marker='o', color='r', ls='', markersize=4)
+                plt.plot(center_x[i], center_y[i], marker='o', color='r', ls='', markersize=4)
             plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
             plt.margins(0,0)
             plt.gca().xaxis.set_major_locator(plt.NullLocator())
