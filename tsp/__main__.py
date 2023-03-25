@@ -39,11 +39,7 @@ def main():
     parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
-    
-    # shared by runcellpose and cellphenotyping, and intensityanalysis
-    parser.add_argument('--f', type=str, help='pattern (cellphenotyping) or file names (runcellpose, intensityanalysis)') 
-    parser.add_argument('--r', action='store_true', help='save mask info (runcellpose) or double-stained-mask (cellphenotyping)', required=False) 
-        
+            
     # for runcellpose 
     parser.add_argument('--model', type=str, help='Pre-trained model')
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
@@ -58,6 +54,8 @@ def main():
     parser.add_argument('--n', type=str, help='marker names')
             
     # shared
+    parser.add_argument('--f', type=str, help='files') 
+    parser.add_argument('--r', action='store_true', help='save mask info', required=False) 
     parser.add_argument('--l', type=str, help='Channel', required=False)
     parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
     parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
@@ -76,18 +74,21 @@ def main():
 
     
     if args.action=='regionmembership':
-        if args.cells == None or args.regionroi == None:
-            sys.exit("ERROR: --cells, --regionroi are required arguments")            
+        if args.f == None or args.regionroi == None:
+            sys.exit("ERROR: --f, --regionroi are required arguments")            
         
+        files = glob.glob(args.f)
         region_roi_files = args.regionroi[1:-1].split(",")         
-
-        region_membership(args.cells, region_roi_files)
+        
+        region_membership(files, region_roi_files)
 
         
     elif args.action=='dist2boundary':
-        if args.cells == None or args.boundaryroi == None:
-            sys.exit("ERROR: --cells, --boundaryroi are required arguments")            
-        dist2boundary(args.cells, args.boundaryroi)
+        if args.f == None or args.boundaryroi == None:
+            sys.exit("ERROR: --f, --boundaryroi are required arguments")            
+
+        files = glob.glob(args.f)
+        dist2boundary(files, args.boundaryroi)
 
         
     elif args.action=='runcellpose':

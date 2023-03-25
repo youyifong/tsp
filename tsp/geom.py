@@ -30,42 +30,44 @@ def pnt2line(P0, P1, p):
     return np.linalg.norm(C - p, axis=1)
 
 
-def dist2boundary(cell_file, boundary_roi_file):    
+def dist2boundary(cell_files, boundary_roi_file):    
     boundary = read_roi_file(boundary_roi_file)    
     # line_boundary is a dictionary of one item. This line turns it into a list of one item, the item is still a dict
     val = list(boundary.values()) [0]
     pts = np.vstack((val["x"], val["y"])).T
     n=len(val["x"])
     
-    data = pd.read_csv(cell_file)    
-    min_dist=[]
-    for index, row in data.iterrows():
-        tmp=pnt2line(P0=pts[0:(n-1),:], P1=pts[1:n,:], p=[row["center_x"], row["center_y"]])
-        min_dist.append(np.min(tmp))
-    
-    data = data.join(pd.DataFrame({'dist2boundary': min_dist}))    
-    filename, file_extension = os.path.splitext(cell_file)    
-    data.to_csv(filename + '_d2b' + file_extension, header=True, index=None, sep=',')
+    for cell_file in cell_files:
+        data = pd.read_csv(cell_file)    
+        min_dist=[]
+        for index, row in data.iterrows():
+            tmp=pnt2line(P0=pts[0:(n-1),:], P1=pts[1:n,:], p=[row["center_x"], row["center_y"]])
+            min_dist.append(np.min(tmp))
+        
+        data = data.join(pd.DataFrame({'dist2boundary': min_dist}))    
+        filename, file_extension = os.path.splitext(cell_file)    
+        data.to_csv(filename + '_d2b' + file_extension, header=True, index=None, sep=',')
 
 
 '''
 Based on https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
 '''
-def region_membership(cell_file, region_roi_files):
+def region_membership(cell_files, region_roi_files):
     
-    data = pd.read_csv(cell_file)    
+    for cell_file in cell_files:
+        data = pd.read_csv(cell_file)    
+        
+        for region_roi_file in region_roi_files:
+            region = read_roi_file(region_roi_file)    
+            val = list(region.values()) [0]
+            polygon = Polygon(list(zip(val["x"], val["y"])))
+            
+            membership=[]
+            for index, row in data.iterrows():
+                point = Point(row["center_x"], row["center_y"])            
+                membership.append(polygon.contains(point))
+            
+            data = data.join(pd.DataFrame({"in_"+val['name']: membership}))    
     
-    for region_roi_file in region_roi_files:
-        region = read_roi_file(region_roi_file)    
-        val = list(region.values()) [0]
-        polygon = Polygon(list(zip(val["x"], val["y"])))
-        
-        membership=[]
-        for index, row in data.iterrows():
-            point = Point(row["center_x"], row["center_y"])            
-            membership.append(polygon.contains(point))
-        
-        data = data.join(pd.DataFrame({"in_"+val['name']: membership}))    
-
-    filename, file_extension = os.path.splitext(cell_file)    
-    data.to_csv(filename + '_regmem' + file_extension, header=True, index=None, sep=',')
+        filename, file_extension = os.path.splitext(cell_file)    
+        data.to_csv(filename + '_regmem' + file_extension, header=True, index=None, sep=',')
