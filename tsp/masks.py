@@ -1,17 +1,12 @@
-import os
+import os, cv2, glob
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-import glob
-from read_roi import read_roi_file # pip install read-roi
+from read_roi import read_roi_file 
 from PIL import Image, ImageDraw
-#from cellpose import utils, io
-import cv2
-# import tifffile
-# from tqdm import tqdm
-from scipy.ndimage import find_objects, binary_fill_holes
-
+from scipy import ndimage
+from cellpose import utils, io
 from tsp import imread, imsave
-from cellpose import utils
 
 
 
@@ -42,7 +37,7 @@ def masks_to_outlines(masks):
             outlines[i] = masks_to_outlines(masks[i])
         return outlines
     else:
-        slices = find_objects(masks.astype(int))
+        slices = ndimage.find_objects(masks.astype(int))
         for i,si in enumerate(slices):
             if si is not None:
                 sr,sc = si
@@ -78,6 +73,46 @@ def compute_iou(mask_true, mask_pred):
     union = area_true + area_pred - intersection
     iou = intersection / union
     return iou[1:, 1:] # exclude background; remove frequency for bin [0,1)
+
+
+#    The following function is modified based on "_label_overlap()" and "_intersection_over_union" functions in cellpose github (https://github.com/MouseLand/cellpose/blob/main/cellpose/metrics.py).
+#    For "intersection" below, the original functions seem not to deal with empty masks between background (value 0) and mask with maximum number (maximum value). It makes a difference between iou_map() and compute_iou() functions.
+#    We modifed it so as to remove empty masks in the "intersection". After the modification, iou_map() and compute_iou() functions generates the same results.
+'''
+def iou_map(masks_ture, masks_pred):
+    """IoU: Intersection over Union between true masks and predicted masks
+       
+    Inputs:
+    masks_true: ND-array, int 
+        ground truth masks, where 0=NO masks; 1,2... are mask labels
+    masks_pred: ND-array, int
+        predicted masks, where 0=NO masks; 1,2... are mask labels
+    
+    Outputs:
+    iou: ND-array, float
+        IoU map
+    """
+    x = masks_true.ravel() # flatten matrix to vector
+    y = masks_pred.ravel() # flatten matrix to vector
+    true_objects = masks_true.max()+1
+    pred_objects = masks_pred.max()+1
+    intersection = np.zeros((true_objects,pred_objects), dtype=np.uint)
+    for i in range(len(x)):
+        intersection[x[i], y[i]] += 1
+    
+    # modification #
+    empty_mask_idx = []
+    for i in range(intersection.shape[0]):
+        if(sum(intersection[i,:]) == 0): empty_mask_idx.append(i)
+    intersection = np.delete(intersection, empty_mask_idx, 0)
+    
+    n_pixels_true = np.sum(intersection, axis=1, keepdims=True)
+    n_pixels_pred = np.sum(intersection, axis=0, keepdims=True)
+    iou = intersection / (n_pixels_true + n_pixels_pred - intersection)
+    iou[np.isnan(iou)] = 0.0
+    return iou
+'''
+
 
 # TP, FP, FN
 def tp_fp_fn(threshold, iou, index=False):
@@ -257,56 +292,194 @@ def filter_by_intensity(image, mask, channels, min_ave_intensity=0, min_total_in
     
 
 def GetCenterCoor(masks):
-    outline_list = utils.outlines_list(masks)
-    yx_center = []
-    for mask in outline_list:
-        y_coor = list(zip(*mask))[0]
-        x_coor = list(zip(*mask))[1]
-        y_coor_min, y_coor_max = np.min(y_coor), np.max(y_coor)
-        x_coor_min, x_coor_max = np.min(x_coor), np.max(x_coor)
-        y_center, x_center = (y_coor_min+y_coor_max)/2, (x_coor_min+x_coor_max)/2
-        yx_center.append([y_center, x_center])
-    return yx_center
-
-
-
-
-
+    # may throw warning if some mask indices are skipped, e.g. in multistaining analysis
+    centers=ndimage.center_of_mass(masks, labels=masks, index=list(range(1,np.max(masks)+1)))
+    # alternative, slower
+    # center_x=[]; center_y=[]
+    # for i in range(1,ncell+1):
+    #     mask_pixel = np.where(masks == i)
+    #     center_y.append((np.max(mask_pixel[0]) + np.min(mask_pixel[0])) / 2)
+    #     center_x.append((np.max(mask_pixel[1]) + np.min(mask_pixel[1])) / 2)
     
-#    The following function is modified based on "_label_overlap()" and "_intersection_over_union" functions in cellpose github (https://github.com/MouseLand/cellpose/blob/main/cellpose/metrics.py).
-#    For "intersection" below, the original functions seem not to deal with empty masks between background (value 0) and mask with maximum number (maximum value). It makes a difference between iou_map() and compute_iou() functions.
-#    We modifed it so as to remove empty masks in the "intersection". After the modification, iou_map() and compute_iou() functions generates the same results.
-'''
-def iou_map(masks_ture, masks_pred):
-    """IoU: Intersection over Union between true masks and predicted masks
-       
-    Inputs:
-    masks_true: ND-array, int 
-        ground truth masks, where 0=NO masks; 1,2... are mask labels
-    masks_pred: ND-array, int
-        predicted masks, where 0=NO masks; 1,2... are mask labels
+    return centers
+
+
+def PlotMask_fill(mask, image, filename):    
+    img = imread(image)
+    my_dpi = 96
+    fill_temp = (mask!=0)
+    fillX_temp, fillY_temp = np.nonzero(fill_temp)
+    if(img.ndim == 3):
+        imgout= img.copy()
+        imgout[fillX_temp, fillY_temp] = np.array([255,255,255]) # white
+    if(img.ndim == 2):
+        imgout = fill_temp
+    plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
+    plt.gca().set_axis_off()
+    plt.imshow(imgout)
+    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+    plt.margins(0,0)
+    plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    if(img.ndim == 2):
+        plt.imsave(filename + '_fill.png', imgout, cmap='gray')
+    if(img.ndim == 3):
+        plt.savefig(filename + '_fill.png', bbox_inches = 'tight', pad_inches = 0)
+    plt.close('all')
+
+def PlotCenter(mask, image, filename, color):
+    centers = GetCenterCoor(mask)
+    y_coor=[i[0] for i in centers]
+    x_coor=[i[1] for i in centers]
+    img = imread(image)
+    my_dpi = 96
+    imgout = img.copy()
+    plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
+    plt.gca().set_axis_off()
+    plt.imshow(imgout)
+    # for i in range(len(np.unique(mask))-1):
+    for i in range(mask.max()): # max may be greater than the number of masks b/c some mask indices may be skipped
+        plt.plot(y_coor[i], x_coor[i], marker='o', color=color, ls='', markersize=4)
+    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+    plt.margins(0,0)
+    plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    if(img.ndim == 2):
+        plt.imsave(filename + '_point.png', imgout, cmap='gray')
+    if(img.ndim == 3):
+        plt.savefig(filename + '_point.png', bbox_inches = 'tight', pad_inches = 0)
+    plt.close('all')
+
+    # imgout= img.copy()
+    # plt.figure(figsize=(img.shape[1]/my_dpi, img.shape[0]/my_dpi), dpi=my_dpi)
+    # plt.gca().set_axis_off()
+    # plt.imshow(imgout)
+    # for i in range(masks.max()):
+    #     plt.plot(center_x[i], center_y[i], marker='o', color='r', ls='', markersize=4)
+    # plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+    # plt.margins(0,0)
+    # plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    # plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    # plt.savefig(filename + "_mask_point.png", bbox_inches = 'tight', pad_inches = 0)
+    # plt.close('all')
+
+
+def PlotMask_outline(mask, image, filename, color):
+    img = imread(image)
+    my_dpi = 96
+    outlines_temp = utils.masks_to_outlines(mask)
+    outX_temp, outY_temp = np.nonzero(outlines_temp)
+    if(img.ndim == 3):
+        imgout= img.copy()
+        imgout[outX_temp, outY_temp] = np.array(color)
+    if(img.ndim == 2):
+        imgout = outlines_temp
+    plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
+    plt.gca().set_axis_off()
+    plt.imshow(imgout)
+    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+    plt.margins(0,0)
+    plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    if(img.ndim == 2):
+        plt.imsave(filename + '_outline.png', imgout, cmap='gray')
+    if(img.ndim == 3):
+        plt.savefig(filename + '_outline.png', bbox_inches = 'tight', pad_inches = 0)
+    plt.close('all')
+
+
+def save_stuff(masks, imgfilename, channels, save_overlay_images=False, save_mask_roi=False, img=None):
+    if img is None: img = imread(imgfilename)
+        
+    filename = os.path.splitext(imgfilename)[0]
     
-    Outputs:
-    iou: ND-array, float
-        IoU map
-    """
-    x = masks_true.ravel() # flatten matrix to vector
-    y = masks_pred.ravel() # flatten matrix to vector
-    true_objects = masks_true.max()+1
-    pred_objects = masks_pred.max()+1
-    intersection = np.zeros((true_objects,pred_objects), dtype=np.uint)
-    for i in range(len(x)):
-        intersection[x[i], y[i]] += 1
+    ncell=np.max(masks)
+
+    outlines = utils.masks_to_outlines(masks)
+
+    sizes = np.unique(masks, return_counts=True)[1][1:].tolist()        
+
+    centers=GetCenterCoor(masks)
+    center_y=[i[0] for i in centers]
+    center_x=[i[1] for i in centers]
     
-    # modification #
-    empty_mask_idx = []
-    for i in range(intersection.shape[0]):
-        if(sum(intersection[i,:]) == 0): empty_mask_idx.append(i)
-    intersection = np.delete(intersection, empty_mask_idx, 0)
+    # Save a plot of mask outlines only
+    plt.imsave(filename + "_masks.png", outlines, cmap='gray')        
+
+    ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
+    mask_info = pd.DataFrame([sizes, center_x, center_y]).T
+    mask_info.columns = ["size","center_x","center_y"]        
+    mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+    mask_info.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
+        
+    # save _cp_outline to convert to roi by ImageJ
+    if save_mask_roi:
+        outlines_list = utils.outlines_list(masks)
+        io.outlines_to_text(filename, outlines_list)
+        
+    if save_overlay_images:
+        # Masks as outlines #
+        my_dpi = 96
+        outX, outY = np.nonzero(outlines)
+        imgout= img.copy()
+        imgout[outX, outY] = np.array([255,75,75]) # np.array([255,255,255]) white for severity analysis
+        plt.figure(figsize=(img.shape[1]/my_dpi, img.shape[0]/my_dpi), dpi=my_dpi)
+        plt.gca().set_axis_off()
+        plt.imshow(imgout)
+        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        plt.margins(0,0)
+        plt.gca().xaxis.set_major_locator(plt.NullLocator())
+        plt.gca().yaxis.set_major_locator(plt.NullLocator())
+        plt.savefig(filename + "_mask_outline.png", bbox_inches = 'tight', pad_inches = 0)
+        plt.close('all')
+        
+        # Masks as filled shapes #
+        fill_mask = (masks!=0)
+        fillX, fillY = np.nonzero(fill_mask)
+        if(channels == [0,0]):
+            imgout = fill_mask
+        else:
+            imgout= img.copy()
+            imgout[fillX, fillY] = np.array([255,255,255]) # white for masks
+        plt.figure(figsize=(img.shape[1]/my_dpi, img.shape[0]/my_dpi), dpi=my_dpi)
+        plt.gca().set_axis_off()
+        plt.imshow(imgout)
+        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        plt.margins(0,0)
+        plt.gca().xaxis.set_major_locator(plt.NullLocator())
+        plt.gca().yaxis.set_major_locator(plt.NullLocator())
+        if(channels == [0,0]):
+            plt.imsave(filename + "_mask_fill.png", imgout, cmap='gray')
+        else:
+            plt.savefig(filename + "_mask_fill.png", bbox_inches = 'tight', pad_inches = 0)
+        plt.close('all')
+        
+        # Mask(text) plot #
+        # It takes such a long time, so it may be off for severity analysis #
+        imgout= img.copy()
+        plt.figure(figsize=(img.shape[1]/my_dpi, img.shape[0]/my_dpi), dpi=my_dpi)
+        plt.gca().set_axis_off()
+        plt.imshow(imgout)
+        for i in range(masks.max()):
+            plt.text(center_x[i], center_y[i], str(i+1), dict(size=10, color='red', horizontalalignment='center', verticalalignment='center'))
+        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        plt.margins(0,0)
+        plt.gca().xaxis.set_major_locator(plt.NullLocator())
+        plt.gca().yaxis.set_major_locator(plt.NullLocator())
+        plt.savefig(filename + "_mask_text.png", bbox_inches = 'tight', pad_inches = 0)
+        plt.close('all')
+        
+        # Masks as points #
+        imgout= img.copy()
+        plt.figure(figsize=(img.shape[1]/my_dpi, img.shape[0]/my_dpi), dpi=my_dpi)
+        plt.gca().set_axis_off()
+        plt.imshow(imgout)
+        for i in range(masks.max()):
+            plt.plot(center_x[i], center_y[i], marker='o', color='r', ls='', markersize=4)
+        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        plt.margins(0,0)
+        plt.gca().xaxis.set_major_locator(plt.NullLocator())
+        plt.gca().yaxis.set_major_locator(plt.NullLocator())
+        plt.savefig(filename + "_mask_point.png", bbox_inches = 'tight', pad_inches = 0)
+        plt.close('all')
     
-    n_pixels_true = np.sum(intersection, axis=1, keepdims=True)
-    n_pixels_pred = np.sum(intersection, axis=0, keepdims=True)
-    iou = intersection / (n_pixels_true + n_pixels_pred - intersection)
-    iou[np.isnan(iou)] = 0.0
-    return iou
-'''

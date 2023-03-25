@@ -45,7 +45,10 @@ def main():
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
-    parser.add_argument('--s', action='store_true', help='plot results', required=False) # saves 4 types of mask png files: outline, text, point, fill
+    # output control
+    parser.add_argument('--s', action='store_true', help='save multiple plots with img and masks', required=False) 
+    parser.add_argument('--saveflow', action='store_true', help='save flow etc as npy files', required=False) # 
+    parser.add_argument('--saveroi', action='store_true', help='save masks as roi files', required=False) # 
     
     # for cellphenotyping 
     parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
@@ -55,7 +58,6 @@ def main():
             
     # shared
     parser.add_argument('--f', type=str, help='files') 
-    parser.add_argument('--r', action='store_true', help='save mask info', required=False) 
     parser.add_argument('--l', type=str, help='Channel', required=False)
     parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
     parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
@@ -102,10 +104,11 @@ def main():
         
         # pretrained="cytotrain7"; diameter=0.; flow=0.4; cellprob=0.; minsize=0; min_ave_intensity=0; min_total_intensity=0; plot=False; output=False; min_size=15
         run_cellpose(files=files, 
+                     channels=channels,
                      pretrained=args.model, 
                      diameter=args.d, flow=args.o, cellprob=args.cellprob, 
                      min_size=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
-                     plot=args.s, output=args.r, channels=channels) 
+                     save_plot=args.s, save_roi=args.saveroi, save_flow=args.saveflow) 
         
         print(f"time passed: {(timeit.default_timer() - start_time)/60:.1f} min"); 
 
@@ -120,7 +123,7 @@ def main():
         channels = [int(i) for i in args.l[1:-1].split(",")]
         
         StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], 
-                         channels=channels, methods=methods, plot=True, output=args.r)
+                         channels=channels, methods=methods, save_plot=args.s)
         
         
     elif args.action=='intensityanalysis':        

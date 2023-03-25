@@ -59,21 +59,25 @@ To make outlines
 ## Cell segmentation with cellpose 
 > python -m tsp runcellpose --f '*.png' 
 
+Required:
 - --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
 
-- --s If present, some additional image files will be saved.
-
-- --r If present, some additional files with info on the masks will be saved.
+- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
 
 - --model Cellpose model to use, including cyto and cytotrain7. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al.
+
+Optional:
+- --s If present, some additional image files will be saved.
+
+- --saveflow If present, .npy file containing flow, diam etc will be saved.
+
+- --saveroi If present, mask outline roi files will be saved.
 
 - --d Cellpose tuning parameter, cell diameter. Default 0. 
 
 - --o Cellpose tuning parameter, flow threshold. Default 0.4.  
 
 - --cellprob Cellpose tuning parameter, cellprob threshold. Default 0. 
-
-- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
 
 - --min_size Post-processing parameter, min_size, is changed from 15 (default) to the specified value. If a cell consists of the number of pixels less than min_size, the cell is removed. 
 
@@ -95,9 +99,9 @@ To make outlines
 
 - _mask_text.png (with -s): an image file containing the identified numbers of the predicted cell masks 
 
-- _seg.npy (with -r): cellpose output file containing overall info about predicted masks and parameters used in prediction. This file can be huge.
+- _seg.npy (with -saveflow): cellpose output file containing overall info about predicted masks and parameters used in prediction. This file can be huge.
 
-- _cp_outlines.txt (with -r): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
+- _cp_outlines.txt (with -saveroi): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
 
 
 ## Cell phenotyping 
@@ -124,15 +128,16 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 - _counts_lastcutoff.txt: cell counts for a series of cutoffs for the last marker
 
-- _fill.png: K files with each mask drawn as a filled shape
+- _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
 
-- _outline.png: K files with each mask drawn as an outline
+- _fill.png (with -s): K files with each mask drawn as a filled shape
 
-- _point.png: K files with each mask drawn as a point
+- _outline.png (with -s): K files with each mask drawn as an outline
+
+- _point.png (with -s): K files with each mask drawn as a point
 
 - _seg.npz (with -r): cellpose output file containing overall info about image and masks, last marker only
 
-- _masks.csv (with -r): a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
 
 
 
