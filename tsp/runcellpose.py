@@ -58,16 +58,16 @@ def run_cellpose(files,
         plt.imsave(save_path + "_masks.png", outlines, cmap='gray')
         
         # Save a csv file, one mask per row, include size, center_x, center_y        
-        size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()        
-        center_x=[]; center_y=[]
-        for i in range(1,ncell+1):
-            mask_pixel = np.where(masks == i)
-            center_y.append((np.max(mask_pixel[0]) + np.min(mask_pixel[0])) / 2)
-            center_x.append((np.max(mask_pixel[1]) + np.min(mask_pixel[1])) / 2)
-        mask_res = pd.DataFrame([size_masks, center_x, center_y]).T
-        mask_res.columns = ["size","center_x","center_y"]        
-        mask_res.index = [f"Cell_{i}" for i in range(1,ncell+1)]
-        mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
+        # size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()        
+        # center_x=[]; center_y=[]
+        # for i in range(1,ncell+1):
+        #     mask_pixel = np.where(masks == i)
+        #     center_y.append((np.max(mask_pixel[0]) + np.min(mask_pixel[0])) / 2)
+        #     center_x.append((np.max(mask_pixel[1]) + np.min(mask_pixel[1])) / 2)
+        # mask_res = pd.DataFrame([size_masks, center_x, center_y]).T
+        # mask_res.columns = ["size","center_x","center_y"]        
+        # mask_res.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+        # mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
         
         ## a slower way
         # size_masks = []
