@@ -5,7 +5,7 @@ import torch
 from scipy import ndimage
 from cellpose import utils, models, io
 import matplotlib.pyplot as plt
-from tsp.masks import GetCenterCoor, filter_by_intensity
+from tsp.masks import filter_by_intensity
 
 
 ### Running Cellpose ###
@@ -78,29 +78,14 @@ def run_cellpose(files,
         mask_res.index = [f"Cell_{i}" for i in range(1,ncell+1)]
         mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
         
-        ## a slower way
-        # size_masks = []
-        # act_mask = np.delete(np.unique(masks),0)
-        # for i in act_mask:
-        #     mask_pixel = np.where(masks == i)
-        #     size_masks.append(len(mask_pixel[0]))
-        # # XY coordinates #
-        # outlines = GetCenterCoor(masks)
-        # mask_res = pd.DataFrame([size_masks, [i[0] for i in outlines], [i[1] for i in outlines]]).T
-        # mask_res.columns = ["size","center_x","center_y"]
-        # cellnames = []
-        # for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
-        # mask_res.index = cellnames
-        # mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
-
         
         # Optional output #
         
         # mask info
         if(output == True):
             # save _cp_outline to convert to roi by ImageJ
-            outlines = utils.outlines_list(masks)
-            io.outlines_to_text(save_path, outlines)
+            outlines_list = utils.outlines_list(masks)
+            io.outlines_to_text(save_path, outlines_list)
             
             # save .npy file
             io.masks_flows_to_seg(img,masks,flows,diams, file_names=save_path + '.npy')             
@@ -145,15 +130,12 @@ def run_cellpose(files,
             
             # Mask(text) plot #
             # It takes such a long time, so it may be off for severity analysis #
-            yx_center = GetCenterCoor(masks)
-            y_coor = list(zip(*yx_center))[0]
-            x_coor = list(zip(*yx_center))[1]
             imgout= img.copy()
             plt.figure(figsize=(img.shape[1]/my_dpi, img.shape[0]/my_dpi), dpi=my_dpi)
             plt.gca().set_axis_off()
             plt.imshow(imgout)
             for i in range(masks.max()):
-                plt.text(y_coor[i], x_coor[i], str(i+1), dict(size=10, color='red', horizontalalignment='center', verticalalignment='center'))
+                plt.text(center_y[i], center_x[i], str(i+1), dict(size=10, color='red', horizontalalignment='center', verticalalignment='center'))
             plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
             plt.margins(0,0)
             plt.gca().xaxis.set_major_locator(plt.NullLocator())
@@ -167,7 +149,7 @@ def run_cellpose(files,
             plt.gca().set_axis_off()
             plt.imshow(imgout)
             for i in range(masks.max()):
-                plt.plot(y_coor[i], x_coor[i], marker='o', color='r', ls='', markersize=4)
+                plt.plot(center_y[i], center_x[i], marker='o', color='r', ls='', markersize=4)
             plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
             plt.margins(0,0)
             plt.gca().xaxis.set_major_locator(plt.NullLocator())
