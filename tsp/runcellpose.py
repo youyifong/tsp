@@ -6,7 +6,6 @@ from scipy import ndimage
 from cellpose import utils, models, io
 import matplotlib.pyplot as plt
 from tsp.masks import GetCenterCoor, filter_by_intensity
-import timeit
 
 
 ### Running Cellpose ###
@@ -38,7 +37,6 @@ def run_cellpose(files,
         
     ncells = []
     for item in files :
-        start_time = timeit.default_timer()
 
         img = io.imread(item); 
         filename = os.path.splitext(item)[0]
@@ -60,8 +58,6 @@ def run_cellpose(files,
         # Save a plot of masks only
         outlines = utils.masks_to_outlines(masks)
         plt.imsave(save_path + "_masks.png", outlines, cmap='gray')        
-        print(f"Time spent in cellpose eval: {(timeit.default_timer() - start_time)/60:.2f} min"); 
-        start_time = timeit.default_timer()
 
         ## Save a csv file, one mask per row, include size, center_x, center_y         ##
         size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()        
@@ -70,8 +66,6 @@ def run_cellpose(files,
         centers=ndimage.center_of_mass(masks, labels=masks, index=list(range(1,ncell+1)))
         center_y=[i[0] for i in centers]
         center_x=[i[1] for i in centers]
-        print(f"Time spent in center of mass: {(timeit.default_timer() - start_time)/60:.2f} min"); 
-        start_time = timeit.default_timer()
 
         # center_x=[]; center_y=[]
         # for i in range(1,ncell+1):
@@ -83,8 +77,6 @@ def run_cellpose(files,
         mask_res.columns = ["size","center_x","center_y"]        
         mask_res.index = [f"Cell_{i}" for i in range(1,ncell+1)]
         mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
-        print(f"Time spent in pd: {(timeit.default_timer() - start_time)/60:.2f} min"); 
-        start_time = timeit.default_timer()
         
         ## a slower way
         # size_masks = []

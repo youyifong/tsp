@@ -9,6 +9,10 @@ from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
 from tsp.geom import dist2boundary, region_membership
 
+import timeit
+start_time = timeit.default_timer()
+
+
 def main():
     
     parser = argparse.ArgumentParser(description='tsp parameters')
@@ -102,6 +106,7 @@ def main():
                      min_size=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      plot=args.s, output=args.r, channels=channels) 
         
+        print(f"time passed: {(timeit.default_timer() - start_time)/60:.1f} min"); 
 
         
     elif args.action=='cellphenotyping':        
