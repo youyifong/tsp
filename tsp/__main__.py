@@ -1,7 +1,5 @@
 import argparse, glob, os, sys
 import numpy as np
-import timeit
-start_time = timeit.default_timer()
 
 from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
@@ -104,7 +102,6 @@ def main():
                      min_size=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      plot=args.s, output=args.r, channels=channels) 
         
-        print("time passed: ", end=" "); print( timeit.default_timer() - start_time )
 
         
     elif args.action=='cellphenotyping':        
