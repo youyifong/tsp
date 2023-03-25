@@ -2,7 +2,7 @@ import os, time, sys
 import numpy as np
 import pandas as pd
 import torch
-from scipy.ndimage import center_of_mass
+from scipy import ndimage
 from cellpose import utils, models, io
 import matplotlib.pyplot as plt
 from tsp.masks import GetCenterCoor, filter_by_intensity
@@ -66,7 +66,8 @@ def run_cellpose(files,
         ## Save a csv file, one mask per row, include size, center_x, center_y         ##
         size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()        
 
-        centers=center_of_mass(masks)
+
+        centers=ndimage.center_of_mass(masks, labels=masks, index=list(range(1,ncell+1)))
         center_y=[i[0] for i in centers]
         center_x=[i[1] for i in centers]
         print(f"Time spent in center of mass: {(timeit.default_timer() - start_time)/60:.2f} min"); 
