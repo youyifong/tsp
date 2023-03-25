@@ -2,6 +2,7 @@ import os, time, sys
 import numpy as np
 import pandas as pd
 import torch
+from scipy.ndimage import center_of_mass
 from cellpose import utils, models, io
 import matplotlib.pyplot as plt
 from tsp.masks import GetCenterCoor, filter_by_intensity
@@ -44,7 +45,7 @@ def run_cellpose(files,
         if(pretrained == 'cyto'):
             masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
         else:
-            masks, flows, styles = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
+            masks, flows, styles        = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
             diams = diameter
         
         # Post-processing (min_size, min_intensity) #
@@ -59,25 +60,30 @@ def run_cellpose(files,
         # Save a plot of masks only
         outlines = utils.masks_to_outlines(masks)
         plt.imsave(save_path + "_masks.png", outlines, cmap='gray')        
-        print(f"Time passed: {(timeit.default_timer() - start_time)/60:.2f} min"); 
+        print(f"Time spent in cellpose eval: {(timeit.default_timer() - start_time)/60:.2f} min"); 
         start_time = timeit.default_timer()
 
-        # Save a csv file, one mask per row, include size, center_x, center_y        
+        ## Save a csv file, one mask per row, include size, center_x, center_y         ##
         size_masks = np.unique(masks, return_counts=True)[1][1:].tolist()        
-        print(f"Time passed: {(timeit.default_timer() - start_time)/60:.2f} min"); 
+
+        centers=center_of_mass(masks)
+        center_y=[i[0] for i in centers]
+        center_x=[i[1] for i in centers]
+        print(f"Time spent in center of mass: {(timeit.default_timer() - start_time)/60:.2f} min"); 
         start_time = timeit.default_timer()
-        center_x=[]; center_y=[]
-        print(f"ncell: {ncell}")
-        for i in range(1,ncell+1):
-            mask_pixel = np.where(masks == i)
-            center_y.append((np.max(mask_pixel[0]) + np.min(mask_pixel[0])) / 2)
-            center_x.append((np.max(mask_pixel[1]) + np.min(mask_pixel[1])) / 2)
-            print(f"Time passed: {(timeit.default_timer() - start_time)/60:.2f} min"); 
-        start_time = timeit.default_timer()
+
+        # center_x=[]; center_y=[]
+        # for i in range(1,ncell+1):
+        #     mask_pixel = np.where(masks == i)
+        #     center_y.append((np.max(mask_pixel[0]) + np.min(mask_pixel[0])) / 2)
+        #     center_x.append((np.max(mask_pixel[1]) + np.min(mask_pixel[1])) / 2)
+
         mask_res = pd.DataFrame([size_masks, center_x, center_y]).T
         mask_res.columns = ["size","center_x","center_y"]        
         mask_res.index = [f"Cell_{i}" for i in range(1,ncell+1)]
         mask_res.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
+        print(f"Time spent in pd: {(timeit.default_timer() - start_time)/60:.2f} min"); 
+        start_time = timeit.default_timer()
         
         ## a slower way
         # size_masks = []
