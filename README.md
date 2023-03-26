@@ -130,11 +130,11 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
 
-- _fill.png (with -s): K files with each mask drawn as a filled shape
+- _fill.png (with -s): K files with each mask drawn as a filled shape. The underlying image is the kth marker image despite the file name.
 
-- _outline.png (with -s): K files with each mask drawn as an outline
+- _outline.png (with -s): K files with each mask drawn as an outline. The underlying image is the kth marker image despite the file name.
 
-- _point.png (with -s): K files with each mask drawn as a point
+- _point.png (with -s): K files with each mask drawn as a point. The underlying image is the kth marker image despite the file name.
 
 - _seg.npz (with -r): cellpose output file containing overall info about image and masks, last marker only
 

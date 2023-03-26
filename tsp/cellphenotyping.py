@@ -1,7 +1,7 @@
 import os, math
 import pandas as pd
 import numpy as np
-from tsp.masks import GetCenterCoor, PlotMask_outline, PlotMask_fill, PlotCenter
+from tsp.masks import GetCenterCoor, PlotMask_outline, PlotMask_center
 from tsp import imread
 
 def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot):
@@ -104,9 +104,9 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     if(save_plot):
         mask_color = [255,250,240]
         for i in range(len(masks)):
-            PlotMask_outline(mask=masks[i], image=files[i], filename=staged_output_file_names[i], color=mask_color)
-            PlotMask_fill(mask=masks[i], image=files[i], filename=staged_output_file_names[i])
-            PlotCenter(mask=masks[i], image=files[i], filename=staged_output_file_names[i], color='r')
+            PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
+            PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_fill.png',    color=[255,255,255], fill=True)
+            PlotMask_center (mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_point.png',   color='r')
     
         # for i in range(len(files)-1):
         #     np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
