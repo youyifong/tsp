@@ -42,9 +42,9 @@ def run_cellpose(files, channels,
         img = io.imread(file); 
         filename = os.path.splitext(file)[0]
         if(pretrained == 'cyto'):
-            masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size, normalize_100=)
+            masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size, normalize_100=normalize_100)
         else:
-            masks, flows, styles        = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
+            masks, flows, styles        = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size, normalize_100=normalize_100)
             diams = diameter
         
         # Post-processing (min_size, min_intensity) #
