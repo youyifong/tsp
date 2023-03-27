@@ -73,7 +73,7 @@ Optional:
 
 - --saveroi If present, mask outline roi files will be saved.
 
-- --flow Flow threshold. Larger values => more masks. Default 0.4.  
+- --flow Flow threshold. Larger values => more masks. This may be the most important parameter to adjust at inference. Default 0.4.  
 
 - --cellprob Cell probability threshold. Smaller values => larger and fewer masks, fewer because masks they are close start to merge. Default 0. 
 
