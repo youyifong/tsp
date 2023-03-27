@@ -49,7 +49,7 @@ To refresh tsp, simply enter the tsp directory and that will update the installe
 
 To refresh Cellpose, 
 
- 
+>pip install git+https://github.com/youyifong/cellpose.git#egg=cellpose  
 
  
 ## Some tips 
