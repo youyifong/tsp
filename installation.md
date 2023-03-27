@@ -40,9 +40,14 @@ Clone our tsp pipeline package and install with the editable –e option
 >pip install -e tsp 
  
  
+## refresh
+
+ 
 To refresh tsp, simply enter the tsp directory and that will update the installed module
 
 >git pull 
+
+To refresh Cellpose, 
 
  
 

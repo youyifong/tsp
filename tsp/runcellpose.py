@@ -11,6 +11,7 @@ from tsp.masks import save_stuff
 def run_cellpose(files, channels,
                  pretrained, 
                  diameter, flow, cellprob, 
+                 normalize_100,
                  min_size, min_ave_intensity, min_total_intensity, 
                  save_plot, save_roi, save_flow):
     
@@ -41,7 +42,7 @@ def run_cellpose(files, channels,
         img = io.imread(file); 
         filename = os.path.splitext(file)[0]
         if(pretrained == 'cyto'):
-            masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
+            masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size, normalize_100=)
         else:
             masks, flows, styles        = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size)
             diams = diameter
