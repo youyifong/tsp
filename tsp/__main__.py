@@ -59,7 +59,7 @@ def main():
     # shared
     parser.add_argument('--f', type=str, help='files') 
     parser.add_argument('--l', type=str, help='Channel', required=False)
-    parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=0)
+    parser.add_argument('--min_size', type=int, help='minimal size of masks', required=False, default=15)
     parser.add_argument('--min_totalintensity', type=int, help='minimal value of total intensity', required=False, default=0)
     parser.add_argument('--min_avgintensity', type=int, help='minimal value of average intensity', required=False, default=0)    
     parser.add_argument('--imagefile', type=str, help='image file')

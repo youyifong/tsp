@@ -75,7 +75,7 @@ Optional:
 
 - --d Cellpose tuning parameter, cell diameter. Default 0. 
 
-- --o Cellpose tuning parameter, flow threshold. Default 0.4.  
+- --o Cellpose tuning parameter, flow threshold. Larger value leads to more masks. Default 0.4.  
 
 - --cellprob Cellpose tuning parameter, cellprob threshold. Default 0. 
 
