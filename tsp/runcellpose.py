@@ -20,8 +20,11 @@ def run_cellpose(files, channels,
         gpu = False
         
     # Declare model #
-    if(pretrained in ['cyto', 'tissuenet']):
+    if(pretrained in ['cyto']):
         model = models.Cellpose(gpu=gpu, model_type=pretrained)
+    
+    elif(pretrained in ['tissuenet']):
+        model = models.CellposeModel(gpu=gpu, pretrained_model=None, model_type=pretrained)
     
     elif(pretrained == 'cytotrain7'):
         model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/cellpose_trained_models/cellpose_residual_on_style_on_concatenation_off_training7_2023_01_18_16_58_51.772584') # trained on seven training images from K
