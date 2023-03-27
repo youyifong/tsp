@@ -73,11 +73,11 @@ Optional:
 
 - --saveroi If present, mask outline roi files will be saved.
 
+- --flow Flow threshold. Larger values => more masks. Default 0.4.  
+
+- --cellprob Cell probability threshold. Smaller values => larger and fewer masks, fewer because masks they are close start to merge. Default 0. 
+
 - --d Cell diameter. Default 0. 
-
-- --flow Flow threshold. Larger values lead to more masks. Default 0.4.  
-
-- --cellprob Cell probability threshold. Smaller values leads to more masks. Default 0. 
 
 - --normalize100 If present, normalize image from min to max instead of 1 to 99 percentiles. This helps when there are few cells in the image.
 
