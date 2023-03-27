@@ -44,7 +44,7 @@ def main():
     parser.add_argument('--model', type=str, help='Pre-trained model')
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
-    parser.add_argument('--o', type=float, help='Flow threshold', required=False, default=0.4)
+    parser.add_argument('--flow', type=float, help='Flow threshold', required=False, default=0.4)
     parser.add_argument('--normalize100', action='store_true', help='normalize to 0-100 instead of 1-99 percentiles', required=False) # 
     # output control
     parser.add_argument('--s', action='store_true', help='save multiple plots with img and masks', required=False) 
@@ -107,7 +107,7 @@ def main():
         run_cellpose(files=files, 
                      channels=channels,
                      pretrained=args.model, 
-                     diameter=args.d, flow=args.o, cellprob=args.cellprob, 
+                     diameter=args.d, flow=args.flow, cellprob=args.cellprob, 
                      normalize_100=args.normalize100,
                      min_size=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      save_plot=args.s, save_roi=args.saveroi, save_flow=args.saveflow) 

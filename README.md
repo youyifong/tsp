@@ -73,13 +73,13 @@ Optional:
 
 - --saveroi If present, mask outline roi files will be saved.
 
-- --d Cellpose tuning parameter, cell diameter. Default 0. 
+- --d Cell diameter. Default 0. 
 
-- --o Cellpose tuning parameter, flow threshold. Larger value leads to more masks. Default 0.4.  
+- --flow Flow threshold. Larger values lead to more masks. Default 0.4.  
 
-- --cellprob Cellpose tuning parameter, cellprob threshold. Default 0. 
+- --cellprob Cell probability threshold. Smaller values leads to more masks. Default 0. 
 
-- --normalize100 If present, normalize image from min to max instead of 1 to 99 percentiles.
+- --normalize100 If present, normalize image from min to max instead of 1 to 99 percentiles. This helps when there are few cells in the image.
 
 - --min_size Post-processing parameter, min_size, is changed from 15 (default) to the specified value. If a cell consists of the number of pixels less than min_size, the cell is removed. 
 
