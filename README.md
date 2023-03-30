@@ -148,7 +148,7 @@ Optional iput
 - --l An integer: 1 (red), 2 (green), and 3 (blue). Not required if image files are grayscale.
 
 Output 
-- _intensity.txt: contains three intensity (total intensity, average normalized intensity, and total normalized intensity) and the x-y coordinates for each mask of marker 1
+- _MFI.csv: contains the x-y coordinates and MFI for each mask 
 
 
 

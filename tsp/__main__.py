@@ -133,12 +133,15 @@ def main():
         
         
     elif args.action=='intensityanalysis':        
-        files = glob.glob(args.f)
-        print('working on: ', end=" "); print(files)
+        if args.f == None or args.maskfile == None:
+            sys.exit("ERROR: --f and --maskfile are required arguments")            
+
+        image_files = glob.glob(args.f)
+        print('working on: ', end=" "); print(image_files)
         
-        channel = int(args.l) if args.l is not None else None
+        channel = int(args.l)-1 if args.l is not None else None
         
-        IntensityAnalysis(files=files, channel=channel)
+        IntensityAnalysis(mask_file=args.maskfile, image_files=image_files, channel=channel)
         
         
     elif args.action=='maskfile2outline':

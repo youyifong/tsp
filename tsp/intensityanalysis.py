@@ -1,42 +1,33 @@
 import os
 import pandas as pd
 import numpy as np
-from tsp.masks import GetCenterCoor
 from tsp import imread
+from scipy import ndimage
+from tsp.masks import GetCenterCoor 
 
-
-def IntensityAnalysis(files, channel=None):
-    filenames=[os.path.splitext(f)[0] for f in files]
-    image_base = imread(files[0])
-    mask_path = filenames[0] + '_seg.npy'
-    dat = np.load(mask_path, allow_pickle=True).item()
-    mask = dat['masks']
-    outlines = GetCenterCoor(mask)
+def IntensityAnalysis(mask_file, image_files, channel=None):
     
-    intensity_total = []
-    for i in range(len(files)):
-        if(i == 0):
-            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_base, channel=channel)
-        else:
-            image_comp = imread(files[i])
-            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_comp, channel=channel)
-        intensity_total.append(intensity_norm_avg_all); 
-        intensity_total.append(intensity_norm_avg_pos); 
-        intensity_total.append(intensity_norm_total)
-    intensity_total.append(list(outlines))
-    intensity_res = pd.DataFrame(intensity_total).T
-    colnames = []
-    for i in range(len(filenames)):
-        temp = [filenames[i] + "_intensity_avg_all", filenames[i] + "_intensity_avg_pos", filenames[i] + "_intensity_total"]
-        for j in range(3):
-           colnames.append(temp[j])
-    colnames.append("xy_coordinate")
-    intensity_res.columns = colnames
-    cellnames = []
-    for i in range(intensity_res.shape[0]): 
-        cellnames.append("Cell_" + str(i+1))
-    intensity_res.index = cellnames
-    intensity_res.to_csv(filenames[0] + "_intensity.txt", header=True, index=True, sep=',')
+    dat = np.load(mask_file, allow_pickle=True).item()
+    masks = dat['masks']
+    
+    filenames=[os.path.splitext(f)[0] for f in image_files]
+
+    centers = GetCenterCoor(masks)
+    y_coor=[i[0] for i in centers]
+    x_coor=[i[1] for i in centers]
+
+    mask_indices = np.unique(masks)[1:]
+
+    res = [["Cell_"+str(i) for i in mask_indices], x_coor, y_coor]
+
+    for i in range(len(image_files)):
+        im = imread(image_files[i])
+        if channel is not None: im = im[:,:,channel]
+        res.append(ndimage.mean(im, labels=masks, index=mask_indices))
+        
+    res = pd.DataFrame(res).T
+    res.columns = ["name", "x","y"] +filenames
+    res.to_csv(os.path.splitext(mask_file)[0] + "_MFI.csv", header=True, index=False, sep=',')
 
 
 
