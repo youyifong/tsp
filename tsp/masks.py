@@ -293,9 +293,9 @@ def filter_by_intensity(image, mask, channels, min_ave_intensity=0, min_total_in
     
 
 def GetCenterCoor(masks):
-    # may get RuntimeWarning: invalid value encountered in true_divide
-    # if some mask indices are skipped, e.g. in multistaining analysis
-    centers=ndimage.center_of_mass(masks, labels=masks, index=list(range(1,np.max(masks)+1)))
+    print(np.unique(masks))
+    centers=ndimage.center_of_mass(masks, labels=masks, index=np.unique(masks)[1:]) # 1: to get rid of 0, which is background
+    # centers=ndimage.center_of_mass(masks, labels=masks, index=list(range(1,np.max(masks)+1)))
     # alternative, slower
     # center_x=[]; center_y=[]
     # for i in range(1,ncell+1):

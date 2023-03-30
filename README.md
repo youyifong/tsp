@@ -70,8 +70,6 @@ Optional input:
 
 Output 
 
-RuntimeWarning about invalid value in TrueDivide may occur in calls to center_of_mass may occur and can be safely ignored.
-
 - cellpose_counts_timestr.txt: number of predicted masks for each image 
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
@@ -107,6 +105,7 @@ Required input:
 - --n List of K-1 names for markers (first marker excluded). 
 
 Optional input:
+
 - --l List of K-1 channels. If the images are grayscale, the argument is not needed. If the images are RBG, the argument is used to extract the channels of interest from the two images: 1 R, 2 G, 3 B, e.g. [2,2]
 
 - --s If present, additional image files will be saved.
@@ -114,6 +113,7 @@ Optional input:
 - --r If present, two additional result files will be saved for the last stage: 1) a cellpose output file named _seg.npz that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _masks.csv that contains the sizes and the x and y coordinates for each mask. 
 
 Output 
+
 - _counts_multistain.txt: cell counts, one row for each additional marker
 
 - _counts_lastcutoff.txt: cell counts for a series of cutoffs for the last marker
