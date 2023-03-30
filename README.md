@@ -70,6 +70,8 @@ Optional input:
 
 Output 
 
+RuntimeWarning about invalid value in TrueDivide may occur in calls to center_of_mass may occur and can be safely ignored.
+
 - cellpose_counts_timestr.txt: number of predicted masks for each image 
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
@@ -85,6 +87,7 @@ Output
 - _seg.npy (with -saveflow): cellpose output file containing overall info about predicted masks and parameters used in prediction. This file can be huge.
 
 - _cp_outlines.txt (with -saveroi): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
+
 
 
 ## Cell phenotyping 
