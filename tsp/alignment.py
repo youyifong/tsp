@@ -4,33 +4,24 @@ Created on Fri Mar 17 11:49:24 2023
 
 @author: Youyi
 """
-import os, cv2
+import os, cv2, sys
 import numpy as np
-from tsp import imsave
+from tsp import imsave, imread
 
 def doalign (ref_image, image2, channels):
     filename, file_extension = os.path.splitext(image2)
 
-    image1=cv2.imread(ref_image)
-    image2=cv2.imread(image2)    
+    image1=imread(ref_image)
+    image2=imread(image2)
+
+    if (image1.ndim==3 or image2.ndim==3) and channels is None:
+        sys.exit("When at least one of the two images is 3-dimensional, --l needs to be set")
 
     # Convert images to grayscale for computing the rotation via ECC method
-    sz = image1.shape    
-    if len(sz)==3:
-        # im1_gray = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
-        image1 = image1[:,:,channels[0]]
-        im1_gray = image1
-    elif len(sz)==2:
-        im1_gray = image1
-    
-    sz2 = image2.shape    
-    if len(sz2)==3:
-        # im2_gray = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)         
-        image2 = image2[:,:,channels[1]]
-        im2_gray = image2
-        file_extension = ".png"
-    elif len(sz2)==2:
-        im2_gray = image2
+    if len(image1.shape)==3: image1 = image1[:,:,channels[0]]
+    im1_gray = image1    
+    if len(image2.shape)==3: image2 = image2[:,:,channels[1]]
+    im2_gray = image2
 
     # motion models: MOTION_HOMOGRAPHY, MOTION_AFFINE, MOTION_EUCLIDEAN (rigid), MOTION_TRANSLATION 
     warp_mode = cv2.MOTION_HOMOGRAPHY  
@@ -43,10 +34,11 @@ def doalign (ref_image, image2, channels):
     # Run the ECC algorithm. The results are stored in warp_matrix.
     (cc, warp_matrix) = cv2.findTransformECC (im1_gray, im2_gray, warp_matrix, warp_mode, criteria, None, 1)
              
+    sz = image1.shape    
     if warp_mode == cv2.MOTION_HOMOGRAPHY :
         image2_warp = cv2.warpPerspective (image2, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_NEAREST + cv2.WARP_INVERSE_MAP); # INTER_LINEAR or INTER_NEAREST
     else :        
-        image2_warp = cv2.warpAffine (image2, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_NEAREST + cv2.WARP_INVERSE_MAP);
+        image2_warp = cv2.warpAffine      (image2, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_NEAREST + cv2.WARP_INVERSE_MAP);
     
     imsave(filename+"_aligned"+file_extension,  image2_warp)
 

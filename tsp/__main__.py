@@ -30,7 +30,7 @@ def main():
     # for mask-related actions
     parser.add_argument('--mask1', type=str, help='mask file 1')
     parser.add_argument('--mask2', type=str, help='mask file 2')
-    parser.add_argument('--maskfile', type=str, help='mask file for maskfile2outline')
+    parser.add_argument('--maskfile', type=str, help='mask file')
     parser.add_argument('--saveas', type=str, help='save file name for overlaymasks or colortp')
     parser.add_argument('--predfolder', type=str, help='checkprediction prediction folder')
     parser.add_argument('--gtfolder', type=str, help='checkprediction ground truth folder')
@@ -47,9 +47,10 @@ def main():
     parser.add_argument('--flow', type=float, help='Flow threshold', required=False, default=0.4)
     parser.add_argument('--normalize100', action='store_true', help='normalize to 0-100 instead of 1-99 percentiles', required=False) # 
     # output control
-    parser.add_argument('--s', action='store_true', help='save multiple plots with img and masks', required=False) 
-    parser.add_argument('--saveflow', action='store_true', help='save flow etc as npy files', required=False) # 
-    parser.add_argument('--saveroi', action='store_true', help='save masks as roi files', required=False) # 
+    parser.add_argument('--saveimgwithmasks', action='store_true', help='save image with masks in mask outline files', required=False) 
+    parser.add_argument('--saveflow', action='store_true', help='save flow etc as npy files', required=False) 
+    parser.add_argument('--saveroi', action='store_true', help='save masks as roi files', required=False)
+    parser.add_argument('--s', action='store_true', help='save additional images with masks plotted as dots and fills and numbered outlines', required=False) 
     
     # for cellphenotyping 
     parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
@@ -94,14 +95,18 @@ def main():
         dist2boundary(files, args.boundaryroi)
 
         
+    elif args.action=="alignimages":
+        channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
+        doalign (args.ref_image, args.image2, channels)
+
+
     elif args.action=='runcellpose':
         if args.f == None or args.model == None or args.l == None :
             sys.exit("ERROR: --f, --model, --l are required arguments")            
         
         files = glob.glob(args.f)
         channels = [int(i) for i in args.l[1:-1].split(",")]
-        print('working on: ', end=" ")
-        print(files)
+        print('working on: ', end=" "); print(files)
         
         # pretrained="cytotrain7"; diameter=0.; flow=0.4; cellprob=0.; minsize=0; min_ave_intensity=0; min_total_intensity=0; plot=False; output=False; min_size=15
         run_cellpose(files=files, 
@@ -110,9 +115,8 @@ def main():
                      diameter=args.d, flow=args.flow, cellprob=args.cellprob, 
                      normalize_100=args.normalize100,
                      min_size=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
-                     save_plot=args.s, save_roi=args.saveroi, save_flow=args.saveflow) 
+                     save_outlines_only=not args.saveimgwithmasks, save_additional_plots=args.s, save_roi=args.saveroi, save_flow=args.saveflow) 
         
-        print(f"time passed: {(timeit.default_timer() - start_time)/60:.1f} min"); 
 
         
     elif args.action=='cellphenotyping':        
@@ -122,19 +126,19 @@ def main():
         cutoffs = args.c[1:-1].split(",") 
         methods = args.m[1:-1].split(",")             
         marker_names = args.n[1:-1].split(",")
-        channels = [int(i) for i in args.l[1:-1].split(",")]
+        channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
         
         StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], 
                          channels=channels, methods=methods, save_plot=args.s)
         
         
     elif args.action=='intensityanalysis':        
-        # remove [] and make a list
-        files = args.f[1:-1].split(",")         
+        files = glob.glob(args.f)
+        print('working on: ', end=" "); print(files)
         
-        channels = None if args.l is None else [int(i) for i in args.l[1:-1].split(",")]
+        channel = int(args.l) if args.l is not None else None
         
-        IntensityAnalysis(files=files, channels=channels)
+        IntensityAnalysis(files=files, channel=channel)
         
         
     elif args.action=='maskfile2outline':
@@ -148,16 +152,6 @@ def main():
                 
     elif args.action=="roifiles2mask":
         roifiles2mask (args.roifolder+"/*", args.width, args.height)
-
-
-    elif args.action=="alignimages":
-        if args.l == None: 
-            channels = None
-            # not necessary if working with grayscale images
-            # sys.exit("ERROR: --l is required")            
-        else:
-            channels = [int(i)-1 for i in args.l[1:-1].split(",")]
-        doalign (args.ref_image, args.image2, channels)
 
 
     elif args.action=='overlaymasks':
@@ -368,6 +362,7 @@ def main():
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
         
 
+    print(f"time passed: {(timeit.default_timer() - start_time)/60:.1f} min"); 
 
 if __name__ == '__main__':
     main()

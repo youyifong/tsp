@@ -1,8 +1,11 @@
-import os, math
+import os, math, sys
 import pandas as pd
 import numpy as np
-from tsp.masks import GetCenterCoor, PlotMask_outline, PlotMask_center
+from tsp.masks import GetCenterCoor #, PlotMask_outline, PlotMask_center
 from tsp import imread
+import skimage.io
+from skimage import img_as_ubyte
+from cellpose import utils
 
 def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot):
     
@@ -12,9 +15,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     tmp =  [marker_names[i] + plus_minus[i] + str(cutoffs[i]) for i in range(len(marker_names))]
     staged_output_file_names = staged_output_file_names + [filenames[0]+"_"+"".join(tmp[:(i+1)]) for i in range(len(marker_names))]
     output_file_name = staged_output_file_names[-1]
-    
-    image_base = imread(files[0])      
-    
+        
     pos_rates = []; num_cells = []; mask_idxes = []; masks = []
         
     datA = np.load(os.path.splitext(files[0])[0] + '_seg.npy', allow_pickle=True).item()
@@ -28,26 +29,29 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         positive=positives[i]
         cutoff=cutoffs[i]
         method=methods[i]
+        channel=channels[i] if channels is not None else None
             
         # Method (Positivity or Intensity) #
         if(method == 'Mask'):
             datB = np.load(os.path.splitext(files[i+1])[0] + '_seg.npy', allow_pickle=True).item()
             maskB = datB['masks']
-        elif (method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
+        elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
             image_comp = imread(files[i+1])
+        else:
+            sys.exit("method incorrectly specified")
         
         # Double staining #
         if(method == 'Mask'):
-            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channels=channels, method=method)
+            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method)
         elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channels=channels, method=method)
+            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channel=channel, method=method)
 
         # for the last file, examine a series of cutoffs
         if(i == n_markers-1):
             if(method == 'Mask'):
                 cutoff_all = list(np.around(np.linspace(start=0, stop=1, num=11),1)) # [0,0.1,...,0.9,1]                
             elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-                cutoff_all = list(np.around(np.quantile(pos_rate, np.linspace(currentwd=0, stop=1, num=11)),1)) # quantile
+                cutoff_all = list(np.around(np.quantile(pos_rate, np.linspace(start=0, stop=1, num=11)),1)) # quantile
                 #cutoff_all = [0.0,0.5,0.7,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,4.9,5.0,5.5,6.0,7.0,8.0,9.0,10.0] # for severity analysis
             
             num_double_cell_cutoff = [] # number of double stained cell over all cutoffs
@@ -100,28 +104,32 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     ncell_res.columns = ["File_name", "Cell_count"]
     ncell_res.to_csv(output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
 
-
-    if(save_plot):
-        mask_color = [255,250,240]
-        for i in range(len(masks)):
-            PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
-            PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_fill.png',    color=[255,255,255], fill=True)
-            PlotMask_center (mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_point.png',   color='r')
     
-        # for i in range(len(files)-1):
-        #     np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
+    for i in range(len(masks)):
+        # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
+        skimage.io.imsave(staged_output_file_names[i] + '_masks.png', img_as_ubyte(utils.masks_to_outlines(masks[i])))
+
+        # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_fill.png',    color=[255,255,255], fill=True)
+        if(save_plot): skimage.io.imsave(staged_output_file_names[i] + '_masks_fill.png', img_as_ubyte(masks[i]!=0))
+
+        # PlotMask_center (mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_point.png',   color='r')
+    
+    # for i in range(len(files)-1):
+    #     np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
             
 
 
 # Utilites for double staining analysis
-def DoubleStain(maskA, maskB, positive, cutoff, channels, method):
+def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     # Pre-processing #
     if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-        if(channels != [0,0]):
-            maskB = maskB[:,:,(channels[0]-1)]
-            maskB = maskB * (99/255) # normalization
-        if(channels == [0,0]):
-            maskB = maskB * (99/65535) # maximum value of pixels for 16 bit grayscale iamge is 65535
+        if maskB.ndim==3:
+            if channel is not None: 
+                maskB = maskB[:,:,channel]
+            else:
+                sys.exit("--l is required when intensity is used and image is RGB")
+
+        maskB = maskB * (99/255) # normalization 255 for 8 bit, 65535 for 16 bit grayscale
     
     # Double staining #
     act_idx = np.unique(maskA)

@@ -5,7 +5,7 @@ from tsp.masks import GetCenterCoor
 from tsp import imread
 
 
-def IntensityAnalysis(files, channels=None):
+def IntensityAnalysis(files, channel=None):
     filenames=[os.path.splitext(f)[0] for f in files]
     image_base = imread(files[0])
     mask_path = filenames[0] + '_seg.npy'
@@ -16,10 +16,10 @@ def IntensityAnalysis(files, channels=None):
     intensity_total = []
     for i in range(len(files)):
         if(i == 0):
-            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_base, channel=None if channels is None else channels[i])
+            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_base, channel=channel)
         else:
             image_comp = imread(files[i])
-            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_comp, channel=None if channels is None else channels[i])
+            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_comp, channel=channel)
         intensity_total.append(intensity_norm_avg_all); 
         intensity_total.append(intensity_norm_avg_pos); 
         intensity_total.append(intensity_norm_total)

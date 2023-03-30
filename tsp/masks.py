@@ -7,7 +7,8 @@ from PIL import Image, ImageDraw
 from scipy import ndimage
 from cellpose import utils, io
 from tsp import imread, imsave
-
+import skimage.io
+from skimage import img_as_ubyte
 
 
 # copied from cellpose
@@ -316,11 +317,11 @@ def PlotMask_outline(mask, img, savefilename, color, fill=False):
         out_temp = utils.masks_to_outlines(mask)
         outX_temp, outY_temp = np.nonzero(out_temp)
         
+    imgout= img.copy()
     if(img.ndim == 3):
-        imgout= img.copy()
         imgout[outX_temp, outY_temp] = np.array(color)
-    if(img.ndim == 2):
-        imgout = out_temp
+    elif(img.ndim == 2):
+        imgout[outX_temp, outY_temp] = 255
 
     plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
     plt.gca().set_axis_off()
@@ -335,6 +336,7 @@ def PlotMask_outline(mask, img, savefilename, color, fill=False):
     if(img.ndim == 3):
         plt.savefig(savefilename, bbox_inches = 'tight', pad_inches = 0)
     plt.close('all')
+
 
 def PlotMask_center(mask, img, savefilename, color, add_text=False):
     if type(img)==str: img = imread(img)
@@ -345,12 +347,17 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
     
     my_dpi = 96
 
-    imgout = img.copy()
+    if(img.ndim == 3):
+        imgout = img.copy()
+    if(img.ndim == 2):
+        zeros=np.zeros(img.shape, dtype='uint8')
+        imgout = np.stack([zeros, img, img], axis=-1)
+
     plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
     plt.gca().set_axis_off()
     plt.imshow(imgout)
     for i in range(mask.max()): 
-    # this won't work because max may be greater than the number of masks b/c some mask indices may be skipped
+    # the followig won't work because max may be greater than the number of masks b/c some mask indices may be skipped
     # for i in range(len(np.unique(mask))-1): 
         if add_text:
             plt.text(x_coor[i], y_coor[i], str(i+1), dict(size=10, color='red', horizontalalignment='center', verticalalignment='center'))
@@ -360,16 +367,13 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
     plt.margins(0,0)
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
     plt.gca().yaxis.set_major_locator(plt.NullLocator())
-    if(img.ndim == 2):
-        plt.imsave(savefilename, imgout, cmap='gray')
-    if(img.ndim == 3):
-        plt.savefig(savefilename, bbox_inches = 'tight', pad_inches = 0)
+    plt.savefig(savefilename, bbox_inches = 'tight', pad_inches = 0)
     plt.close('all')
 
     
 
 
-def save_stuff(masks, imgfilename, channels, save_overlay_images=False, save_mask_roi=False, img=None):
+def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_additional_images=False, save_mask_roi=False, img=None):
     if img is None: img = imread(imgfilename)
         
     filename = os.path.splitext(imgfilename)[0]
@@ -384,8 +388,12 @@ def save_stuff(masks, imgfilename, channels, save_overlay_images=False, save_mas
     center_y=[i[0] for i in centers]
     center_x=[i[1] for i in centers]
     
-    # Save a plot of mask outlines only
-    plt.imsave(filename + "_masks.png", outlines, cmap='gray')        
+    # Save mask outlines 
+    if save_outlines_only:
+        skimage.io.imsave(filename + "_masks.png", img_as_ubyte(outlines))
+    else: 
+        PlotMask_outline(mask=masks, img=img, savefilename=filename + "_masks.png", color=[255,0,0])        
+     
 
     ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
     mask_info = pd.DataFrame([sizes, center_x, center_y]).T
@@ -398,8 +406,8 @@ def save_stuff(masks, imgfilename, channels, save_overlay_images=False, save_mas
         outlines_list = utils.outlines_list(masks)
         io.outlines_to_text(filename, outlines_list)
         
-    if save_overlay_images:     
-        PlotMask_center(mask=masks, img=img, savefilename=filename + "_mask_point.png", color='r')
-        PlotMask_center(mask=masks, img=img, savefilename=filename + "_mask_text.png",  color='r', add_text=True)
-        PlotMask_outline(mask=masks, img=img, savefilename=filename + "_mask_outline.png", color=[255,75,75])
-        PlotMask_outline(mask=masks, img=img, savefilename=filename + "_mask_fill.png",    color=[255,255,255], fill=True)
+    if save_additional_images:     
+        PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_point.png", color='r')
+        PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_text.png",  color='r', add_text=True)
+        # PlotMask_outline(mask=masks, img=img, savefilename=filename + "_mask_fill.png", color=[255,255,255], fill=True)
+        skimage.io.imsave(filename + "_masks_fill.png", img_as_ubyte(masks!=0))
