@@ -5,7 +5,7 @@ from tsp.masks import GetCenterCoor
 from tsp import imread
 
 
-def IntensityAnalysis(files, channels):
+def IntensityAnalysis(files, channels=None):
     filenames=[os.path.splitext(f)[0] for f in files]
     image_base = imread(files[0])
     mask_path = filenames[0] + '_seg.npy'
@@ -16,10 +16,10 @@ def IntensityAnalysis(files, channels):
     intensity_total = []
     for i in range(len(files)):
         if(i == 0):
-            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_base, channels=channels)
+            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_base, channel=None if channels is None else channels[i])
         else:
             image_comp = imread(files[i])
-            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_comp, channels=channels)
+            intensity_norm_total, intensity_norm_avg_all, intensity_norm_avg_pos = MeasureIntensity(mask=mask, image=image_comp, channel=None if channels is None else channels[i])
         intensity_total.append(intensity_norm_avg_all); 
         intensity_total.append(intensity_norm_avg_pos); 
         intensity_total.append(intensity_norm_total)
@@ -40,11 +40,12 @@ def IntensityAnalysis(files, channels):
 
 
 
-def MeasureIntensity (mask, image, channels):
-    if(channels != [0,0]): image = image[:,:,(channels[0]-1)]
+def MeasureIntensity (mask, image, channel=None):
+    if channel is not None:
+        image = image[:,:,channel-1]
     
-    if(channels != [0,0]): image_norm = image * (99/255) # normalization for RGB image
-    if(channels == [0,0]): image_norm = image * (99/65535) # normalization for grayscale image
+    # image_norm = image * (99/255) # normalization for RGB image
+    # image_norm = image * (99/65535) # normalization for grayscale image
            
     act_idx = np.unique(mask)
     if(sum(act_idx==0) != 0): act_idx = np.delete(act_idx,0) # select masks only (remove 0)
@@ -54,7 +55,8 @@ def MeasureIntensity (mask, image, channels):
         pixel_int = []; pixel_norm_int = []
         for k in range(len(mask_pixel[0])):
             pixel_int.append(image[mask_pixel[0][k], mask_pixel[1][k]])
-            pixel_norm_int.append(image_norm[mask_pixel[0][k], mask_pixel[1][k]])
+            pixel_norm_int.append(image[mask_pixel[0][k], mask_pixel[1][k]])
+            # pixel_norm_int.append(image_norm[mask_pixel[0][k], mask_pixel[1][k]])
         intensity.append(sum(pixel_int)) # total intensities
         intensity_norm_total.append(sum(pixel_norm_int)) # total intensities after normalization
         intensity_norm_avg_all.append(np.mean(pixel_norm_int)) # average intensities of all pixels after normalization

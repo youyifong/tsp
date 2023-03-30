@@ -9,19 +9,22 @@ Pre-processing
 - alignment using tsp
 - cropping
 
+The analysis ready images are grayscale png files.
 
 Analysis
 
 - cell segmentation
 - compute distance to boundary
 - compute region membership
+- multistaining analysis
 - statistical analysis
 
 ## Image alignment
 
 > python -m tsp alignimages --ref_image xx  --image2 xx --l [2,2]
 
-The --l argument is used to extract the channels of interest from the two images. 
+The --l argument is optional. If the images are grayscale, the argument is not needed.
+If the images are RBG, the argument is used to extract the channels of interest from the two images. 
 In the example above, the second channel of image2 will be aligned against the second channel of ref_image.
 
 A new image file named _aligned.png will be saved.
@@ -57,19 +60,21 @@ To make outlines
 
 
 ## Cell segmentation with cellpose 
-> python -m tsp runcellpose --f '*.png' 
+> python -m tsp runcellpose --f '*.png' --l [0,0]  --model cytotrain7
 
 Required:
 - --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
 
-- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
+- --l A list of 2 numbers indicating [cytoplasm channel, nucleus channel]. Each value can be 0, 1 (red), 2 (green), and 3 (blue)
+For the cytoplasm channel, 0 means grayscale; for the nucleus channel, 0 means no nuclei. 
+E.g. [3,0] that means cytoplasm signal is in the blue channel and no nuclei; [0,0] means cytoplasm is taken from a grayscale image and no nuclei.
 
 - --model Cellpose model to use, including cyto and cytotrain7. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al.
 
 Optional:
 - --s If present, some additional image files will be saved.
 
-- --saveflow If present, .npy file containing flow, diam etc will be saved.
+- --saveflow If present, .npy file containing flow, diam and masks will be saved.
 
 - --saveroi If present, mask outline roi files will be saved.
 
@@ -89,17 +94,18 @@ Optional:
 
 
 #### Output 
+
 - cellpose_counts_timestr.txt: number of predicted masks for each image 
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
-- _mask_fill.png (with -s): an image file containing the solid fill of the predicted cell masks 
+- _mask_outline.png: an RBG file with mask outlines in red and image in blue.
 
-- _mask_outline.png (with -s): an image file containing the predicted cell masks 
+- _mask_fill.png (with -s): a grayscale image containing the solid fill of the predicted cell masks 
 
-- _mask_point.png (with -s):  an image file containing a point indicating the center of the predicted cell masks 
+- _mask_point.png (with -s): a grayscale image containing a point indicating the center of the predicted cell masks 
 
-- _mask_text.png (with -s): an image file containing the identified numbers of the predicted cell masks 
+- _mask_text.png (with -s): a grayscale image containing the identified numbers of the predicted cell masks 
 
 - _seg.npy (with -saveflow): cellpose output file containing overall info about predicted masks and parameters used in prediction. This file can be huge.
 
@@ -107,7 +113,7 @@ Optional:
 
 
 ## Cell phenotyping 
-> python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png] --m [Mask,Mask] --c [0.5,0.5] --p [True,False] --n [marker2,marker3]
+> python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png] --m [Mask,Mask] --c [0.5,0.5] --p [True,False] --n [marker2,marker3] 
 
 The command above looks for marker1+marker2+marker3- cells.  Let K be the number of markers. 
 
@@ -121,9 +127,9 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 - --n Required. List of K-1 names for markers (first marker excluded). 
 
-- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
+- --l Optional. Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
 
-- --r If present, two additional result files will be saved for the last stage: 1) a cellpose output file named _seg.npz that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _masks.csv that contains the sizes and the x and y coordinates for each mask. 
+- --r Optional. If present, two additional result files will be saved for the last stage: 1) a cellpose output file named _seg.npz that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _masks.csv that contains the sizes and the x and y coordinates for each mask. 
 
 #### Output 
 - _counts_multistain.txt: cell counts, one row for each additional marker
@@ -132,11 +138,11 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
 
-- _fill.png (with -s): K files with each mask drawn as a filled shape. The underlying image is the kth marker image despite the file name.
+- _outline.png: K RBG files with mask outlines in red and the kth marker image (despite the file name) in blue.
 
-- _outline.png (with -s): K files with each mask drawn as an outline. The underlying image is the kth marker image despite the file name.
+- _fill.png (with -s): K grayscale files with each mask drawn as a filled shape.
 
-- _point.png (with -s): K files with each mask drawn as a point. The underlying image is the kth marker image despite the file name.
+- _point.png (with -s): K grayscale files with each mask drawn as a point. 
 
 - _seg.npz (with -r): cellpose output file containing overall info about image and masks, last marker only
 
@@ -147,11 +153,15 @@ The command above looks for marker1+marker2+marker3- cells.  Let K be the number
 
 > python -m tsp intensityanalysis --f [file1.png,file2.png,file3.png] 
 
-Measures the intensities of all markers in each marker 1 mask.
+Load masks in file1_seg.npy and measures the intensities of each markers in every marker 1 mask.
 
-- --f Required. List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_seg.npy. For the following files, e.g. file2.png, the program expects to find the image file. 
+Required input
 
-- --l Signal channels. The channels have the format as [cytoplasm,nucleus], and each value can be 0 (grayscale), 1 (red), 2 (green), and 3 (blue). Default channels are [3,0] that means blue cytoplasm and no nuclei. E.g., -l=[0,0] if image is grayscale. 
+- --f List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_seg.npy. For the following files, e.g. file2.png, the program expects to find the image file. 
+
+Optional iput
+
+- --l List of K-1 channels: 1 (red), 2 (green), and 3 (blue). Not required if all image files are grayscale.
 
 #### Output 
 - _intensity.txt: contains three intensity (total intensity, average normalized intensity, and total normalized intensity) and the x-y coordinates for each mask of marker 1
