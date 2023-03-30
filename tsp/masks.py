@@ -317,17 +317,16 @@ def PlotMask_outline(mask, img, savefilename, color, fill=False):
         out_temp = utils.masks_to_outlines(mask)
         outX_temp, outY_temp = np.nonzero(out_temp)
         
-    imgout= img.copy()
     if(img.ndim == 3):
-        imgout[outX_temp, outY_temp] = np.array(color)
+        img[outX_temp, outY_temp] = np.array(color)
     elif(img.ndim == 2):
-        imgout[outX_temp, outY_temp] = 255
         zeros=np.zeros(img.shape, dtype='uint8')
-        imgout = np.stack([zeros, imgout, imgout], axis=-1)
+        zeros[outX_temp, outY_temp] = 255
+        img = np.stack([zeros, img, img], axis=-1)
 
     plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
     plt.gca().set_axis_off()
-    plt.imshow(imgout)
+    plt.imshow(img)
     plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     plt.margins(0,0)
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
