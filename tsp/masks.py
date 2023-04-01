@@ -208,7 +208,8 @@ def roifiles2mask(roi_files, width, height):
 def mask2outline(mask_file):
     masks = imread(mask_file)
     outlines = masks_to_outlines(masks)
-    plt.imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines, cmap='gray')
+    imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines)
+    # plt.imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines, cmap='gray')
 
 # Coloring FP in mask map and FN in gt mask map
 def color_fp_fn(mask_file, pred_file):
