@@ -2,7 +2,7 @@ import argparse, glob, os, sys
 import numpy as np
 
 from tsp import imread, imsave, image_to_rgb, normalize99
-from tsp.masks import maskfile2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
+from tsp.masks import mask2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
 from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
@@ -21,7 +21,7 @@ def main():
         runcellpose, \
         cellphenotyping, \
         dist2boundary, regionmembership, \
-        AP, checkprediction, maskfile2outline, roifiles2mask, overlaymasks')
+        AP, checkprediction, mask2outline, roifiles2mask, overlaymasks')
     
     # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image')
@@ -144,13 +144,13 @@ def main():
         IntensityAnalysis(mask_file=args.maskfile, image_files=image_files, channel=channel)
         
         
-    elif args.action=='maskfile2outline':
-        filename, extension = os.path.splitext(args.maskfile)
-        if extension:
-            maskfile2outline(args.maskfile)
-        else:
-            for i in os.listdir(args.maskfile):
-                maskfile2outline(args.maskfile+"/"+i)
+    elif args.action=='mask2outline':
+        if args.f == None:
+            sys.exit("ERROR: --f is required arguments")            
+        
+        files = glob.glob(args.f)
+        for mask_file in files:
+            mask2outline(mask_file)
                 
                 
     elif args.action=="roifiles2mask":

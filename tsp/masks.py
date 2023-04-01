@@ -205,7 +205,7 @@ def roifiles2mask(roi_files, width, height):
     print("mask outlines saved to: "+os.path.split(roi_files)[0]+'_masks_outline.png')
 
 
-def maskfile2outline(mask_file):
+def mask2outline(mask_file):
     masks = imread(mask_file)
     outlines = masks_to_outlines(masks)
     plt.imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines, cmap='gray')

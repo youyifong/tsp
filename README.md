@@ -200,7 +200,7 @@ To add mask1 in red, mask2 in green (optional), and overlap in yellow, all on to
 To add mask2 in green and highlight tp (based on comparing with mask1) in yellow, on top of images
 > python -m tsp colortp
 
-To make outlines
-> python -m tsp maskfile2outline --maskfile 
+To make outlines from masks
+> python -m tsp mask2outline --f '*.png' 
 
 
