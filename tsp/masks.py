@@ -295,7 +295,7 @@ def filter_by_intensity(image, mask, channels, min_ave_intensity=0, min_total_in
     
 
 def GetCenterCoor(masks):
-    print(np.unique(masks))
+    # print(np.unique(masks))
     centers=ndimage.center_of_mass(masks, labels=masks, index=np.unique(masks)[1:]) # 1: to get rid of 0, which is background
     # centers=ndimage.center_of_mass(masks, labels=masks, index=list(range(1,np.max(masks)+1)))
     # alternative, slower
@@ -414,4 +414,4 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
         PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_point.png", color='r')
         PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_text.png",  color='r', add_text=True)
         # PlotMask_outline(mask=masks, img=img, savefilename=filename + "_mask_fill.png", color=[255,255,255], fill=True)
-        skimage.io.imsave(filename + "_masks_fill.png", img_as_ubyte(masks!=0))
+        skimage.io.imsave(filename + "_masks_fill.png", img_as_ubyte(masks!=0), check_contrast=False)

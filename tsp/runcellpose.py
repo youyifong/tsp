@@ -12,7 +12,7 @@ def run_cellpose(files, channels,
                  pretrained, 
                  diameter, flow, cellprob, 
                  normalize_100,
-                 min_size, min_ave_intensity, min_total_intensity, 
+                 min_size, min_avg_intensity, min_total_intensity, 
                  save_outlines_only, save_additional_plots, save_roi, save_flow):
     
     if torch.cuda.is_available() :
@@ -48,8 +48,8 @@ def run_cellpose(files, channels,
             diams = diameter
         
         # Post-processing (min_size, min_intensity) #
-        if min_ave_intensity>0 | min_total_intensity>0: # avoid running this if can because it is slow
-            masks = filter_by_intensity(image=img, mask=masks, channels=channels, min_ave_intensity=min_ave_intensity, min_total_intensity=min_total_intensity) # intensity
+        if min_avg_intensity>0 or min_total_intensity>0: # avoid running this if can because it is slow
+            masks = filter_by_intensity(image=img, mask=masks, channels=channels, min_ave_intensity=min_avg_intensity, min_total_intensity=min_total_intensity) # intensity
         
         ncells.append(np.max(masks))
         

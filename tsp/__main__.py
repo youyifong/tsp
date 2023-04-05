@@ -114,7 +114,7 @@ def main():
                      pretrained=args.model, 
                      diameter=args.d, flow=args.flow, cellprob=args.cellprob, 
                      normalize_100=args.normalize100,
-                     min_size=args.min_size, min_ave_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
+                     min_size=args.min_size, min_avg_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      save_outlines_only=not args.saveimgwithmasks, save_additional_plots=args.s, save_roi=args.saveroi, save_flow=args.saveflow) 
         
 
