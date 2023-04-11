@@ -68,8 +68,8 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='show information about running and settings and save to log', required=False)    
 
     # dist2boundary
-    parser.add_argument('--cells', type=str, help='a csv file containing the cell center coordinates', required=False)
-    parser.add_argument('--boundaryroi', type=str, help='roi file containing the line', required=False)
+    parser.add_argument('--cells', type=str, help='csv files containing the cell center coordinates', required=False)
+    parser.add_argument('--boundaryroi', type=str, help='roi files containing the boundary lines', required=False)
     
     # regionmembership
     parser.add_argument('--regionroi', type=str, help='roi files defining regions, e.g. [region1.roi,region2.roi]', required=False)
@@ -81,18 +81,26 @@ def main():
         if args.f == None or args.regionroi == None:
             sys.exit("ERROR: --f, --regionroi are required arguments")            
         
-        files = glob.glob(args.f)
-        region_roi_files = args.regionroi[1:-1].split(",")         
+        cell_files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        print(cell_files)
         
-        region_membership(files, region_roi_files)
+        region_roi_files = args.regionroi[1:-1].split(",") if args.regionroi[0]=='[' else glob.glob(args.regionroi)
+        print(region_roi_files)
+
+        region_membership(cell_files, region_roi_files)
 
         
     elif args.action=='dist2boundary':
         if args.f == None or args.boundaryroi == None:
             sys.exit("ERROR: --f, --boundaryroi are required arguments")            
 
-        files = glob.glob(args.f)
-        dist2boundary(files, args.boundaryroi)
+        cell_files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        print(cell_files)
+        
+        roi_files = args.boundaryroi[1:-1].split(",") if args.boundaryroi[0]=='[' else glob.glob(args.boundaryroi)
+        print(roi_files)
+        
+        dist2boundary(cell_files, roi_files)
 
         
     elif args.action=="alignimages":
@@ -105,9 +113,14 @@ def main():
             sys.exit("ERROR: --f, --model, --l are required arguments")            
         
         files = glob.glob(args.f)
-        channels = [int(i) for i in args.l[1:-1].split(",")]
-        print('working on: ', end=" "); print(files)
+        if len(files)==0: 
+            sys.exit ("no files found")
+        else:
+            print('working on: ', end=" ")
+            print(files)
         
+        channels = [int(i) for i in args.l[1:-1].split(",")]
+
         # pretrained="cytotrain7"; diameter=0.; flow=0.4; cellprob=0.; minsize=0; min_ave_intensity=0; min_total_intensity=0; plot=False; output=False; min_size=15
         run_cellpose(files=files, 
                      channels=channels,

@@ -30,21 +30,26 @@ def pnt2line(P0, P1, p):
     return np.linalg.norm(C - p, axis=1)
 
 
-def dist2boundary(cell_files, boundary_roi_file):    
-    boundary = read_roi_file(boundary_roi_file)    
-    # line_boundary is a dictionary of one item. This line turns it into a list of one item, the item is still a dict
-    val = list(boundary.values()) [0]
-    pts = np.vstack((val["x"], val["y"])).T
-    n=len(val["x"])
-    
+def dist2boundary(cell_files, boundary_roi_files):    
     for cell_file in cell_files:
         data = pd.read_csv(cell_file)    
-        min_dist=[]
-        for index, row in data.iterrows():
-            tmp=pnt2line(P0=pts[0:(n-1),:], P1=pts[1:n,:], p=[row["center_x"], row["center_y"]])
-            min_dist.append(np.min(tmp))
-        
-        data = data.join(pd.DataFrame({'dist2boundary': min_dist}))    
+
+        for boundary_roi_file in boundary_roi_files:
+            boundary = read_roi_file(boundary_roi_file)    
+            # boundary is a dictionary of one item. This line turns it into a list of one item, the item is still a dict
+            val = list(boundary.values()) [0]
+            pts = np.vstack((val["x"], val["y"])).T
+            n=len(val["x"])
+            
+            min_dist=[]
+            for index, row in data.iterrows():
+                tmp=pnt2line(P0=pts[0:(n-1),:], P1=pts[1:n,:], p=[row["center_x"], row["center_y"]])
+                min_dist.append(np.min(tmp))
+            
+            # if col_name is None: col_name = 'dist2boundary'
+            col_name = "dist2"+val['name']
+            data = data.join(pd.DataFrame({col_name: min_dist}))    
+
         filename, file_extension = os.path.splitext(cell_file)    
         data.to_csv(filename + '_d2b' + file_extension, header=True, index=None, sep=',')
 

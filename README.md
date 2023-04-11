@@ -45,7 +45,7 @@ E.g. [3,0] that means cytoplasm signal is in the blue channel and no nuclei; [0,
 
 
 Optional input:
-- --saveimgwithmasks If present, _masks.png is the original image with masks overlaid; otherwise, it is a grayscale image with masks outlines
+- --saveimgwithmasks Without this option, _masks.png is a grayscale image with masks outlines. With this option, the intensities are also present in this file
 
 - --saveflow If present, .npy file containing flow, diam and masks will be saved.
 
@@ -154,24 +154,26 @@ Output
 
 ## Compute distance from cell center to a boundary polyline
 
-Appends a dist2boundary column of the shortest distance from cell centers to the boundary to the input csv file and save as a new _d2b.csv file.
+Appends shortest distance from cell centers to boundary lines as new columns and save as a new _d2b.csv file.
 
-> python -m tsp adddist2line --cells masks.csv  --boundaryroi boundary.roi
+> python -m tsp dist2boundary --cells masks.csv  --boundaryroi boundary.roi  --saveas col_name
 
 - --cells: a csv file containing the cell center coordinates
 
-- --boundaryroi: an roi file defining the boundary
+- --boundaryroi: roi files defining the boundary, can be either [file1.roi,file2.roi] or 'file*.roi'
+
 
 
 
 ## Compute region membership
 
+Appends region membership as new columns and save as a new _regmem.csv file.
 
 > python -m tsp regionmembership --cells masks.csv  --regionroi [region1.roi,region2.roi]
 
 - --cells: a csv file containing the cell center coordinates
 
-- --boundaryroi: an roi file defining the boundary
+- --boundaryroi: roi files defining the boundary, can be either [file1.roi,file2.roi] or 'file*.roi'
 
  
 

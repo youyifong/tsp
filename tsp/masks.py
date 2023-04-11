@@ -394,7 +394,7 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     
     # Save mask outlines 
     if save_outlines_only:
-        skimage.io.imsave(filename + "_masks.png", img_as_ubyte(outlines))
+        skimage.io.imsave(filename + "_masks.png", img_as_ubyte(outlines), check_contrast=False)
     else: 
         PlotMask_outline(mask=masks, img=img, savefilename=filename + "_masks.png", color=[255,0,0])        
      
@@ -413,5 +413,6 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     if save_additional_images:     
         PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_point.png", color='r')
         PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_text.png",  color='r', add_text=True)
-        # PlotMask_outline(mask=masks, img=img, savefilename=filename + "_mask_fill.png", color=[255,255,255], fill=True)
         skimage.io.imsave(filename + "_masks_fill.png", img_as_ubyte(masks!=0), check_contrast=False)
+        # add image
+        # PlotMask_outline(mask=masks, img=img, savefilename=filename + "_mask_fill.png", color=[255,255,255], fill=True)
