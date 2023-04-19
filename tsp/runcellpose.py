@@ -51,7 +51,7 @@ def run_cellpose(files, channels,
         if min_avg_intensity>0 or min_total_intensity>0: # avoid running this if can because it is slow
             masks = filter_by_intensity(image=img, masks=masks, channels=channels, min_avg_intensity=min_avg_intensity, min_total_intensity=min_total_intensity) # intensity
         
-        ncells.append(np.max(masks))
+        ncells.append(len(np.unique(masks))-1)
         
         if save_flow: io.masks_flows_to_seg(img,masks,flows,diams, file_names=filename + '.npy')             
         
