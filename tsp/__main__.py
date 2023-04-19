@@ -121,7 +121,7 @@ def main():
         
         channels = [int(i) for i in args.l[1:-1].split(",")]
 
-        # pretrained="cytotrain7"; diameter=0.; flow=0.4; cellprob=0.; minsize=0; min_ave_intensity=0; min_total_intensity=0; plot=False; output=False; min_size=15
+        # pretrained="cytotrain7"; diameter=0.; flow=0.4; cellprob=0.; min_size=10; min_avg_intensity=10; min_total_intensity=10; plot=False; output=False; channels=[3,0]
         run_cellpose(files=files, 
                      channels=channels,
                      pretrained=args.model, 

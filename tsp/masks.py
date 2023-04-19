@@ -268,10 +268,11 @@ def filter_by_intensity(image, masks, channels, min_avg_intensity=0, min_total_i
     avg_intensities = ndimage.mean(im, labels=masks, index=mask_indices)
     total_intensities = ndimage.sum(im, labels=masks, index=mask_indices)
     
-    indices_to_remove = mask_indices[np.where(avg_intensities<min_avg_intensity or total_intensities<min_total_intensity)[0]]
+    indices_to_remove = mask_indices[np.where( (avg_intensities<min_avg_intensity) | (total_intensities<min_total_intensity) )[0]] # need to put () around boolean array before applying | 
     
-    for i in indices_to_remove:
-        masks[np.where(masks==i)] = 0
+    #for i in indices_to_remove: masks[np.where(masks==i)] = 0
+    # this is more efficient
+    masks[np.isin(masks, indices_to_remove)] = 0
 
     return masks
     
