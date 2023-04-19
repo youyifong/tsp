@@ -365,11 +365,10 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
         
     filename = os.path.splitext(imgfilename)[0]
     
-    ncell=np.max(masks)
-
     outlines = utils.masks_to_outlines(masks)
 
     sizes = np.unique(masks, return_counts=True)[1][1:].tolist()        
+    ncell=len(sizes)
 
     centers=GetCenterCoor(masks)
     center_y=[i[0] for i in centers]
