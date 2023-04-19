@@ -49,7 +49,7 @@ def run_cellpose(files, channels,
         
         # Post-processing (min_size, min_intensity) #
         if min_avg_intensity>0 or min_total_intensity>0: # avoid running this if can because it is slow
-            masks = filter_by_intensity(image=img, mask=masks, channels=channels, min_ave_intensity=min_avg_intensity, min_total_intensity=min_total_intensity) # intensity
+            masks = filter_by_intensity(image=img, masks=masks, channels=channels, min_avg_intensity=min_avg_intensity, min_total_intensity=min_total_intensity) # intensity
         
         ncells.append(np.max(masks))
         
