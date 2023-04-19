@@ -262,8 +262,7 @@ def filter_by_intensity(image, masks, channels, min_avg_intensity=0, min_total_i
         im = image
     else:
         im = image[:,:,(channels[0]-1)]
-        
-        
+                
     mask_indices = np.unique(masks)[1:]
     avg_intensities = ndimage.mean(im, labels=masks, index=mask_indices)
     total_intensities = ndimage.sum(im, labels=masks, index=mask_indices)
@@ -366,8 +365,12 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     filename = os.path.splitext(imgfilename)[0]
     
     outlines = utils.masks_to_outlines(masks)
-
-    sizes = np.unique(masks, return_counts=True)[1][1:].tolist()        
+    
+    tmp=np.unique(masks, return_counts=True)
+    sizes = tmp[1][1:].tolist()        
+    mask_indices = tmp[0][1:]
+    avg_intensities = ndimage.mean(img, labels=masks, index=mask_indices)
+    total_intensities = ndimage.sum(img, labels=masks, index=mask_indices)
     ncell=len(sizes)
 
     centers=GetCenterCoor(masks)
@@ -382,8 +385,8 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
      
 
     ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
-    mask_info = pd.DataFrame([sizes, center_x, center_y]).T
-    mask_info.columns = ["size","center_x","center_y"]        
+    mask_info = pd.DataFrame([sizes, center_x, center_y, avg_intensities, total_intensities]).T
+    mask_info.columns = ["size","center_x","center_y","mfi","tfi"]        
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
     mask_info.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
         
