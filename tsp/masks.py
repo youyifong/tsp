@@ -369,6 +369,9 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     tmp=np.unique(masks, return_counts=True)
     sizes = tmp[1][1:].tolist()        
     mask_indices = tmp[0][1:]
+    print(mask_indices )
+    mask_indices = np.unique(masks)[1:]
+    print(mask_indices )
     avg_intensities = ndimage.mean(img, labels=masks, index=mask_indices)
     total_intensities = ndimage.sum(img, labels=masks, index=mask_indices)
     ncell=len(sizes)
