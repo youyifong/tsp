@@ -341,7 +341,7 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
     plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
     plt.gca().set_axis_off()
     plt.imshow(imgout)
-    for i in len(centers): 
+    for i in range(len(centers)): 
     # for i in range(mask.max()): 
     # the followig won't work because max may be greater than the number of masks b/c some mask indices may be skipped
     # for i in range(len(np.unique(mask))-1): 
