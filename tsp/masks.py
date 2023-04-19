@@ -328,9 +328,8 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
     if type(img)==str: img = imread(img)
 
     centers = GetCenterCoor(mask)
-    y_coor=[i[0] for i in centers]
-    x_coor=[i[1] for i in centers]
-    
+    y_coor, x_coor = zip(*centers); y_coor=list(y_coor); x_coor=list(x_coor)
+
     my_dpi = 96
 
     if(img.ndim == 3):
@@ -342,7 +341,8 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
     plt.figure(figsize=(mask.shape[1]/my_dpi, mask.shape[0]/my_dpi), dpi=my_dpi)
     plt.gca().set_axis_off()
     plt.imshow(imgout)
-    for i in range(mask.max()): 
+    for i in len(centers): 
+    # for i in range(mask.max()): 
     # the followig won't work because max may be greater than the number of masks b/c some mask indices may be skipped
     # for i in range(len(np.unique(mask))-1): 
         if add_text:
@@ -369,17 +369,18 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     tmp=np.unique(masks, return_counts=True)
     sizes = tmp[1][1:].tolist()        
     mask_indices = tmp[0][1:]
-    print(img.shape)
-    print(masks.shape)
-    print(mask_indices.shape)
-    avg_intensities = ndimage.mean(img, labels=masks, index=mask_indices)
-    total_intensities = ndimage.sum(img, labels=masks, index=mask_indices)
     ncell=len(sizes)
 
+    if(channels == [0,0]):
+        im = img
+    else:
+        im = img[:,:,(channels[0]-1)]
+    avg_intensities = ndimage.mean(im, labels=masks, index=mask_indices)
+    total_intensities = ndimage.sum(im, labels=masks, index=mask_indices)
+
     centers=GetCenterCoor(masks)
-    center_y=[i[0] for i in centers]
-    center_x=[i[1] for i in centers]
-    
+    y_coor, x_coor = zip(*centers); y_coor=list(y_coor); x_coor=list(x_coor)
+
     # Save mask outlines 
     if save_outlines_only:
         skimage.io.imsave(filename + "_masks.png", img_as_ubyte(outlines), check_contrast=False)
@@ -388,7 +389,7 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
      
 
     ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
-    mask_info = pd.DataFrame([sizes, center_x, center_y, avg_intensities, total_intensities]).T
+    mask_info = pd.DataFrame([sizes, x_coor, y_coor, avg_intensities, total_intensities]).T
     mask_info.columns = ["size","center_x","center_y","mfi","tfi"]        
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
     mask_info.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
