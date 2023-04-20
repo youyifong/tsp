@@ -391,11 +391,11 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     
     ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
     mask_info = pd.DataFrame({
-        "size": sizes,
         "center_x": x_coor, 
         "center_y": y_coor,
-        "mfi": avg_intensities,
-        "tfi": total_intensities
+        "size": sizes,
+        "tfi": total_intensities,
+        "mfi": avg_intensities
     })
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
     mask_info=mask_info.round().astype(int)
