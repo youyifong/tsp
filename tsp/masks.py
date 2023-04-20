@@ -389,7 +389,7 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
      
 
     ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
-    mask_info = pd.DataFrame([sizes, x_coor, y_coor, avg_intensities, total_intensities]).T
+    mask_info = pd.DataFrame([sizes.astype(int), x_coor.astype(int), y_coor.astype(int), avg_intensities, total_intensities.astype(int)]).T
     mask_info.columns = ["size","center_x","center_y","mfi","tfi"]        
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
     mask_info.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
