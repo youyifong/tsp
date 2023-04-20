@@ -367,7 +367,7 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     outlines = utils.masks_to_outlines(masks)
     
     tmp=np.unique(masks, return_counts=True)
-    sizes = tmp[1][1:].tolist()        
+    sizes = tmp[1][1:]#.tolist()    # keep it as an array     
     mask_indices = tmp[0][1:]
     ncell=len(sizes)
 
@@ -379,19 +379,26 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     total_intensities = ndimage.sum(im, labels=masks, index=mask_indices)
 
     centers=GetCenterCoor(masks)
-    y_coor, x_coor = zip(*centers); y_coor=list(y_coor); x_coor=list(x_coor)
+    y_coor, x_coor = zip(*centers)
+    # turn tuples into arrays to use as.type later
+    y_coor=np.array(y_coor); x_coor=np.array(x_coor)
 
     # Save mask outlines 
     if save_outlines_only:
         skimage.io.imsave(filename + "_masks.png", img_as_ubyte(outlines), check_contrast=False)
     else: 
         PlotMask_outline(mask=masks, img=img, savefilename=filename + "_masks.png", color=[255,0,0])        
-     
-
+    
     ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
-    mask_info = pd.DataFrame([sizes.astype(int), x_coor.astype(int), y_coor.astype(int), avg_intensities, total_intensities.astype(int)]).T
-    mask_info.columns = ["size","center_x","center_y","mfi","tfi"]        
+    mask_info = pd.DataFrame({
+        "size": sizes,
+        "center_x": x_coor, 
+        "center_y": y_coor,
+        "mfi": avg_intensities,
+        "tfi": total_intensities
+    })
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+    mask_info=mask_info.round().astype(int)
     mask_info.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
         
     # save _cp_outline to convert to roi by ImageJ
