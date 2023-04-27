@@ -4,7 +4,7 @@ import numpy as np
 from tsp.masks import GetCenterCoor #, PlotMask_outline, PlotMask_center
 from tsp import imread
 import skimage.io
-from skimage import img_as_ubyte
+from skimage import img_as_ubyte, img_as_uint
 from cellpose import utils
 
 def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot):
@@ -108,6 +108,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     for i in range(len(masks)):
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
         skimage.io.imsave(staged_output_file_names[i] + '_masks.png', img_as_ubyte(utils.masks_to_outlines(masks[i])))
+        skimage.io.imsave(staged_output_file_names[i] + '_masks_id.png', img_as_uint(masks[i]))
 
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_fill.png',    color=[255,255,255], fill=True)
         if(save_plot): skimage.io.imsave(staged_output_file_names[i] + '_masks_fill.png', img_as_ubyte(masks[i]!=0))

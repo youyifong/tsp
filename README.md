@@ -74,7 +74,9 @@ Output
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
-- _masks.png: If --saveimgwithmasks is present, the original image with masks overlaid; otherwise, a grayscale image with masks outlines
+- _masks.png: a grayscale image with masks outlines. If --saveimgwithmasks is present, the original image is saved with the masks in an RGB image
+
+- _masks_id.png: a grayscale image with mask indices
 
 - _masks_fill.png (with -s): a grayscale file containing the solid fill of the predicted cell masks 
 
@@ -91,7 +93,7 @@ Output
 ## Cell phenotyping 
 > python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png] --m [Mask,Mask] --c [0.5,0.5] --p [True,False] --n [marker2,marker3] 
 
-The command above looks for marker1+marker2+marker3- cells.  Let K be the number of markers. 
+The command above looks for marker1+ marker2+ marker3- cells.  Let K be the number of markers. 
 
 Required input:
 - --f List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_seg.npy. For the following files, e.g. file2.png, the program expects to find the mask file (_seg.npy) if the method is Mask and the image file otherwise. 
@@ -110,8 +112,6 @@ Optional input:
 
 - --s If present, additional image files will be saved.
 
-- --r If present, two additional result files will be saved for the last stage: 1) a cellpose output file named _seg.npz that contains information of masks, outlines, flows, and a cell diameter, 2) a simple text file named _masks.csv that contains the sizes and the x and y coordinates for each mask. 
-
 Output 
 
 - _counts_multistain.txt: cell counts, one row for each additional marker
@@ -121,6 +121,8 @@ Output
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
 
 - _masks.png: K grayscale files with mask outlines 
+
+- _masks_id.png: K grayscale files with mask ids 
 
 - _masks_fill.png (with -s): K grayscale files with masks as filled shapes
 
@@ -179,7 +181,7 @@ Appends region membership as new columns and save as a new _regmem.csv file.
 
 ## Working with masks
 
-To convert roi files into mask png files
+### Convert roi files into mask png files
 > python -m tsp roifiles2mask --roifolder eg1 --height 1040 --width 1392 
  
 where roifolder is the path to the folder containing the unzipped roi files, height and width are the dimension of the image. The program creates two png files, one mask file and one mask outline file. 
@@ -188,21 +190,22 @@ To unzip, e.g.
 
 > unzip CF_Les_Pos7_CD3+CD8+_RoiSet_865.zip -d CF_Les_Pos7_CD3+CD8+_RoiSet_865 
 
-To compare two mask files to get AP
+### Compare two mask files to get AP
 > python -m tsp AP --mask1 testmasks/M872956_JML_Position10_CD3_test_masks.png --mask2  testmasks/M872956_JML_Position10_CD3_test_masks.png 
 > 
+> python -m tsp AP --mask1 mask1.png --mask2 mask2.png 
 > python -m tsp AP --mask1 M926910_Position1_CD45+CD56+_seg.npz --mask2 M926910_Position1_CD45+CD56+CD3-CD271-_seg.npz 
 
-To compare two folders of masks
+### Compare two folders of masks
 > python -m tsp checkprediction --metric   --predfolder   --gtfolder   --min_size
 
-To add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images
+### Add mask1 in red, mask2 in green (optional), and overlap in yellow, all on top of images
 > python -m tsp overlaymasks
 
-To add mask2 in green and highlight tp (based on comparing with mask1) in yellow, on top of images
+### Add mask2 in green and highlight tp (based on comparing with mask1) in yellow, on top of images
 > python -m tsp colortp
 
-To make outlines from masks
+### Make outlines from masks
 > python -m tsp mask2outline --f '*.png' 
 
 

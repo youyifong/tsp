@@ -8,7 +8,7 @@ from scipy import ndimage
 from cellpose import utils, io
 from tsp import imread, imsave
 import skimage.io
-from skimage import img_as_ubyte
+from skimage import img_as_ubyte, img_as_uint
 
 
 # copied from cellpose
@@ -382,6 +382,9 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     y_coor, x_coor = zip(*centers)
     # turn tuples into arrays to use as.type later
     y_coor=np.array(y_coor); x_coor=np.array(x_coor)
+
+    # Save mask indices
+    skimage.io.imsave(filename + "_masks_id.png", img_as_uint(masks), check_contrast=False)
 
     # Save mask outlines 
     if save_outlines_only:
