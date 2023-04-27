@@ -78,15 +78,15 @@ Output
 
 - _masks_id.png: a grayscale image with mask indices
 
-- _masks_fill.png (with -s): a grayscale file containing the solid fill of the predicted cell masks 
+- _masks_fill.png (with --s): a grayscale file containing the solid fill of the predicted cell masks 
 
-- _masks_point.png (with -s): an RGB file with mask centers plotted in the R channel and image copied from input if image.ndim is 3 or image in the G and B channels if image.ndim is 2
+- _masks_point.png (with --s): an RGB file with mask centers plotted in the R channel and image copied from input if image.ndim is 3 or image in the G and B channels if image.ndim is 2
 
-- _masks_text.png (with -s):  an RGB file with mask indices plotted in the R channel and image copied from input if image.ndim is 3 or image in the G and B channels if image.ndim is 2
+- _masks_text.png (with --s):  an RGB file with mask indices plotted in the R channel and image copied from input if image.ndim is 3 or image in the G and B channels if image.ndim is 2
 
-- _seg.npy (with -saveflow): cellpose output file containing overall info about predicted masks and parameters used in prediction. This file can be huge.
+- _seg.npy (with --saveflow): cellpose output file containing overall info about predicted masks and parameters used in prediction. This file can be huge.
 
-- _cp_outlines.txt (with -saveroi): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
+- _cp_outlines.txt (with --saveroi): a text file that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
 
 
 
