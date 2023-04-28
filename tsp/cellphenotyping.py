@@ -6,6 +6,7 @@ from tsp import imread
 import skimage.io
 from skimage import img_as_ubyte, img_as_uint
 from cellpose import utils
+import timeit
 
 def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot):
     
@@ -26,6 +27,8 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     
     n_markers = len(files)-1 # not counting ref marker
 
+    start_time = timeit.default_timer()
+    
     for i in range(n_markers):
         positive=positives[i]
         cutoff=cutoffs[i]
@@ -48,6 +51,8 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
             pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channel=channel, method=method)
 
+        print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
+
         # for the last file, examine a series of cutoffs
         if(i == n_markers-1):
             if(method == 'Mask'):
@@ -69,12 +74,14 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             ncell_res_temp.columns = ["Cutoff", "Cell_count"]
             ncell_res_temp.to_csv(output_file_name + "_counts_lastcutoff.txt", header=True, index=None, sep=',')
         
+            print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
+
         pos_rates.append(pos_rate)
         num_cells.append(num_double_cell)
         mask_idxes.append(double_mask_idx)
         maskA = GetMaskCutoff(mask=maskA, act_mask_idx=double_mask_idx)
         masks.append(maskA)
-    
+
     
     # save masks to a csv file
     for i in range(n_markers):
@@ -120,6 +127,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     # for i in range(len(files)-1):
     #     np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
             
+    print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
 
 # Utilites for double staining analysis
@@ -138,6 +146,7 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     act_idx = np.unique(maskA)[1:]
     res = [] # positivity rate or intensity
     if(method == 'Mask'):
+        # only 10% faster than the alt implementation
         for i in act_idx :
             cell = np.where(maskA == i)
             tmp = maskB[cell]
@@ -145,17 +154,20 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
             overlaps = tab[0][tab[1][:-1]!=0]
             largest_overlap = 0 if len(overlaps)==0 else np.max(overlaps)
             res.append( largest_overlap / len(cell[0]) )
-
-            # cell = np.where(maskA == i)
-            # Bmasks = []
-            # for j in range(len(cell[0])) :
-            #     temp = maskB[cell[0][j], cell[1][j]]
-            #     if(temp != 0): Bmasks.append(temp)
-            # if Bmasks != []:
-            #     temp = np.histogram(Bmasks, bins=np.append(np.unique(Bmasks), np.inf))    
-            #     res.append( np.max(temp[0]) / len(cell[0]) )
-            # else: 
-            #     res.append(0.0)
+        
+        # alt implementation
+        # for i in act_idx :
+        #     cell = np.where(maskA == i)
+        #     Bmasks = []
+        #     for j in range(len(cell[0])) :
+        #         temp = maskB[cell[0][j], cell[1][j]]
+        #         if(temp != 0): Bmasks.append(temp)
+        #     if Bmasks != []:
+        #         temp = np.histogram(Bmasks, bins=np.append(np.unique(Bmasks), np.inf))    
+        #         res.append( np.max(temp[0]) / len(cell[0]) )
+        #     else: 
+        #         res.append(0.0)
+                
     if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
         for i in act_idx:
             intensity_temp = []
