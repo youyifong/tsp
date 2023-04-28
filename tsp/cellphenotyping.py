@@ -83,22 +83,43 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     
     # save masks to a csv file
     for i in range(n_markers):
-        # Size
-        size_masks = []
-        act_mask = np.delete(np.unique(masks[i+1]),0)
-        for idx in act_mask:
-            mask_pixel = np.where(masks[i+1] == idx)
-            size_masks.append(len(mask_pixel[0]))
+
+        tmp=np.unique(masks[i+1], return_counts=True)
+        sizes = tmp[1][1:]#.tolist()    # keep it as an array     
+        ncell=len(sizes)
+    
+        centers=GetCenterCoor(masks[i+1])
+        y_coor, x_coor = zip(*centers)
+        # turn tuples into arrays to use as.type later
+        y_coor=np.array(y_coor); x_coor=np.array(x_coor)
+    
+        ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
+        mask_info = pd.DataFrame({
+            "center_x": x_coor, 
+            "center_y": y_coor,
+            "size": sizes
+        })
+        mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+        mask_info=mask_info.round().astype(int)
+        mask_info.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
+    
+
+        # # Size
+        # size_masks = []
+        # act_mask = np.delete(np.unique(masks[i+1]),0)
+        # for idx in act_mask:
+        #     mask_pixel = np.where(masks[i+1] == idx)
+        #     size_masks.append(len(mask_pixel[0]))
         
-        # XY coordinates 
-        centers = GetCenterCoor(masks[i+1])
-        mask_res = pd.DataFrame([size_masks, [i[0] for i in centers], [i[1] for i in centers]]).T
-        mask_res.columns = ["size","center_x","center_y"]
+        # # XY coordinates 
+        # centers = GetCenterCoor(masks[i+1])
+        # mask_res = pd.DataFrame([size_masks, [i[0] for i in centers], [i[1] for i in centers]]).T
+        # mask_res.columns = ["size","center_x","center_y"]
         
-        cellnames = []
-        for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
-        mask_res.index = cellnames
-        mask_res.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
+        # cellnames = []
+        # for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
+        # mask_res.index = cellnames
+        # mask_res.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
 
     print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
