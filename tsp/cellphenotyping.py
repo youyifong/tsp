@@ -18,8 +18,9 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         
     pos_rates = []; num_cells = []; mask_idxes = []; masks = []
         
-    datA = np.load(os.path.splitext(files[0])[0] + '_seg.npy', allow_pickle=True).item()
-    maskA = datA['masks']
+    # datA = np.load(os.path.splitext(files[0])[0] + '_seg.npy', allow_pickle=True).item()
+    # maskA = datA['masks']
+    maskA = imread(os.path.splitext(files[0])[0] + '_masks_id.png')
     masks.append(maskA)
     num_cells.append(maskA.max())
     

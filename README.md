@@ -124,11 +124,11 @@ Output
 
 - _masks_id.png: K grayscale files with mask ids 
 
-- _masks_fill.png (with -s): K grayscale files with masks as filled shapes
+- _masks_fill.png (with --s): K grayscale files with masks as filled shapes
 
-<!--- - _point.png (with -s): K grayscale files with each mask drawn as a point. --->
+<!--- - _point.png (with --s): K grayscale files with each mask drawn as a point. --->
 
-- _seg.npz (with -r): cellpose output file containing overall info about image and masks, last marker only
+- _seg.npz (with --r): cellpose output file containing overall info about image and masks, last marker only
 
 
 
