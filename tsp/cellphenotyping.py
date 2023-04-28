@@ -51,9 +51,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
             pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channel=channel, method=method)
 
-        print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
-
-        # for the last file, examine a series of cutoffs
+        # for the last file, examine a series of cutoffs. this step does not take too much time
         if(i == n_markers-1):
             if(method == 'Mask'):
                 cutoff_all = list(np.around(np.linspace(start=0, stop=1, num=11),1)) # [0,0.1,...,0.9,1]                
@@ -74,13 +72,13 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             ncell_res_temp.columns = ["Cutoff", "Cell_count"]
             ncell_res_temp.to_csv(output_file_name + "_counts_lastcutoff.txt", header=True, index=None, sep=',')
         
-            print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
-
         pos_rates.append(pos_rate)
         num_cells.append(num_double_cell)
         mask_idxes.append(double_mask_idx)
         maskA = GetMaskCutoff(mask=maskA, act_mask_idx=double_mask_idx)
         masks.append(maskA)
+        
+        print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
     
     # save masks to a csv file
@@ -102,6 +100,8 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         mask_res.index = cellnames
         mask_res.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
 
+    print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
+
     # save counts
     filenames_save = [files[0]] # first filename
     for i in range(len(files)-1):
@@ -113,6 +113,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     ncell_res.columns = ["File_name", "Cell_count"]
     ncell_res.to_csv(output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
 
+    print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
     
     for i in range(len(masks)):
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
