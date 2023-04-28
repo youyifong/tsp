@@ -36,7 +36,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         if(method == 'Mask'):
             # datB = np.load(os.path.splitext(files[i+1])[0] + '_seg.npy', allow_pickle=True).item()
             # maskB = datB['masks']
-            maskB = imread(os.path.splitext(files[i+1])[0] + '_masks1_id.png')
+            maskB = imread(os.path.splitext(files[i+1])[0] + '_masks_id.png')
         elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
             image_comp = imread(files[i+1])
         else:
