@@ -135,21 +135,27 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
         maskB = maskB * (99/255) # normalization 255 for 8 bit, 65535 for 16 bit grayscale
     
     # Double staining #
-    act_idx = np.unique(maskA)
-    if(sum(act_idx==0) != 0) : act_idx = np.delete(act_idx,0) # select masks only (remove 0)
+    act_idx = np.unique(maskA)[1:]
     res = [] # positivity rate or intensity
     if(method == 'Mask'):
         for i in act_idx :
             cell = np.where(maskA == i)
-            Bmasks = []
-            for j in range(len(cell[0])) :
-                temp = maskB[cell[0][j], cell[1][j]]
-                if(temp != 0): Bmasks.append(temp)
-            if Bmasks != []:
-                temp = np.histogram(Bmasks, bins=np.append(np.unique(Bmasks), np.inf))    
-                res.append( np.max(temp[0]) / len(cell[0]) )
-            else: 
-                res.append(0.0)
+            tmp = maskB[cell]
+            tab = np.histogram(tmp, bins=np.append(np.unique(tmp), np.inf))
+            overlaps = tab[0][tab[1][:-1]!=0]
+            largest_overlap = 0 if len(overlaps)==0 else np.max(overlaps)
+            res.append( largest_overlap / len(cell[0]) )
+
+            # cell = np.where(maskA == i)
+            # Bmasks = []
+            # for j in range(len(cell[0])) :
+            #     temp = maskB[cell[0][j], cell[1][j]]
+            #     if(temp != 0): Bmasks.append(temp)
+            # if Bmasks != []:
+            #     temp = np.histogram(Bmasks, bins=np.append(np.unique(Bmasks), np.inf))    
+            #     res.append( np.max(temp[0]) / len(cell[0]) )
+            # else: 
+            #     res.append(0.0)
     if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
         for i in act_idx:
             intensity_temp = []
@@ -177,6 +183,8 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     if(positive == True) : num_double_stain = [l for l in res if l >= cutoff] # number of double stained cells
     if(positive == False) : num_double_stain = [l for l in res if l <= cutoff] # number of double stained cells
     return res, len(num_double_stain), double_mask_idx
+
+
 
 def GetMaskCutoff(mask, act_mask_idx):
     act_idx = act_mask_idx

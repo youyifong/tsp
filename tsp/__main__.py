@@ -141,6 +141,8 @@ def main():
         marker_names = args.n[1:-1].split(",")
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
         
+        #files=["M872956_JML_Position8_CD3_img.png","M872956_JML_Position8_CD4_img.png","M872956_JML_Position8_CD8_img.png"]; marker_names=["CD4","CD8"]; positives=[True,False]; cutoffs=[.5,.5]; channels=None; methods=["Mask","Mask"]; save_plot=True
+        
         StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], 
                          channels=channels, methods=methods, save_plot=args.s)
         
