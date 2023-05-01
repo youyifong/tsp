@@ -7,6 +7,7 @@ import skimage.io
 from skimage import img_as_ubyte, img_as_uint
 from cellpose import utils
 import timeit
+from scipy import ndimage
 
 
 def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot):
@@ -105,23 +106,6 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         mask_info.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
     
 
-        # # Size
-        # size_masks = []
-        # act_mask = np.delete(np.unique(masks[i+1]),0)
-        # for idx in act_mask:
-        #     mask_pixel = np.where(masks[i+1] == idx)
-        #     size_masks.append(len(mask_pixel[0]))
-        
-        # # XY coordinates 
-        # centers = GetCenterCoor(masks[i+1])
-        # mask_res = pd.DataFrame([size_masks, [i[0] for i in centers], [i[1] for i in centers]]).T
-        # mask_res.columns = ["size","center_x","center_y"]
-        
-        # cellnames = []
-        # for i in range(mask_res.shape[0]): cellnames.append("Cell_" + str(i+1))
-        # mask_res.index = cellnames
-        # mask_res.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
-
     print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
     # save counts
@@ -169,67 +153,40 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     # Double staining #
     
     tab = np.histogram2d(maskA.flatten(), maskB.flatten(), bins=[np.append(np.unique(maskA), np.inf), np.append(np.unique(maskB), np.inf)])[0]
-    size, act_idx = np.histogram(maskA, bins=np.append(np.unique(maskA), np.inf))
-    act_idx=act_idx[1:-1]
+    size, mask_indices = np.histogram(maskA, bins=np.append(np.unique(maskA), np.inf))
+    mask_indices=mask_indices[1:-1]
     res = tab[1:,1:].max(axis=1) / size[1:]
     
-    # res = [] # positivity rate or intensity
-    # if(method == 'Mask'):
-    #     # only 10% faster than the alt implementation
-    #     for i in act_idx :
-    #         cell = np.where(maskA == i)
-    #         tmp = maskB[cell]
-    #         tab = np.histogram(tmp, bins=np.append(np.unique(tmp), np.inf))
-    #         overlaps = tab[0][tab[1][:-1]!=0]
-    #         largest_overlap = 0 if len(overlaps)==0 else np.max(overlaps)
-    #         res.append( largest_overlap / len(cell[0]) )
-        
-    #     # alt implementation
-    #     # for i in act_idx :
-    #     #     cell = np.where(maskA == i)
-    #     #     Bmasks = []
-    #     #     for j in range(len(cell[0])) :
-    #     #         temp = maskB[cell[0][j], cell[1][j]]
-    #     #         if(temp != 0): Bmasks.append(temp)
-    #     #     if Bmasks != []:
-    #     #         temp = np.histogram(Bmasks, bins=np.append(np.unique(Bmasks), np.inf))    
-    #     #         res.append( np.max(temp[0]) / len(cell[0]) )
-    #     #     else: 
-    #     #         res.append(0.0)
+    if(method == 'Intensity_total'):
+        res = ndimage.sum(maskB, labels=maskA, index=mask_indices)
+    if(method == 'Intensity_avg_all'):
+        res  = ndimage.mean(maskB, labels=maskA, index=mask_indices)
                 
-    if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-        act_idx = np.unique(maskA)[1:]
-        res=[]
-        for i in act_idx:
-            intensity_temp = []
-            cell = np.where(maskA == i)
-            for j in range(len(cell[0])) :
-                temp = maskB[cell[0][j], cell[1][j]]
-                intensity_temp.append(temp)
-            if(method == 'Intensity_total'):
-                res.append(sum(intensity_temp)) # total intensity
-            if(method == 'Intensity_avg_pos'):
-                intensity_temp_arr = np.array(intensity_temp)
-                int_norm_avg_pos = sum(intensity_temp_arr[intensity_temp_arr != 0]) / sum(intensity_temp_arr != 0)
-                if(math.isnan(int_norm_avg_pos)):
-                    res.append(0) # average intensities of positive pixels after normalization
-                else:
-                    res.append(int_norm_avg_pos) # average intensities of positive pixels after normalization
-            if(method == 'Intensity_avg_all'):
-                res.append(np.mean(intensity_temp)) # average intensities of all pixels after normalization
+    # if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
+    #     act_idx = np.unique(maskA)[1:]
+    #     res=[]
+    #     for i in act_idx:
+    #         intensity_temp = []
+    #         cell = np.where(maskA == i)
+    #         for j in range(len(cell[0])) :
+    #             temp = maskB[cell[0][j], cell[1][j]]
+    #             intensity_temp.append(temp)
+    #         if(method == 'Intensity_total'):
+    #             res.append(sum(intensity_temp)) # total intensity
+    #         if(method == 'Intensity_avg_pos'):
+    #             intensity_temp_arr = np.array(intensity_temp)
+    #             int_norm_avg_pos = sum(intensity_temp_arr[intensity_temp_arr != 0]) / sum(intensity_temp_arr != 0)
+    #             if(math.isnan(int_norm_avg_pos)):
+    #                 res.append(0) # average intensities of positive pixels after normalization
+    #             else:
+    #                 res.append(int_norm_avg_pos) # average intensities of positive pixels after normalization
+    #         if(method == 'Intensity_avg_all'):
+    #             res.append(np.mean(intensity_temp)) # average intensities of all pixels after normalization
     
     if positive: 
-        double_mask_idx = act_idx[res >= cutoff]
+        double_mask_idx = mask_indices[res >= cutoff]
     else:
-        double_mask_idx = act_idx[res <= cutoff]
-
-    # act_mask_idx = [] # double stained mask index
-    # for j in range(len(res)) :
-    #     if(positive == True): act_mask_idx.append(res[j] >= cutoff)
-    #     if(positive == False): act_mask_idx.append(res[j] <= cutoff)
-    # double_mask_idx = act_idx[act_mask_idx]
-    # if(positive == True) : num_double_stain = [l for l in res if l >= cutoff] # number of double stained cells
-    # if(positive == False) : num_double_stain = [l for l in res if l <= cutoff] # number of double stained cells
+        double_mask_idx = mask_indices[res <= cutoff]
 
     return res, len(double_mask_idx), double_mask_idx
 
