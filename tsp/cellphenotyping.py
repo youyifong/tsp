@@ -167,7 +167,7 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     
     # Double staining #
     
-    tab = np.histogram2d(maskA, maskB, bins=[np.append(np.unique(tmp), np.inf), np.append(np.unique(tmp), np.inf)])
+    # tab = np.histogram2d(maskA, maskB, bins=[np.append(np.unique(tmp), np.inf), np.append(np.unique(tmp), np.inf)])
     
     act_idx = np.unique(maskA)[1:]
     res = [] # positivity rate or intensity
