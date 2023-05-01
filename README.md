@@ -18,19 +18,6 @@ Analysis
 - statistical analysis
 
 
-## Image alignment
-
-> python -m tsp alignimages --ref_image xx  --image2 xx 
-
-Optional input:
-
-- --l Channels. If the images are grayscale, the argument is not needed. If the images are RBG, the argument is used to extract the channels of interest from the two images: 1 R, 2 G, 3 B, e.g. [2,2]
-
-Output 
-
-- A new image file named _aligned.png will be saved.
-
- 
 ## Cell segmentation with cellpose 
 > python -m tsp runcellpose --f '*.png' --l [0,0]  --model cytotrain7
 
@@ -151,6 +138,19 @@ Output
 - _MFI.csv: contains the x-y coordinates and MFI for each mask 
 
 
+## Image alignment
+
+> python -m tsp alignimages --ref_image xx  --image2 xx 
+
+Optional input:
+
+- --l Channels. If the images are grayscale, the argument is not needed. If the images are RBG, the argument is used to extract the channels of interest from the two images: 1 R, 2 G, 3 B, e.g. [2,2]
+
+Output 
+
+- A new image file named _aligned.png will be saved.
+
+ 
 
 ## Compute distance from cell center to a boundary polyline
 

@@ -7,9 +7,8 @@ from tsp.masks import GetCenterCoor
 
 def IntensityAnalysis(mask_file, image_files, channel=None):
     
-    dat = np.load(mask_file, allow_pickle=True).item()
-    masks = dat['masks']
-    
+    masks = imread(mask_file)
+
     centers = GetCenterCoor(masks)
     y_coor=[i[0] for i in centers]
     x_coor=[i[1] for i in centers]
