@@ -1,4 +1,4 @@
-import os, math, sys
+import os, sys
 import pandas as pd
 import numpy as np
 from tsp.masks import GetCenterCoor #, PlotMask_outline, PlotMask_center
@@ -152,27 +152,21 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     
     # Double staining #
     
-    tab = np.histogram2d(maskA.flatten(), maskB.flatten(), bins=[np.append(np.unique(maskA), np.inf), np.append(np.unique(maskB), np.inf)])[0]
-    size, mask_indices = np.histogram(maskA, bins=np.append(np.unique(maskA), np.inf))
-    mask_indices=mask_indices[1:-1]
-    res = tab[1:,1:].max(axis=1) / size[1:]
     
-    if(method == 'Intensity_total'):
-        res = ndimage.sum(maskB, labels=maskA, index=mask_indices)
-    if(method == 'Intensity_avg_all'):
-        res  = ndimage.mean(maskB, labels=maskA, index=mask_indices)
-                
-    # if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-    #     act_idx = np.unique(maskA)[1:]
-    #     res=[]
-    #     for i in act_idx:
-    #         intensity_temp = []
-    #         cell = np.where(maskA == i)
-    #         for j in range(len(cell[0])) :
-    #             temp = maskB[cell[0][j], cell[1][j]]
-    #             intensity_temp.append(temp)
-    #         if(method == 'Intensity_total'):
-    #             res.append(sum(intensity_temp)) # total intensity
+    if method =="Mask":
+        tab = np.histogram2d(maskA.flatten(), maskB.flatten(), bins=[np.append(np.unique(maskA), np.inf), np.append(np.unique(maskB), np.inf)])[0]
+        size, mask_indices = np.histogram(maskA, bins=np.append(np.unique(maskA), np.inf))
+        mask_indices=mask_indices[1:-1]
+        res = tab[1:,1:].max(axis=1) / size[1:]
+    else:
+        mask_indices = np.unique(maskA, return_counts=True)[0][1:]
+        if method == 'Intensity_total':
+            res = ndimage.sum(maskB, labels=maskA, index=mask_indices)
+        elif method == 'Intensity_avg_all':
+            res  = ndimage.mean(maskB, labels=maskA, index=mask_indices)
+        else:
+            sys.exit(f"DoubleStain: method not found - {method}")
+
     #         if(method == 'Intensity_avg_pos'):
     #             intensity_temp_arr = np.array(intensity_temp)
     #             int_norm_avg_pos = sum(intensity_temp_arr[intensity_temp_arr != 0]) / sum(intensity_temp_arr != 0)
@@ -180,8 +174,6 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     #                 res.append(0) # average intensities of positive pixels after normalization
     #             else:
     #                 res.append(int_norm_avg_pos) # average intensities of positive pixels after normalization
-    #         if(method == 'Intensity_avg_all'):
-    #             res.append(np.mean(intensity_temp)) # average intensities of all pixels after normalization
     
     if positive: 
         double_mask_idx = mask_indices[res >= cutoff]

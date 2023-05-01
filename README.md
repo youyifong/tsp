@@ -98,7 +98,7 @@ The command above looks for marker1+ marker2+ marker3- cells.  Let K be the numb
 Required input:
 - --f List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_masks_id.png. For the following files, e.g. file2.png, the program expects to find the mask file (_masks_id.png) if the method is Mask and the image file otherwise. 
 
-- --m List of K-1 values from Mask, Intensity_avg_pos, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. Under mask, overlap between A and B is computed for individual B cells, not all B cells.
+- --m List of K-1 values from Mask, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. Under mask, overlap between A and B is computed for individual B cells, not all B cells.
 
 - --c List of K-1 cutoff values for deciding if markers are present.
 
@@ -127,8 +127,6 @@ Output
 - _masks_fill.png (with --s): K grayscale files with masks as filled shapes
 
 <!--- - _point.png (with --s): K grayscale files with each mask drawn as a point. --->
-
-- _seg.npz (with --r): cellpose output file containing overall info about image and masks, last marker only
 
 
 
