@@ -176,8 +176,7 @@ def bias(mask_true, mask_pred):
     return bias
 
 # From .roi files to masks file
-def roifiles2mask(roi_files, width, height):
-    files = glob.glob(roi_files) 
+def roifiles2mask(files, width, height):
     print("number of roi files: "+str(len(files)))
     masks = Image.new('I', (width, height), 0)
     for idx in range(len(files)):
@@ -193,16 +192,17 @@ def roifiles2mask(roi_files, width, height):
         
         ImageDraw.Draw(masks).polygon(polygon, outline=idx+1, fill=idx+1)
         
+    filename = os.path.split(files[0])[0]+'_masks'
+    
     masks = np.array(masks, dtype=np.uint16) # resulting masks
     #plt.imshow(masks, cmap='gray') # display ground-truth masks
     #plt.show()
-    imsave(os.path.split(roi_files)[0]+'_masks.png', masks)
+    imsave(filename+'_id.png', masks)
     
     outlines = masks_to_outlines(masks)
-    plt.imsave(os.path.split(roi_files)[0] + "_masks_outline.png", outlines, cmap='gray')
+    plt.imsave(filename + ".png", outlines, cmap='gray')
 
-    print("masks saved to: "+os.path.split(roi_files)[0]+'_masks.png')
-    print("mask outlines saved to: "+os.path.split(roi_files)[0]+'_masks_outline.png')
+    print("masks saved to: "+filename)
 
 
 def mask2outline(mask_file):

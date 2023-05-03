@@ -40,9 +40,9 @@ Optional input:
 
 - --s If present, additional image files will be saved.
 
-- --flow Flow threshold. Larger values => more masks. This may be the most important parameter to adjust at inference. Default 0.4.  
+- --flow Flow threshold. Larger values => more masks. This may be the most important parameter to adjust at inference. Default 0.4. 
 
-- --cellprob Cell probability threshold. Smaller values => larger and fewer masks, fewer because masks they are close start to merge. Default 0. 
+- --cellprob Cell probability threshold. Smaller values => fewer and larger masks, fewer because masks they are close start to merge. Default 0. 
 
 - --d Cell diameter. Default 0. 
 
@@ -120,7 +120,7 @@ Output
 
 ## Intensity statistics 
 
-> python -m tsp intensityanalysis --maskfile xx_seg.npy  --f '*.png'  
+> python -m tsp intensityanalysis --maskfile xx_masks_id.png  --f '*.png'  
 
 Load masks in xx_seg.npy and measures the intensities of each markers in the list of image files. 
 
@@ -180,7 +180,7 @@ Appends region membership as new columns and save as a new _regmem.csv file.
 ## Working with masks
 
 ### Convert roi files into mask png files
-> python -m tsp roifiles2mask --roifolder eg1 --height 1040 --width 1392 
+> python -m tsp roifiles2mask --f eg1 --height 1040 --width 1392 
  
 where roifolder is the path to the folder containing the unzipped roi files, height and width are the dimension of the image. The program creates two png files, one mask file and one mask outline file. 
 

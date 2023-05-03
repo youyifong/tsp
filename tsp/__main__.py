@@ -35,7 +35,6 @@ def main():
     parser.add_argument('--predfolder', type=str, help='checkprediction prediction folder')
     parser.add_argument('--gtfolder', type=str, help='checkprediction ground truth folder')
     parser.add_argument('--imgfolder', type=str, help='checkprediction image folder')
-    parser.add_argument('--roifolder', type=str, help='folder that contains the roi files for roifiles2mask, e.g. M926910_Pos6_RoiSet_49')
     parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
@@ -169,7 +168,9 @@ def main():
                 
                 
     elif args.action=="roifiles2mask":
-        roifiles2mask (args.roifolder+"/*", args.width, args.height)
+        roi_files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        print(roi_files)
+        roifiles2mask (roi_files, args.width, args.height)
 
 
     elif args.action=='overlaymasks':
