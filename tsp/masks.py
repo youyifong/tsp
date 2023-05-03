@@ -1,4 +1,4 @@
-import os, cv2, glob
+import os, cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -180,11 +180,15 @@ def roifiles2mask(files, width, height):
     print("number of roi files: "+str(len(files)))
     masks = Image.new('I', (width, height), 0)
     for idx in range(len(files)):
-        print(idx)
         mask_temp = read_roi_file(files[idx])
         filename = files[idx].split(os.sep)[-1][:-4]
-        x = mask_temp[filename]['x']
-        y = mask_temp[filename]['y']
+        mask_temp = mask_temp[filename]
+        if mask_temp['type'] == 'rectangle':
+            x = [mask_temp['left'], mask_temp['left']+mask_temp['width'], mask_temp['left']+mask_temp['width'], mask_temp['left']]
+            y = [mask_temp['top'],  mask_temp['top'], mask_temp['top']+mask_temp['height'], mask_temp['top']+mask_temp['height']]
+        else:
+            x = mask_temp['x']
+            y = mask_temp['y']
             
         polygon = []
         for i in range(len(x)):
@@ -192,7 +196,7 @@ def roifiles2mask(files, width, height):
         
         ImageDraw.Draw(masks).polygon(polygon, outline=idx+1, fill=idx+1)
         
-    filename = os.path.split(files[0])[0]+'_masks'
+    filename = os.path.splitext(files[0])[0]+'_masks'
     
     masks = np.array(masks, dtype=np.uint16) # resulting masks
     #plt.imshow(masks, cmap='gray') # display ground-truth masks
