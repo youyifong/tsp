@@ -180,9 +180,17 @@ Appends region membership as new columns and save as a new _regmem.csv file.
 ## Working with masks
 
 ### Convert roi files into mask png files
-> python -m tsp roifiles2mask --f eg1 --height 1040 --width 1392 
+
+The program creates two png files, one mask file and one mask outline file. 
+
+> python -m tsp roifiles2mask --f eg1 --width 1392 --height 1040 
  
-where roifolder is the path to the folder containing the unzipped roi files, height and width are the dimension of the image. The program creates two png files, one mask file and one mask outline file. 
+- --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
+
+- --width: dimension of the image
+
+- --height: dimension of the image
+
 
 To unzip, e.g.
 

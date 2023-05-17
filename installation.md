@@ -24,15 +24,6 @@ optionally, -p /app/software/Python/3.9.6-GCCcore-11.2.0/bin/python can be added
 >source tspenv/bin/activate 
 
  
-Install our fork of Cellpose (could test patience) and some python packages 
-
->pip install --upgrade pip 
-
->pip install git+https://github.com/youyifong/cellpose.git#egg=cellpose 
-
->pip install matplotlib read_roi pytz 
- 
-
 Clone our tsp pipeline package and install with the editable –e option 
 
 >git clone https://github.com/youyifong/tsp 
@@ -40,6 +31,16 @@ Clone our tsp pipeline package and install with the editable –e option
 >pip install -e tsp 
  
  
+Install our fork of Cellpose (could take some time)
+
+>pip install git+https://github.com/youyifong/cellpose.git#egg=cellpose 
+
+
+Install additional python packages 
+
+>pip install matplotlib read_roi pytz 
+ 
+
 ## Refresh
 
  
