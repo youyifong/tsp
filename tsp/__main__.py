@@ -23,7 +23,7 @@ def main():
         cellphenotyping, \
         dist2boundary, regionmembership, \
         AP, checkprediction, mask2outline, roifiles2mask, overlaymasks,\
-        splitdataset')
+        splitdata')
     
     # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image')
@@ -75,7 +75,7 @@ def main():
     # regionmembership
     parser.add_argument('--regionroi', type=str, help='roi files defining regions, e.g. [region1.roi,region2.roi]', required=False)
     
-    # splitdataset
+    # splitdata
     parser.add_argument('--dataset', type=str, help='dataset folder', required=False)
     parser.add_argument('--imgext', type=str, help='image file extension, e.g. jpg, png, tif', required=False)
     parser.add_argument('--trainratio', type=str, help='train to all, e.g. 0.9', required=False)
@@ -387,7 +387,7 @@ def main():
             res_temp = np.array([res_mat])
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
         
-    elif args.action=='splitdataset':
+    elif args.action=='splitdata':
         imgext=args.imgext if args.imgext is not None else 'tif'
         trainratio=float(args.trainratio if args.trainratio is not None else '0.9')
         split_dataset_by_class(args.dataset, imgext, trainratio)
