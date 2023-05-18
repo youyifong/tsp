@@ -8,6 +8,7 @@ from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
 from tsp.geom import dist2boundary, region_membership
+from tsp.split_dataset import split_dataset
 
 import timeit
 start_time = timeit.default_timer()
@@ -21,7 +22,8 @@ def main():
         runcellpose, \
         cellphenotyping, \
         dist2boundary, regionmembership, \
-        AP, checkprediction, mask2outline, roifiles2mask, overlaymasks')
+        AP, checkprediction, mask2outline, roifiles2mask, overlaymasks,\
+        splitdataset')
     
     # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image')
@@ -72,6 +74,9 @@ def main():
     
     # regionmembership
     parser.add_argument('--regionroi', type=str, help='roi files defining regions, e.g. [region1.roi,region2.roi]', required=False)
+    
+    # splitdataset
+    parser.add_argument('--dataset', type=str, help='dataset folder', required=False)
     
     args = parser.parse_args()
 
@@ -379,6 +384,9 @@ def main():
         elif args.metric=='tpfpfn':
             res_temp = np.array([res_mat])
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
+        
+    elif args.action=='splitdataset':
+        split_dataset(args.dataset)
         
 
     print(f"time passed: {(timeit.default_timer() - start_time)/60:.1f} min"); 
