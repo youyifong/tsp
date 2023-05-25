@@ -52,13 +52,13 @@ import cv2
 #Image downloaded from:
 #https://pbs.twimg.com/media/C1MkrgQWQAASbdz.jpg
 
-def normalize_macenko (image_file):
+# alpha: As recommend in the paper. tolerance for the pseudo-min and pseudo-max (default: 1)
+# beta: As recommended in the paper. OD threshold for transparent pixels (default: 0.15)
+def normalize_macenko (image_file, alpha=1, beta=0.01):
     img=cv2.imread(image_file, 1)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     
-    Io = 240 # Transmitted light intensity, Normalizing factor for image intensities
-    alpha = 1  #As recommend in the paper. tolerance for the pseudo-min and pseudo-max (default: 1)
-    beta = 0.001 #As recommended in the paper. OD threshold for transparent pixels (default: 0.15)
+    Io = 255 # Transmitted light intensity, Normalizing factor for image intensities
     
     
     ######## Step 1: Convert RGB to OD ###################
@@ -85,7 +85,7 @@ def normalize_macenko (image_file):
     #OD = -np.log10(img+0.004)  #Use this when reading images with skimage
     #Adding 0.004 just to avoid log of zero. 
     
-    OD = -np.log10((img.astype(np.float64)+1)/Io) #Use this for opencv imread
+    OD = -np.log10((img.astype(np.float64)+1)/(Io+1)) #Use this for opencv imread
     #Add 1 in case any pixels in the image have a value of 0 (log 0 is indeterminate)
     
     """
