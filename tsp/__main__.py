@@ -177,7 +177,14 @@ def main():
     elif args.action=="roifiles2mask":
         roi_files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
         print(roi_files)
-        roifiles2mask (roi_files, args.width, args.height)
+        
+        if args.imagefile is not None:
+            img = imread(args.imagefile)
+            height, width = img.shape
+        else:
+            height, width = args.height, args.width
+        
+        roifiles2mask (roi_files, width, height)
 
 
     elif args.action=='overlaymasks':

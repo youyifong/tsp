@@ -5,7 +5,7 @@
 
 Load modules  
 
-These instructions are specific to the Hutch cluster users. If these two lines are added to .profile (assuming bash shell is used), there will be no need to run them manually. 
+These instructions are specific to the Hutch cluster users. 
 
 >ml Python/3.9.6-GCCcore-11.2.0 
 
@@ -13,9 +13,7 @@ These instructions are specific to the Hutch cluster users. If these two lines a
 
   
 
-Create a virtual env on Linux 
-
-optionally, -p /app/software/Python/3.9.6-GCCcore-11.2.0/bin/python can be added to the virtualenv command 
+Create a virtual env on Linux. Optionally, -p /app/software/Python/3.9.6-GCCcore-11.2.0/bin/python can be added to the virtualenv command 
 
 >mkdir tspenv 
 
@@ -38,7 +36,7 @@ Install our fork of Cellpose (could take some time)
 
 Install additional python packages 
 
->pip install matplotlib read_roi pytz 
+>pip install matplotlib read_roi pytz pandas scikit-image shapely
  
 
 ## Refresh
