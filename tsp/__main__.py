@@ -184,7 +184,7 @@ def main():
         
         if args.imagefile is not None:
             img = imread(args.imagefile)
-            height, width = img.shape
+            height, width = img.shape[0:2]
         else:
             height, width = args.height, args.width
         
