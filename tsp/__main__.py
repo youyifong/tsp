@@ -9,6 +9,7 @@ from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
 from tsp.geom import dist2boundary, region_membership
 from tsp.split_dataset import split_dataset_by_class
+from sklearn.metrics.cluster import adjusted_rand_score
 
 import timeit
 start_time = timeit.default_timer()
@@ -335,9 +336,13 @@ def main():
             csi_5 = csi(labels, y_pred, threshold=0.5)
             csi_vec.append(csi_5)
             print("csi " + "{0:0.3f}".format(csi_5) + " tp,fp,fn:", ' '.join(["{0:0.0f}".format(i) for i in tpfpfn_vec]))
-            
+            print(f"mAP={np.mean(csi_vec)}")        
+
             if args.metric=='bias':
                 res_temp = bias(labels, y_pred)
+                res_mat.append(round(res_temp,5))
+            elif args.metric=='rand':
+                res_temp = adjusted_rand_score(labels.flatten(), y_pred.flatten())
                 res_mat.append(round(res_temp,5))
             elif args.metric=='csi': 
                 res_vec = []
@@ -382,9 +387,11 @@ def main():
                     newfilename=img_name+"_img_labelssadded.png"
                 imsave(newfilename,  res)
         
-        print(f"mAP={np.mean(csi_vec)}")        
                 
         if args.metric=='bias':
+            res_temp = np.array([res_mat])
+            print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
+        elif args.metric=='rand':
             res_temp = np.array([res_mat])
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
         elif args.metric=='csi':
