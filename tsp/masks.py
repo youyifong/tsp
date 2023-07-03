@@ -1,4 +1,4 @@
-import os, cv2
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,46 +9,9 @@ from cellpose import utils, io
 from tsp import imread, imsave
 import skimage.io
 from skimage import img_as_ubyte, img_as_uint
-from tsp.AP import compute_iou, tp_fp_fn
+from tsp.AP import masks_to_outlines
 
 
-# copied from cellpose
-# Masks to outlines
-def masks_to_outlines(masks):
-    """ get outlines of masks as a 0-1 array 
-    
-    Parameters
-    ----------------
-
-    masks: int, 2D or 3D array 
-        size [Ly x Lx] or [Lz x Ly x Lx], 0=NO masks; 1,2,...=mask labels
-
-    Returns
-    ----------------
-
-    outlines: 2D or 3D array 
-        size [Ly x Lx] or [Lz x Ly x Lx], True pixels are outlines
-
-    """
-    if masks.ndim > 3 or masks.ndim < 2:
-        raise ValueError('masks_to_outlines takes 2D or 3D array, not %dD array'%masks.ndim)
-    outlines = np.zeros(masks.shape, bool)
-    
-    if masks.ndim==3:
-        for i in range(masks.shape[0]):
-            outlines[i] = masks_to_outlines(masks[i])
-        return outlines
-    else:
-        slices = ndimage.find_objects(masks.astype(int))
-        for i,si in enumerate(slices):
-            if si is not None:
-                sr,sc = si
-                mask = (masks[sr, sc] == (i+1)).astype(np.uint8)
-                contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-                pvc, pvr = np.concatenate(contours[-2], axis=0).squeeze().T            
-                vr, vc = pvr + sr.start, pvc + sc.start 
-                outlines[vr, vc] = 1
-        return outlines
 
 
 # From .roi files to masks file
@@ -79,57 +42,6 @@ def roifiles2mask(files, width, height, saveas, save_masks_only=False):
         imsave(saveas+'_id.png', masks)    
     print("masks saved to: "+saveas)
 
-
-def mask2outline(mask_file):
-    masks = imread(mask_file)
-    outlines = masks_to_outlines(masks)
-    skimage.io.imsave(os.path.splitext(mask_file)[0] + "_outline.png", img_as_ubyte(outlines))
-    # imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines) # error
-    # plt.imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines, cmap='gray') # saves as RGB file
-
-# Coloring FP in mask map and FN in gt mask map
-def color_fp_fn(mask_file, pred_file):
-    mask = imread(mask_file)
-    pred = imread(pred_file)
-    mask_idx = np.setdiff1d(np.unique(mask), np.array([0])) # remove background 0
-    pred_idx = np.setdiff1d(np.unique(pred), np.array([0])) # remove background 0
-    
-    iou = compute_iou(mask_true=mask, mask_pred=pred) # compute iou
-    tp, fp, fn = tp_fp_fn(threshold=0.5, iou=iou, index=True)
-    # tp_idx = mask_idx[tp]
-    fp_idx = pred_idx[fp]
-    fn_idx = mask_idx[fn]
-    
-    # plot fp with green in pred mask map
-    total_idx = pred_idx
-    pred_fp = pred.copy()
-    for idx in total_idx:
-        if(sum(idx == fp_idx) == 0):
-            temp = np.where(pred_fp == idx)
-            pred_fp[temp[0], temp[1]] = 0
-    total_outlines = masks_to_outlines(pred)
-    fp_outlines = masks_to_outlines(pred_fp)
-    res = np.zeros((pred.shape[0], pred.shape[1], 3), dtype=np.uint8)
-    res[np.where(total_outlines)[0], np.where(total_outlines)[1], :] = 255
-    res[np.where(fp_outlines)[0], np.where(fp_outlines)[1], 0] = 0
-    res[np.where(fp_outlines)[0], np.where(fp_outlines)[1], 2] = 0
-    plt.imsave(os.path.splitext(pred_file)[0] + "_outline_fp_green.png", res)
-    
-    # plot fn with green in gt mask map
-    total_idx = mask_idx
-    mask_fn = mask.copy()
-    for idx in total_idx:
-        if(sum(idx == fn_idx) == 0):
-            temp = np.where(mask_fn == idx)
-            mask_fn[temp[0], temp[1]] = 0
-    total_outlines = masks_to_outlines(mask)
-    fn_outlines = masks_to_outlines(mask_fn)
-    res = np.zeros((mask.shape[0], mask.shape[1], 3), dtype=np.uint8)
-    res[np.where(total_outlines)[0], np.where(total_outlines)[1], :] = 255
-    res[np.where(fn_outlines)[0],    np.where(fn_outlines)[1],    1] = 0
-    res[np.where(fn_outlines)[0],    np.where(fn_outlines)[1],    2] = 0
-    plt.imsave(os.path.splitext(pred_file)[0] + "_outline_fn_red.png", res)
-    
 
 
 def filter_by_intensity(image, masks, channels, min_avg_intensity=0, min_total_intensity=0):
