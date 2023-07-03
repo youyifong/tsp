@@ -2,7 +2,8 @@ import argparse, glob, os, sys
 import numpy as np
 
 from tsp import imread, imsave, image_to_rgb, normalize99
-from tsp.masks import mask2outline, roifiles2mask, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
+from tsp.masks import mask2outline, roifiles2mask
+from tsp.AP import masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
 from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
@@ -341,7 +342,7 @@ def main():
             if args.metric=='bias':
                 res_temp = bias(labels, y_pred)
                 res_mat.append(round(res_temp,5))
-            elif args.metric=='rand':
+            elif args.metric=='ari':
                 res_temp = adjusted_rand_score(labels.flatten(), y_pred.flatten())
                 res_mat.append(round(res_temp,5))
             elif args.metric=='csi': 
@@ -391,7 +392,7 @@ def main():
         if args.metric=='bias':
             res_temp = np.array([res_mat])
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
-        elif args.metric=='rand':
+        elif args.metric=='ari':
             res_temp = np.array([res_mat])
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
         elif args.metric=='csi':
