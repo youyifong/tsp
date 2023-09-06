@@ -5,6 +5,7 @@ from scipy import ndimage
 from tsp import imread
 import skimage.io
 from skimage import img_as_ubyte
+from skimage.measure import regionprops
 
 
 def dice(im1, im2):
@@ -16,55 +17,53 @@ def dice(im1, im2):
     intersection = np.logical_and(im1, im2)
     return 2. * intersection.sum() / (im1.sum() + im2.sum())
 
-def average_dice(gt_labels, pred_labels):
-    """
-    Compute average Dice coefficient per cell.
-    """
-    dice_scores = []
-    # Loop through unique labels (cells) in ground truth
-    for i in np.unique(gt_labels)[1:]:  # we ignore 0 as it's the background
-        gt_cell = gt_labels == i
-        overlap_with_pred = gt_cell * pred_labels  # element-wise multiplication
-        if sum(overlap_with_pred.flat):
-            pred_cell_label = np.bincount(overlap_with_pred.flat)[1:].argmax() + 1 # get the label of the largest overlapping predicted cell
-            pred_cell = pred_labels == pred_cell_label
-            dice_scores.append(dice(gt_cell, pred_cell))
-        else:
-            dice_scores.append(0)
-    
-    return np.mean(dice_scores)
-
-## an alternative def, gives the same answer
-# from skimage.measure import regionprops
 # def average_dice(gt_labels, pred_labels):
 #     """
 #     Compute average Dice coefficient per cell.
 #     """
-
 #     dice_scores = []
-
-#     # Loop through regions in ground truth
-#     for region in regionprops(gt_labels):
-#         # Create a binary mask for the current region in ground truth
-#         gt_cell = gt_labels == region.label
-
-#         # Find the overlapping region in prediction
-#         pred_cell = pred_labels[region.coords[:, 0], region.coords[:, 1]]
-        
-#         if sum(pred_cell):
-#             # Find the most common non-zero label in the overlapping region
-#             overlap_label = np.bincount(pred_cell[pred_cell > 0]).argmax()
-            
-#             if overlap_label:  # ignore if there's no matching cell in prediction
-#                 pred_cell_mask = pred_labels == overlap_label
-#                 dice_scores.append(dice(gt_cell, pred_cell_mask))
-#             else:
-#                 dice_scores.append(0)
-                
+#     # Loop through unique labels (cells) in ground truth
+#     for i in np.unique(gt_labels)[1:]:  # we ignore 0 as it's the background
+#         gt_cell = gt_labels == i
+#         overlap_with_pred = gt_cell * pred_labels  # element-wise multiplication
+#         if sum(overlap_with_pred.flat):
+#             pred_cell_label = np.bincount(overlap_with_pred.flat)[1:].argmax() + 1 # get the label of the largest overlapping predicted cell
+#             pred_cell = pred_labels == pred_cell_label
+#             dice_scores.append(dice(gt_cell, pred_cell))
 #         else:
 #             dice_scores.append(0)
-                    
+    
 #     return np.mean(dice_scores)
+
+def average_dice(gt_labels, pred_labels):
+    """
+    Compute average Dice coefficient per cell.
+    """
+
+    dice_scores = []
+
+    # Loop through regions in ground truth
+    for region in regionprops(gt_labels):
+        # Create a binary mask for the current region in ground truth
+        gt_cell = gt_labels == region.label
+
+        # Find the overlapping region in prediction
+        pred_cell = pred_labels[region.coords[:, 0], region.coords[:, 1]]
+        
+        if sum(pred_cell):
+            # Find the most common non-zero label in the overlapping region
+            overlap_label = np.bincount(pred_cell[pred_cell > 0]).argmax()
+            
+            if overlap_label:  # ignore if there's no matching cell in prediction
+                pred_cell_mask = pred_labels == overlap_label
+                dice_scores.append(dice(gt_cell, pred_cell_mask))
+            else:
+                dice_scores.append(0)
+                
+        else:
+            dice_scores.append(0)
+                    
+    return np.mean(dice_scores)
 
 
 # IoU
