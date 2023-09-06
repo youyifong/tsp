@@ -3,7 +3,7 @@ import numpy as np
 
 from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import roifiles2mask
-from tsp.AP import mask2outline, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou
+from tsp.AP import mask2outline, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou, average_dice
 from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
@@ -252,7 +252,7 @@ def main():
         csi_vec=[]
         for gt_file_name in gt_file_names:
             img_name = gt_file_name.split('_masks')[0]
-            print(img_name, end="\t")
+            if args.verbose: print(img_name, end="\t")
             gt_path = sorted(glob.glob(args.gtfolder+'/'+img_name+"*"))[0] 
             pred_path = sorted(glob.glob(args.predfolder+'/'+img_name+"*"))[0] 
             y_pred = imread(pred_path)
@@ -265,14 +265,14 @@ def main():
     
             true_objects = np.unique(labels)
             pred_objects = np.unique(y_pred)
-            print(f"# gt: {len(true_objects)},", end=" ")
+            if args.verbose: print(f"# gt: {len(true_objects)},", end=" ")
 
             # filter masks based on minimal size of masks
             if args.min_size>0:
                 area_true = np.histogram(labels, bins=np.append(true_objects, np.inf))[0]
                 area_pred = np.histogram(y_pred, bins=np.append(pred_objects, np.inf))[0]
                 true_objects1 = true_objects[area_true>=args.min_size]
-                print(f"# gt: {len(true_objects1)},", end=" ")
+                if args.verbose: print(f"# gt: {len(true_objects1)},", end=" ")
                 pred_objects1 = pred_objects[area_pred>=args.min_size]
                 for idx in true_objects:
                     if not (idx in true_objects1):
@@ -295,7 +295,7 @@ def main():
                     totalintensity_pred.append(sum(img[temp[0], temp[1]]))
 
                 true_objects1 = true_objects[np.array(totalintensity_true)>=args.min_totalintensity]
-                print(f"# gt: {len(true_objects1)},", end=" ")
+                if args.verbose: print(f"# gt: {len(true_objects1)},", end=" ")
                 pred_objects1 = pred_objects[np.array(totalintensity_pred)>=args.min_totalintensity]
                 for idx in true_objects:
                     if not (idx in true_objects1):
@@ -321,7 +321,7 @@ def main():
                     avgintensity_pred.append(sum(img[temp[0], temp[1]])/area_pred[i])
 
                 true_objects1 = true_objects[np.array(avgintensity_true)>=args.min_avgintensity]
-                print(f"# gt: {len(true_objects1)},", end=" ")
+                if args.verbose: print(f"# gt: {len(true_objects1)},", end=" ")
                 pred_objects1 = pred_objects[np.array(avgintensity_pred)>=args.min_avgintensity]
                 for idx in true_objects:
                     if not (idx in true_objects1):
@@ -336,14 +336,17 @@ def main():
             tpfpfn_vec = tpfpfn(labels, y_pred, threshold=0.5) 
             csi_5 = csi(labels, y_pred, threshold=0.5)
             csi_vec.append(csi_5)
-            print("csi " + "{0:0.3f}".format(csi_5) + " tp,fp,fn:", ' '.join(["{0:0.0f}".format(i) for i in tpfpfn_vec]))
-            print(f"mAP={np.mean(csi_vec)}")        
+            if args.verbose: print("csi " + "{0:0.3f}".format(csi_5) + " tp,fp,fn:", ' '.join(["{0:0.0f}".format(i) for i in tpfpfn_vec]))
+            if args.verbose: print(f"mAP={np.mean(csi_vec)}")        
 
             if args.metric=='bias':
                 res_temp = bias(labels, y_pred)
                 res_mat.append(round(res_temp,5))
             elif args.metric=='ari':
                 res_temp = adjusted_rand_score(labels.flatten(), y_pred.flatten())
+                res_mat.append(round(res_temp,5))
+            elif args.metric=='dice':
+                res_temp = average_dice(labels, y_pred)
                 res_mat.append(round(res_temp,5))
             elif args.metric=='csi': 
                 res_vec = []
@@ -389,7 +392,7 @@ def main():
                 imsave(newfilename,  res)
         
                 
-        if args.metric=='bias':
+        if args.metric in ['bias', 'ari', 'dice']:
             res_temp = np.array([res_mat])
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
         elif args.metric=='ari':
@@ -412,7 +415,7 @@ def main():
         split_dataset_by_class(args.dataset, imgext, trainratio)
         
 
-    print(f"time passed: {(timeit.default_timer() - start_time)/60:.1f} min"); 
+    if args.verbose: print(f"time passed: {(timeit.default_timer() - start_time)/60:.1f} min"); 
 
 if __name__ == '__main__':
     main()
