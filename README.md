@@ -58,6 +58,8 @@ Optional input:
 
 Output 
 
+All files are saved to the current working directory.
+
 - cellpose_counts_xxx.txt: number of predicted masks for each image. xxx refers to a date string
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  

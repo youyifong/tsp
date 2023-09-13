@@ -34,10 +34,8 @@ def run_cellpose(files, channels,
         # model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/cellpose_images/train/models/cellpose_residual_on_style_on_concatenation_off_train_2022_05_02_14_36_14.639818') # trained on cellpose dataset by Sunwoo
     
     else:
-        if os.path.exists(pretrained):
-            model = models.CellposeModel(gpu=gpu, pretrained_model=pretrained) # trained on seven training images from K
-        else:
-            sys.exit("model not exist")
+        model = models.CellposeModel(gpu=gpu, pretrained_model=pretrained) # trained on seven training images from K
+        # sys.exit("model not defined")
         
     ncells = []
     for file in files :
