@@ -23,7 +23,7 @@ Analysis
 > python -m tsp runcellpose --f '*.png' --l [0,0]  --model cytotrain7
 
 Required input:
-- --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
+- --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell. '`' is not recognized in the path.
 
 - --l A list of 2 numbers indicating [cytoplasm channel, nucleus channel]. Each value can be 0, 1 (red), 2 (green), and 3 (blue)
 For the cytoplasm channel, 0 means grayscale; for the nucleus channel, 0 means no nuclei. 
@@ -58,13 +58,13 @@ Optional input:
 
 Output 
 
-- cellpose_counts_timestr.txt: number of predicted masks for each image 
+- cellpose_counts_xxx.txt: number of predicted masks for each image. xxx refers to a date string
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
-- _masks.png: a grayscale image with masks outlines. If --saveimgwithmasks is present, the original image is saved with the masks in an RGB image
+- _masks.png: a grayscale image with mask indices
 
-- _masks_id.png: a grayscale image with mask indices
+- _masks_outline.png: a grayscale image with masks outlines. If --saveimgwithmasks is present, the original image is saved with the masks in an RGB image
 
 - _masks_fill.png (with --s): a grayscale file containing the solid fill of the predicted cell masks 
 
