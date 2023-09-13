@@ -149,7 +149,7 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
 def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_additional_images=False, save_mask_roi=False, img=None):
     if img is None: img = imread(imgfilename)
         
-    filename = os.path.splitext(imgfilename)[0]
+    filename = os.path.splitext(os.path.basename(imgfilename))[0]
     
     outlines = utils.masks_to_outlines(masks)
     
