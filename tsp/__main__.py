@@ -44,7 +44,7 @@ def main():
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
     parser.add_argument('--savemasksonly', action='store_true', help='save masks only and not the _id file', required=False)
             
-    # for runcellpose 
+    # for runcellpose prediction
     parser.add_argument('--model', type=str, help='Pre-trained model')
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
