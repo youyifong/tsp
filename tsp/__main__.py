@@ -21,6 +21,7 @@ def main():
     parser = argparse.ArgumentParser(description='tsp parameters')
     parser.add_argument('action', type=str, help='\
         alignimages, \
+        collapseimages, \
         runcellpose, \
         cellphenotyping, \
         dist2boundary, regionmembership, \
@@ -30,6 +31,8 @@ def main():
     # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image')
     parser.add_argument('--image2', type=str, help='image file 2')
+    
+    parser.add_argument('--mode', type=str, help='mode of collapsing: max, avg', default='max')
     
     # for mask-related actions
     parser.add_argument('--mask1', type=str, help='mask file 1')
@@ -166,6 +169,29 @@ def main():
     elif args.action=="alignimages":
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
         doalign (args.ref_image, args.image2, channels)
+
+
+    elif args.action=="collapseimages":
+        if args.f == None or args.saveas == None:
+            sys.exit("ERROR: --f and --saveas are required")            
+
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        print(files)
+        
+        im0 = imread(files[0])
+        im = im0
+        
+        for i in range(1,len(files)):
+            im_next = imread(files[i])
+            if args.mode == 'max':
+                im = np.maximum(im, im_next)
+            elif args.mode == 'avg':
+                # recompute average
+                im = ((im0*i + im_next)/(i+1)).astype(np.uint8)
+            else:
+                sys.exit("ERROR: --mode needs to be max or avg")            
+
+        imsave(args.saveas,  im)
 
 
     elif args.action=='mask2outline':

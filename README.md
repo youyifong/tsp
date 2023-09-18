@@ -58,7 +58,7 @@ Optional input:
 
 Output 
 
-All files are saved to the current working directory.
+All files are saved to the current working directory, which may or may not be the same directory as the directory containing the input image files.
 
 - cellpose_counts_xxx.txt: number of predicted masks for each image. xxx refers to a date string
 
@@ -152,6 +152,26 @@ Optional input:
 Output 
 
 - A new image file named _aligned.png will be saved.
+
+ 
+
+## Collapse images
+
+> python -m tsp collapseimages --f [f1.png,f2.png,f3.png]  --saveas newfilename
+
+Required input
+
+- --f A list of file names within [], separated by comma, containing no spaces, or a pattern to match file names.
+
+- --saveas Output file name.
+
+Optional input:
+
+- --mode Default to max, other allowed values: avg.
+
+Output 
+
+- A new image file with will be saved.
 
  
 
