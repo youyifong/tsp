@@ -157,7 +157,7 @@ Output
 
 ## Collapse images
 
-> python -m tsp collapseimages --f [f1.png,f2.png,f3.png]  --saveas newfilename
+> python -m tsp collapseimages --f [f1.png,f2.png,f3.png]  --saveas newfilename.png
 
 Required input
 
