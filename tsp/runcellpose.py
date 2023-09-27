@@ -27,7 +27,7 @@ def run_cellpose(files, channels,
     elif(pretrained in ['tissuenet']):
         model = models.CellposeModel(gpu=gpu, pretrained_model=None, model_type=pretrained)
     
-    elif(pretrained == 'cytotrain7'): # starting with cyto and trained with 7 images
+    elif(pretrained == 'cytotrain7' or pretrained == 'c7'): # starting with cyto and trained with 7 images
         model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/shared/cellpose_trained_models/cellpose_residual_on_style_on_concatenation_off_training7_2023_01_18_16_58_51.772584') 
             
     elif(pretrained == 'cs'): # starting with cyto and trained with shrink gt
