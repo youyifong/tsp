@@ -146,7 +146,7 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
     
 
 
-def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_additional_images=False, save_mask_roi=False, img=None):
+def save_stuff(masks, imgfilename, model, channels, save_outlines_only=True, save_additional_images=False, save_mask_roi=False, img=None):
     if img is None: img = imread(imgfilename)
         
     filename = os.path.splitext(os.path.basename(imgfilename))[0]
@@ -171,13 +171,13 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     y_coor=np.array(y_coor); x_coor=np.array(x_coor)
 
     # Save mask indices
-    skimage.io.imsave(filename + "_m.png", img_as_uint(masks), check_contrast=False)
+    skimage.io.imsave(filename + "_m_"+model+".png", img_as_uint(masks), check_contrast=False)
 
     # Save mask outlines 
     if save_outlines_only:
-        skimage.io.imsave(filename + "_o.png", img_as_ubyte(outlines), check_contrast=False)
+        skimage.io.imsave(filename + "_o_"+model+".png", img_as_ubyte(outlines), check_contrast=False)
     else: 
-        PlotMask_outline(mask=masks, img=img, savefilename=filename + "_o.png", color=[255,0,0])        
+        PlotMask_outline(mask=masks, img=img, savefilename=filename + "_o_"+model+".png", color=[255,0,0])        
     
     ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
     mask_info = pd.DataFrame({
@@ -189,7 +189,7 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
     })
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
     mask_info=mask_info.round().astype(int)
-    mask_info.to_csv(filename + "_masks.csv", header=True, index=True, sep=',')
+    mask_info.to_csv(filename + "_m_"+model+".csv", header=True, index=True, sep=',')
         
     # save _cp_outline to convert to roi by ImageJ
     if save_mask_roi:
@@ -197,8 +197,8 @@ def save_stuff(masks, imgfilename, channels, save_outlines_only=True, save_addit
         io.outlines_to_text(filename, outlines_list)
         
     if save_additional_images:     
-        PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_point.png", color='r')
-        PlotMask_center(mask=masks, img=img, savefilename=filename + "_masks_text.png",  color='r', add_text=True)
-        skimage.io.imsave(filename + "_masks_fill.png", img_as_ubyte(masks!=0), check_contrast=False)
+        PlotMask_center(mask=masks, img=img, savefilename=filename + "_point_"+model+".png", color='r')
+        PlotMask_center(mask=masks, img=img, savefilename=filename + "_text_"+model+".png",  color='r', add_text=True)
+        skimage.io.imsave(filename + "_fill_"+model+".png", img_as_ubyte(masks!=0), check_contrast=False)
         # add image
-        # PlotMask_outline(mask=masks, img=img, savefilename=filename + "_mask_fill.png", color=[255,255,255], fill=True)
+        # PlotMask_outline(mask=masks, img=img, savefilename=filename + "_fill_"+model+".png", color=[255,255,255], fill=True)

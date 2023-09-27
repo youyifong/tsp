@@ -64,7 +64,7 @@ def run_cellpose(files, channels,
         
         if save_flow: io.masks_flows_to_seg(img,masks,flows,diams, file_names=filename + '.npy')             
         
-        save_stuff(masks, file, channels, save_outlines_only, save_additional_plots, save_roi, img=img)
+        save_stuff(masks, file, pretrained, channels, save_outlines_only, save_additional_plots, save_roi, img=img)
 
     # save cell counts to a text file
     ncells_mat = pd.DataFrame(list(zip(files,ncells)))
