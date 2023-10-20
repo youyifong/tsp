@@ -29,7 +29,7 @@ Required input:
 For the cytoplasm channel, 0 means grayscale; for the nucleus channel, 0 means no nuclei. 
 E.g. [3,0] that means cytoplasm signal is in the blue channel and no nuclei; [0,0] means cytoplasm is taken from a grayscale image and no nuclei.
 
-- --model Cellpose model to use, e.g. cyto, cytotrain7/c7, c7s, cs. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al. c7s is c7-shrinked, cs is cyto-shrinked.
+- --model Cellpose model to use, including cyto and cytotrain7. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al.
 
 
 Optional input:
@@ -64,9 +64,9 @@ All files are saved to the current working directory, which may or may not be th
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask  
 
-- _masks.png: a grayscale image with mask indices
+- _m_{model}.png: a grayscale image with mask indices
 
-- _masks_outline.png: a grayscale image with masks outlines. If --saveimgwithmasks is present, the original image is saved with the masks in an RGB image
+- _o_{model}.png: a grayscale image with masks outlines. If --saveimgwithmasks is present, the original image is saved with the masks in an RGB image
 
 - _masks_fill.png (with --s): a grayscale file containing the solid fill of the predicted cell masks 
 
@@ -86,7 +86,7 @@ All files are saved to the current working directory, which may or may not be th
 The command above looks for marker1+ marker2+ marker3- cells.  Let K be the number of markers. 
 
 Required input:
-- --f List of K file names. In this example, for the first file, the program expects to find both file1.png and file1_masks_id.png. For the following files, e.g. file2.png, the program expects to find the mask file (_masks_id.png) if the method is Mask and the image file otherwise. 
+- --f List of K file names. For the first file, it is the mask file name. For the rest, it depends on the method. For mask-mask analyses, it is the mask file name; for mask-intensity analyses, it is the image file name. 
 
 - --m List of K-1 values from Mask, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. Under mask, overlap between A and B is computed for individual B cells, not all B cells.
 
@@ -110,9 +110,9 @@ Output
 
 - _masks.csv: a text file containing info about the size of each predicted mask and x-y coordinate of center pixel of each predicted mask, last marker only
 
-- _masks.png: K grayscale files with mask outlines 
+- _o.png: K grayscale files with mask outlines 
 
-- _masks_id.png: K grayscale files with mask ids 
+- _m.png: K grayscale files with mask ids 
 
 - _masks_fill.png (with --s): K grayscale files with masks as filled shapes
 
