@@ -10,7 +10,7 @@ import timeit
 from scipy import ndimage
 
 
-def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot):
+def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot, cutoffs2):
     
     plus_minus = ['+' if positives[l] else '-' for l in range(len(marker_names))]
     filenames=[os.path.splitext(f)[0] for f in files]
@@ -34,6 +34,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     for i in range(n_markers):
         positive=positives[i]
         cutoff=cutoffs[i]
+        cutoff2=cutoffs2[i]
         method=methods[i]
         channel=channels[i] if channels is not None else None
             
@@ -49,7 +50,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         
         # Double staining #
         if(method == 'Mask'):
-            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method)
+            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method, cutoff2=cutoff2)
         elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
             pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channel=channel, method=method)
 
@@ -138,7 +139,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
 
 
 # Utilites for double staining analysis
-def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
+def DoubleStain(maskA, maskB, positive, cutoff, channel, method, cutoff2=1.1):
     
     # Pre-processing #
     if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
@@ -184,7 +185,7 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     
     if positive: 
         print()
-        double_mask_idx = mask_indices[(res >= cutoff) | (resB >= 0.9)]
+        double_mask_idx = mask_indices[(res >= cutoff) | (resB >= cutoff2)]
     else:
         double_mask_idx = mask_indices[res <= cutoff]
 

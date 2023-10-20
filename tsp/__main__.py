@@ -62,6 +62,7 @@ def main():
     # for cellphenotyping 
     parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
     parser.add_argument('--c', type=str, help='cutoff') 
+    parser.add_argument('--c2', type=str, help='cutoff 2') 
     parser.add_argument('--p', type=str, help='(True/False). Positive or Negative')
     parser.add_argument('--n', type=str, help='marker names')
             
@@ -115,18 +116,19 @@ def main():
         
     elif args.action=='cellphenotyping':        
         #files=["M872956_JML_Position8_CD3_img.png","M872956_JML_Position8_CD4_img.png","M872956_JML_Position8_CD8_img.png"]; marker_names=["CD4","CD8"]; positives=[True,False]; cutoffs=[.5,.5]; channels=None; methods=["Mask","Mask"]; save_plot=True
-        #files=["JM_Les_CD3_stitched_gray_alignedtoCD45_m_cytotrain7.png","JM_Les_CD8a_stitched_gray_alignedtoCD45_m_cytotrain7.png"]; marker_names=["CD8"]; positives=[True]; cutoffs=[.5]; channels=None; methods=["Mask","Mask"]; save_plot=True
+        #files=["JM_Les_CD3_stitched_gray_alignedtoCD45_m_cytotrain7.png","JM_Les_CD8a_stitched_gray_alignedtoCD45_m_cytotrain7.png"]; marker_names=["CD8"]; positives=[True]; cutoffs=[.5]; cutoffs2=[.9]; channels=None; methods=["Mask","Mask"]; save_plot=True
         
         
         # remove [] and make a list
         files = args.f[1:-1].split(",")         
         positives = args.p[1:-1].split(",") 
         cutoffs = args.c[1:-1].split(",") 
+        cutoffs2 = args.c2[1:-1].split(",") 
         methods = args.m[1:-1].split(",")             
         marker_names = args.n[1:-1].split(",")
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
         
-        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], channels=channels, methods=methods, save_plot=args.s)
+        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], channels=channels, methods=methods, save_plot=args.s, cutoffs2=[float(c) for c in cutoffs2])
         
         
     elif args.action=='intensityanalysis':        
