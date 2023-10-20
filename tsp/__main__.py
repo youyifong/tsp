@@ -115,7 +115,8 @@ def main():
         
     elif args.action=='cellphenotyping':        
         #files=["M872956_JML_Position8_CD3_img.png","M872956_JML_Position8_CD4_img.png","M872956_JML_Position8_CD8_img.png"]; marker_names=["CD4","CD8"]; positives=[True,False]; cutoffs=[.5,.5]; channels=None; methods=["Mask","Mask"]; save_plot=True
-        #files=["CF_Les_CD3_stitched_alignedtoCD45.png","CF_Les_CD4_stitched_alignedtoCD45.png","CF_Les_CD8a_stitched_alignedtoCD45.png"]; marker_names=["CD4","CD8"]; positives=[True,True]; cutoffs=[.6,.6]; channels=None; methods=["Mask","Mask"]; save_plot=True
+        #files=["JM_Les_CD3_stitched_gray_alignedtoCD45_m_cytotrain7.png","JM_Les_CD8a_stitched_gray_alignedtoCD45_m_cytotrain7.png"]; marker_names=["CD8"]; positives=[True]; cutoffs=[.5]; channels=None; methods=["Mask","Mask"]; save_plot=True
+        
         
         # remove [] and make a list
         files = args.f[1:-1].split(",")         

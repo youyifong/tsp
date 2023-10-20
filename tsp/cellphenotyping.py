@@ -155,9 +155,16 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     
     if method =="Mask":
         tab = np.histogram2d(maskA.flatten(), maskB.flatten(), bins=[np.append(np.unique(maskA), np.inf), np.append(np.unique(maskB), np.inf)])[0]
+        
         size, mask_indices = np.histogram(maskA, bins=np.append(np.unique(maskA), np.inf))
-        mask_indices=mask_indices[1:-1]
         res = tab[1:,1:].max(axis=1) / size[1:]
+        
+        sizeB, mask_indicesB = np.histogram(maskB, bins=np.append(np.unique(maskB), np.inf))
+        # denominator is the size of B cell that has max overlap with A
+        resB = tab[1:,1:].max(axis=1) / sizeB[1:][tab[1:,1:].argmax(axis=1)] 
+        
+        mask_indices=mask_indices[1:-1]
+        
     else:
         mask_indices = np.unique(maskA, return_counts=True)[0][1:]
         if method == 'Intensity_total':
@@ -176,7 +183,7 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     #                 res.append(int_norm_avg_pos) # average intensities of positive pixels after normalization
     
     if positive: 
-        double_mask_idx = mask_indices[res >= cutoff]
+        double_mask_idx = mask_indices[res >= cutoff or resB >= 0.9]
     else:
         double_mask_idx = mask_indices[res <= cutoff]
 
