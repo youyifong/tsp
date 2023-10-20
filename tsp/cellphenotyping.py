@@ -183,7 +183,8 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method):
     #                 res.append(int_norm_avg_pos) # average intensities of positive pixels after normalization
     
     if positive: 
-        double_mask_idx = mask_indices[res >= cutoff or resB >= 0.9]
+        print()
+        double_mask_idx = mask_indices[(res >= cutoff) | (resB >= 0.9)]
     else:
         double_mask_idx = mask_indices[res <= cutoff]
 
