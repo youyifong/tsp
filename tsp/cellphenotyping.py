@@ -23,7 +23,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         
     # datA = np.load(os.path.splitext(files[0])[0] + '_seg.npy', allow_pickle=True).item()
     # maskA = datA['masks']
-    maskA = imread(os.path.splitext(files[0])[0] + '_masks_id.png')
+    maskA = imread(files[0])
     masks.append(maskA)
     num_cells.append(maskA.max())
     
@@ -41,7 +41,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         if(method == 'Mask'):
             # datB = np.load(os.path.splitext(files[i+1])[0] + '_seg.npy', allow_pickle=True).item()
             # maskB = datB['masks']
-            maskB = imread(os.path.splitext(files[i+1])[0] + '_masks_id.png')
+            maskB = imread(files[i+1])
         elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
             image_comp = imread(files[i+1])
         else:
@@ -121,10 +121,10 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
 
     print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
     
-    for i in range(len(masks)):
+    for i in range(1, len(masks)):
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
-        skimage.io.imsave(staged_output_file_names[i] + '_masks.png', img_as_ubyte(utils.masks_to_outlines(masks[i])))
-        skimage.io.imsave(staged_output_file_names[i] + '_masks_id.png', img_as_uint(masks[i]), check_contrast=False)
+        skimage.io.imsave(staged_output_file_names[i] + '_o.png', img_as_ubyte(utils.masks_to_outlines(masks[i])), check_contrast=False)
+        skimage.io.imsave(staged_output_file_names[i] + '_m.png', img_as_uint(masks[i]), check_contrast=False)
 
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_fill.png',    color=[255,255,255], fill=True)
         if(save_plot): skimage.io.imsave(staged_output_file_names[i] + '_masks_fill.png', img_as_ubyte(masks[i]!=0))
