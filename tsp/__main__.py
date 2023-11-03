@@ -62,7 +62,7 @@ def main():
     # for cellphenotyping 
     parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
     parser.add_argument('--c', type=str, help='cutoff') 
-    parser.add_argument('--c2', type=str, help='cutoff 2') 
+    parser.add_argument('--c2', type=str, help='cutoff 2', required=False) 
     parser.add_argument('--p', type=str, help='(True/False). Positive or Negative')
     parser.add_argument('--n', type=str, help='marker names')
             
@@ -122,13 +122,17 @@ def main():
         # remove [] and make a list
         files = args.f[1:-1].split(",")         
         positives = args.p[1:-1].split(",") 
-        cutoffs = args.c[1:-1].split(",") 
-        cutoffs2 = args.c2[1:-1].split(",") 
+        cutoffs = [float(c) for c in args.c[1:-1].split(",")],
         methods = args.m[1:-1].split(",")             
         marker_names = args.n[1:-1].split(",")
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
         
-        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=[float(c) for c in cutoffs], channels=channels, methods=methods, save_plot=args.s, cutoffs2=[float(c) for c in cutoffs2])
+        if args.c2 is not None:
+            cutoffs2 = [float(c) for c in args.c2[1:-1].split(",") ]
+        else:
+            cutoffs2 = [1 for c in cutoffs]
+        
+        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=cutoffs, channels=channels, methods=methods, save_plot=args.s, cutoffs2=cutoffs2)
         
         
     elif args.action=='intensityanalysis':        

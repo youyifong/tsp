@@ -81,7 +81,7 @@ All files are saved to the current working directory, which may or may not be th
 
 
 ## Cell phenotyping 
-> python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png] --m [Mask,Mask] --c [0.5,0.5] --p [True,False] --n [marker2,marker3] 
+> python -m tsp cellphenotyping --f [file1.png,file2.png,file3.png] --m [Mask,Mask] --c [0.5,0.5] --p [True,False] --n [marker2,marker3] --c2 [0.5,0.5]
 
 The command above looks for marker1+ marker2+ marker3- cells.  Let K be the number of markers. 
 
@@ -91,6 +91,8 @@ Required input:
 - --m List of K-1 values from Mask, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. Under mask, overlap between A and B is computed for individual B cells, not all B cells.
 
 - --c List of K-1 cutoff values for deciding if markers are present.
+
+- --c2 List of K-1 cutoff values for deciding if markers are present. 
 
 - --p List of K-1 values from True or False. Marker is required to be present if True and abscent if False.
 
