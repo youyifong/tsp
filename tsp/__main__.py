@@ -122,7 +122,7 @@ def main():
         # remove [] and make a list
         files = args.f[1:-1].split(",")         
         positives = args.p[1:-1].split(",") 
-        cutoffs = [float(c) for c in args.c[1:-1].split(",")],
+        cutoffs = [float(c) for c in args.c[1:-1].split(",")]
         methods = args.m[1:-1].split(",")             
         marker_names = args.n[1:-1].split(",")
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
