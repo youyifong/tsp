@@ -23,7 +23,7 @@ Analysis
 > python -m tsp runcellpose --f '*.png' --l [0,0]  --model cytotrain7
 
 Required input:
-- --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell. '`' is not recognized in the path.
+- --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. 
 
 - --l A list of 2 numbers indicating [cytoplasm channel, nucleus channel]. Each value can be 0, 1 (red), 2 (green), and 3 (blue)
 For the cytoplasm channel, 0 means grayscale; for the nucleus channel, 0 means no nuclei. 
@@ -133,7 +133,7 @@ Required input
 
 - --maskfile A _seg.npy file containing the mask info.
 
-- --f List of file names matching the pattern.
+- --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. 
 
 Optional iput
 
@@ -145,7 +145,9 @@ Output
 
 ## Image alignment
 
-> python -m tsp alignimages --ref_image xx  --image2 xx 
+> python -m tsp alignimages --ref_image xx  --f '*.png'
+
+- --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. If the list of files contain ref_image, ref_image will be removed
 
 Optional input:
 
@@ -159,11 +161,11 @@ Output
 
 ## Collapse images
 
-> python -m tsp collapseimages --f [f1.png,f2.png,f3.png]  --saveas newfilename.png
+> python -m tsp collapseimages --f 'xx*.png'  --saveas newfilename.png
 
 Required input
 
-- --f A list of file names within [], separated by comma, containing no spaces, or a pattern to match file names.
+- --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. 
 
 - --saveas Output file name.
 
@@ -210,7 +212,7 @@ The program creates two png files, one mask file and one mask outline file.
 
 > python -m tsp roifiles2mask --f "eg1/*" --width 1392 --height 1040 --saveas fname
  
-- --f is required and tells the program which image files to segment. The quotes around file name pattern are required, because otherwise it will be expanded by shell
+- --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. 
 
 - --saveas is required and tells the output mask png file name
 

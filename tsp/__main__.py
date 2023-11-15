@@ -30,7 +30,6 @@ def main():
     
     # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image')
-    parser.add_argument('--image2', type=str, help='image file 2')
     
     parser.add_argument('--mode', type=str, help='mode of collapsing: max, avg', default='max')
     
@@ -94,7 +93,7 @@ def main():
         if args.f == None or args.model == None or args.l == None :
             sys.exit("ERROR: --f, --model, --l are required arguments")            
         
-        files = glob.glob(args.f)
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
         if len(files)==0: 
             sys.exit ("no files found")
         else:
@@ -119,8 +118,13 @@ def main():
         #files=["JM_Les_CD3_stitched_gray_alignedtoCD45_m_cytotrain7.png","JM_Les_CD8a_stitched_gray_alignedtoCD45_m_cytotrain7.png"]; marker_names=["CD8"]; positives=[True]; cutoffs=[.5]; cutoffs2=[.9]; channels=None; methods=["Mask","Mask"]; save_plot=True
         
         
-        # remove [] and make a list
-        files = args.f[1:-1].split(",")         
+        # get a list of file names from --f
+        files = args.f[1:-1].split(",") 
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+            
         positives = args.p[1:-1].split(",") 
         cutoffs = [float(c) for c in args.c[1:-1].split(",")]
         methods = args.m[1:-1].split(",")             
@@ -139,52 +143,83 @@ def main():
         if args.f == None or args.maskfile == None:
             sys.exit("ERROR: --f and --maskfile are required arguments")            
 
-        image_files = glob.glob(args.f)
-        print('working on: ', end=" "); print(image_files)
-        
+        # get a list of file names from --f
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+                    
         channel = int(args.l)-1 if args.l is not None else None
         
-        IntensityAnalysis(mask_file=args.maskfile, image_files=image_files, channel=channel)
+        IntensityAnalysis(mask_file=args.maskfile, image_files=files, channel=channel)
         
         
     elif args.action=='regionmembership':
         if args.f == None or args.regionroi == None:
             sys.exit("ERROR: --f, --regionroi are required arguments")            
         
-        cell_files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
-        print(cell_files)
-        
+        # get a list of file names from --f
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+                    
         region_roi_files = args.regionroi[1:-1].split(",") if args.regionroi[0]=='[' else glob.glob(args.regionroi)
         print(region_roi_files)
 
-        region_membership(cell_files, region_roi_files)
+        region_membership(files, region_roi_files)
 
         
     elif args.action=='dist2boundary':
         if args.f == None or args.boundaryroi == None:
             sys.exit("ERROR: --f, --boundaryroi are required arguments")            
 
-        cell_files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
-        print(cell_files)
-        
+        # get a list of file names from --f
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+                    
         roi_files = args.boundaryroi[1:-1].split(",") if args.boundaryroi[0]=='[' else glob.glob(args.boundaryroi)
-        print(roi_files)
+        if len(roi_files)==0: sys.exit ("no roi_files found")
+        else: 
+            print('working on: ', end=" ")
+            print(roi_files)
         
-        dist2boundary(cell_files, roi_files)
+        dist2boundary(files, roi_files)
 
         
     elif args.action=="alignimages":
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
-        doalign (args.ref_image, args.image2, channels)
+        
+        # get a list of file names from --f
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+        
+        # remove ref_image from files
+        files.remove(args.ref_image)
+                    
+        for f in files:
+            doalign (args.ref_image, f, channels)
 
 
     elif args.action=="collapseimages":
         if args.f == None or args.saveas == None:
             sys.exit("ERROR: --f and --saveas are required")            
 
+        # get a list of file names from --f
         files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
-        print(files)
-        
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+                    
         im0 = imread(files[0])
         im = im0
         
@@ -205,7 +240,13 @@ def main():
         if args.f == None:
             sys.exit("ERROR: --f is required arguments")            
         
-        files = glob.glob(args.f)
+        # get a list of file names from --f
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+                    
         for mask_file in files:
             mask2outline(mask_file)
                 
@@ -214,16 +255,20 @@ def main():
         if args.f == None or args.saveas == None:
             sys.exit("ERROR: --f, --saveas are required arguments")            
 
-        roi_files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
-        print(roi_files)
-        
+        # get a list of file names from --f
+        files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
+        if len(files)==0: sys.exit ("no files found")
+        else: 
+            print('working on: ', end=" ")
+            print(files)
+                    
         if args.imagefile is not None:
             img = imread(args.imagefile)
             height, width = img.shape[0:2]
         else:
             height, width = args.height, args.width
         
-        roifiles2mask (roi_files, width, height, saveas=args.saveas, save_masks_only=args.savemasksonly)
+        roifiles2mask (files, width, height, saveas=args.saveas, save_masks_only=args.savemasksonly)
 
 
     elif args.action=='overlaymasks':
