@@ -203,7 +203,8 @@ def main():
             print(files)
         
         # remove ref_image from files
-        files.remove(args.ref_image)
+        if args.ref_image in files:
+            files.remove(args.ref_image)
                     
         for f in files:
             doalign (args.ref_image, f, channels)
