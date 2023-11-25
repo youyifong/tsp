@@ -256,7 +256,10 @@ def mask2outline(mask_file, col=None):
                 contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                 pvc, pvr = np.concatenate(contours[-2], axis=0).squeeze().T            
                 vr, vc = pvr + sr.start, pvc + sc.start 
-                outlines[vr, vc, 0:3] = colcode[0]
+                if i+1>len(colcode):
+                    exit("run out of col code")
+                else:
+                    outlines[vr, vc, 0:3] = colcode[i]
         
         imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines) 
 
