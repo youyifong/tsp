@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os, cv2
 import numpy as np
 from scipy import ndimage
-from tsp import imread
+from tsp import imread, imsave
 import skimage.io
 from skimage import img_as_ubyte
 from skimage.measure import regionprops
@@ -222,6 +222,7 @@ def masks_to_outlines(masks):
     else:
         slices = ndimage.find_objects(masks.astype(int))
         for i,si in enumerate(slices):
+            print(i)
             if si is not None:
                 sr,sc = si
                 mask = (masks[sr, sc] == (i+1)).astype(np.uint8)
@@ -231,13 +232,33 @@ def masks_to_outlines(masks):
                 outlines[vr, vc] = 1
         return outlines    
     
+color_dict = {
+    "red": [255, 0, 0],
+    "green": [0, 255, 0],
+    "blue": [0, 0, 255],
+    # Add more color labels and RGB values as needed
+}
     
-def mask2outline(mask_file):
+def mask2outline(mask_file, col=None):
     masks = imread(mask_file)
-    outlines = masks_to_outlines(masks)
-    skimage.io.imsave(os.path.splitext(mask_file)[0] + "_outline.png", img_as_ubyte(outlines))
-    # imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines) # error
-    # plt.imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines, cmap='gray') # saves as RGB file
+    if col is None:
+        outlines = masks_to_outlines(masks)
+        skimage.io.imsave(os.path.splitext(mask_file)[0] + "_outline.png", img_as_ubyte(outlines))
+    else:
+        colcode = [color_dict[i] for i in col]
+
+        outlines = np.zeros((masks.shape[0], masks.shape[1], 3), dtype=np.uint8)    
+        slices = ndimage.find_objects(masks.astype(int))
+        for i,si in enumerate(slices):
+            if si is not None:
+                sr,sc = si
+                mask = (masks[sr, sc] == (i+1)).astype(np.uint8)
+                contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                pvc, pvr = np.concatenate(contours[-2], axis=0).squeeze().T            
+                vr, vc = pvr + sr.start, pvc + sc.start 
+                outlines[vr, vc, 0:3] = colcode[0]
+        
+        imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines) 
 
 
 # Coloring FP in mask map and FN in gt mask map
