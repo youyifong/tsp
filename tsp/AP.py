@@ -260,7 +260,7 @@ def mask2outline(mask_file, col=None):
                 else:
                     outlines[vr, vc, 0:3] = colcode[i]
         
-        cv2.imwrite(os.path.splitext(mask_file)[0] + "_outline.png", outlines)
+        cv2.imwrite(os.path.splitext(mask_file)[0] + "_outline.png", cv2.cvtColor(outlines, cv2.COLOR_BGR2RGB)) 
 
 
 # Coloring FP in mask map and FN in gt mask map
