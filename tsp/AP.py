@@ -222,7 +222,6 @@ def masks_to_outlines(masks):
     else:
         slices = ndimage.find_objects(masks.astype(int))
         for i,si in enumerate(slices):
-            print(i)
             if si is not None:
                 sr,sc = si
                 mask = (masks[sr, sc] == (i+1)).astype(np.uint8)
@@ -261,7 +260,7 @@ def mask2outline(mask_file, col=None):
                 else:
                     outlines[vr, vc, 0:3] = colcode[i]
         
-        cv2.imwrite(os.path.splitext(mask_file)[0] + "_outline.png", cv2.cvtColor(outlines, cv2.COLOR_BGR2RGB)) 
+        cv2.imwrite(os.path.splitext(mask_file)[0] + "_outline.png", outlines)
 
 
 # Coloring FP in mask map and FN in gt mask map
