@@ -252,7 +252,7 @@ def main():
         
         mask_color = args.color
         if mask_color is not None:
-            mask_color=mask_color[1:-1]
+            mask_color=mask_color[1:-1].split(",")
                     
         for mask_file in files:
             mask2outline(mask_file, mask_color)
