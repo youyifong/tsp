@@ -233,9 +233,9 @@ def masks_to_outlines(masks):
         return outlines    
     
 color_dict = {
-    "red": [255, 0, 0],
-    "green": [0, 255, 0],
-    "blue": [0, 0, 255],
+    "red":   np.array([255, 0, 0]),
+    "green": np.array([0, 255, 0]),
+    "blue":  np.array([0, 0, 255]),
     # Add more color labels and RGB values as needed
 }
     
@@ -261,7 +261,7 @@ def mask2outline(mask_file, col=None):
                 else:
                     outlines[vr, vc, 0:3] = colcode[i]
         
-        imsave(os.path.splitext(mask_file)[0] + "_outline.png", outlines) 
+        cv2.imwrite(os.path.splitext(mask_file)[0] + "_outline.png", cv2.cvtColor(outlines, cv2.COLOR_BGR2RGB)) 
 
 
 # Coloring FP in mask map and FN in gt mask map
