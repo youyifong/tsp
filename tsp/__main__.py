@@ -58,6 +58,8 @@ def main():
     parser.add_argument('--saveroi', action='store_true', help='save masks as roi files', required=False)
     parser.add_argument('--s', action='store_true', help='save additional images with masks plotted as dots and fills and numbered outlines', required=False) 
     
+    parser.add_argument('--color', type=str, help='checkprediction image folder')
+
     # for cellphenotyping 
     parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
     parser.add_argument('--c', type=str, help='cutoff') 
@@ -247,9 +249,13 @@ def main():
         else: 
             print('working on: ', end=" ")
             print(files)
+        
+        mask_color = args.color
+        if mask_color is not None:
+            mask_color=mask_color[1:-1]
                     
         for mask_file in files:
-            mask2outline(mask_file)
+            mask2outline(mask_file, mask_color)
                 
                 
     elif args.action=="roifiles2mask":

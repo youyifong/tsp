@@ -242,5 +242,6 @@ To unzip, e.g.
 
 ### Make outlines from masks
 > python -m tsp mask2outline --f '*.png' 
+> python -m tsp mask2outline --f '*.png' --color [green,red]
 
 
