@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 
 # copied from cellpose
-# Import image
+# it use cv2.imread to read (for non-tiff files) and then converts the image from BGR to RGB 
 def imread(filename):
     ext = os.path.splitext(filename)[-1]
     if ext== '.tif' or ext=='.tiff':
@@ -34,7 +34,8 @@ def imread(filename):
         return img
     elif ext != '.npy':
         try:
-            img = cv2.imread(filename, -1)#cv2.LOAD_IMAGE_ANYDEPTH)
+            # -1 means cv2.IMREAD_UNCHANGED
+            img = cv2.imread(filename, -1)
             if img.ndim > 2:
                 img = img[..., [2,1,0]] # this is needed because cv2 uses BGR instead of RGB
             return img
