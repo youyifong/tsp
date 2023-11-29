@@ -1,16 +1,17 @@
-import argparse, glob, os, sys
+import argparse, glob, os, sys, json
 import numpy as np
+from sklearn.metrics.cluster import adjusted_rand_score
 
 from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import roifiles2mask
 from tsp.AP import mask2outline, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou, average_dice
+from tsp.stitching import dostitch
 from tsp.alignment import doalign
 from tsp.runcellpose import run_cellpose
 from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
 from tsp.geom import dist2boundary, region_membership
 from tsp.split_dataset import split_dataset_by_class
-from sklearn.metrics.cluster import adjusted_rand_score
 
 import timeit
 start_time = timeit.default_timer()
@@ -20,6 +21,7 @@ def main():
     
     parser = argparse.ArgumentParser(description='tsp parameters')
     parser.add_argument('action', type=str, help='\
+        stitchimages, \
         alignimages, \
         collapseimages, \
         runcellpose, \
@@ -28,9 +30,13 @@ def main():
         AP, checkprediction, mask2outline, roifiles2mask, overlaymasks,\
         splitdata')
     
+    # for stitchimages
+    parser.add_argument('--json', type=str, help='configuration file')
+    
     # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image')
     
+    # for collapse images
     parser.add_argument('--mode', type=str, help='mode of collapsing: max, avg', default='max')
     
     # for mask-related actions
@@ -194,6 +200,16 @@ def main():
         dist2boundary(files, roi_files)
 
         
+    elif args.action=="stitchimages":
+        if args.json == None:
+            sys.exit("ERROR: --json required")            
+
+        with open(args.json) as config_file:
+            config = json.load(config_file)
+        
+        dostitch(config)
+
+
     elif args.action=="alignimages":
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
         

@@ -151,12 +151,17 @@ def save_stuff(masks, imgfilename, model, channels, save_outlines_only=True, sav
         
     filename = os.path.splitext(os.path.basename(imgfilename))[0]
     
+    if len(model)>5:
+        # model is a long file name
+        model='new'
+    
     outlines = utils.masks_to_outlines(masks)
     
     tmp=np.unique(masks, return_counts=True)
     sizes = tmp[1][1:]#.tolist()    # keep it as an array     
     mask_indices = tmp[0][1:]
     ncell=len(sizes)
+    print(f"number of cells: {ncell}")
 
     if(channels == [0,0]):
         im = img
