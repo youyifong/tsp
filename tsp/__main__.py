@@ -205,9 +205,9 @@ def main():
             sys.exit("ERROR: --json required")            
 
         with open(args.json) as config_file:
-            config = json.load(config_file, args.imgfolder+"/")
+            config = json.load(config_file)
         
-        dostitch(config)
+        dostitch(config, args.imgfolder+"/")
 
 
     elif args.action=="alignimages":

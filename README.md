@@ -153,7 +153,7 @@ Output
 
 Output 
 
-- A new image file named *wholeslide*.png will be saved.
+- A new image file named *wholeslide*.png will be saved in the current directory.
 
  
 
