@@ -47,7 +47,7 @@ Optional input:
 
 - --d Cell diameter. Default 0. 
 
-- --normalize100 If present, normalize image from min to max instead of 1 to 99 percentiles. This helps when there are few cells in the image.
+- --normalize99 If present, normalize image from 1 to 99 percentiles as is the default behavior in Cellpose. If not present, normalize with reference to min to max instead, which helps when there are a lot of black pixels in the image.
 
 - --min_size Post-processing parameter, min_size, is changed from 15 (default) to the specified value. If a cell consists of the number of pixels less than min_size, the cell is removed. 
 

@@ -57,7 +57,7 @@ def main():
     parser.add_argument('--cellprob', type=float, help='cutoff for cell probability', required=False, default=0) 
     parser.add_argument('--d', type=float, help='Cell diameter', required=False, default=0)
     parser.add_argument('--flow', type=float, help='Flow threshold', required=False, default=0.4)
-    parser.add_argument('--normalize100', action='store_true', help='normalize to 0-100 instead of 1-99 percentiles', required=False) # 
+    parser.add_argument('--normalize99', action='store_true', help='normalize to 1-99 instead of 0-100 percentiles', required=False) # 
     # output control
     parser.add_argument('--saveimgwithmasks', action='store_true', help='save image with masks in mask outline files', required=False) 
     parser.add_argument('--saveflow', action='store_true', help='save flow etc as npy files', required=False) 
@@ -115,7 +115,7 @@ def main():
                      channels=channels,
                      pretrained=args.model, 
                      diameter=args.d, flow=args.flow, cellprob=args.cellprob, 
-                     normalize_100=args.normalize100,
+                     normalize_100=!args.normalize99,
                      min_size=args.min_size, min_avg_intensity=args.min_avgintensity, min_total_intensity=args.min_totalintensity, 
                      save_outlines_only=not args.saveimgwithmasks, save_additional_plots=args.s, save_roi=args.saveroi, save_flow=args.saveflow) 
         
