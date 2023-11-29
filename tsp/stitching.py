@@ -14,7 +14,7 @@ def dostitch (config, directory):
     im = cv2.imread(directory+filename, cv2.IMREAD_UNCHANGED)
     height, width = im.shape[:2]
     subjectid=filename.split('_')[0]
-    marker=filename.split('_')[2]
+    marker= os.path.splitext(filename)[0].split('_')[2]
     
     width_reduced = int(width * (1-right_margin_overlap))
     height_reduced = int(height * (1-top_margin_overlap))
