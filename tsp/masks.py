@@ -15,7 +15,7 @@ from tsp.AP import masks_to_outlines
 
 
 # From .roi files to masks file
-def roifiles2mask(files, width, height, saveas, save_masks_only=False):
+def roifiles2mask(files, width, height, saveas):
     print("number of roi files: "+str(len(files)))
     masks = Image.new('I', (width, height), 0)
     for idx in range(len(files)):
@@ -35,16 +35,17 @@ def roifiles2mask(files, width, height, saveas, save_masks_only=False):
         
         ImageDraw.Draw(masks).polygon(polygon, outline=idx+1, fill=idx+1)
             
-    masks = np.array(masks, dtype=np.uint16) # resulting masks
-    outlines = masks_to_outlines(masks)
-    
+    masks = np.array(masks, dtype=np.uint16) # resulting masks    
+
     filename=os.path.splitext(saveas)[0]
     fileext=os.path.splitext(saveas)[1]
-    plt.imsave(filename+"_m"+fileext, outlines, cmap='gray')
+    imsave(filename+"_m"+fileext, masks)    
+    
+    # save an outline file
+    outlines = masks_to_outlines(masks)
+    plt.imsave(filename+"_o"+fileext, outlines, cmap='gray')
+    
     print("masks saved to: "+saveas)
-    if not save_masks_only:
-        # create an outline file
-        imsave(filename+"_o"+fileext, masks)    
 
 
 

@@ -50,7 +50,6 @@ def main():
     parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
-    parser.add_argument('--savemasksonly', action='store_true', help='save masks only and not the _id file', required=False)
             
     # for runcellpose prediction
     parser.add_argument('--model', type=str, help='Pre-trained model')
@@ -291,7 +290,7 @@ def main():
         else:
             height, width = args.height, args.width
         
-        roifiles2mask (files, width, height, saveas=args.saveas, save_masks_only=args.savemasksonly)
+        roifiles2mask (files, width, height, saveas=args.saveas)
 
 
     elif args.action=='overlaymasks':

@@ -224,11 +224,11 @@ Appends region membership as new columns and save as a new _regmem.csv file.
 
 The program creates two png files, one mask file and one mask outline file. 
 
-> python -m tsp roifiles2mask --f "eg1/*" --width 1392 --height 1040 --saveas fname
+> python -m tsp roifiles2mask --f "eg1/*" --width 1392 --height 1040 --saveas fname.png
  
 - --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. 
 
-- --saveas Output mask file name without ext
+- --saveas Output mask file name
 
 Optional input:
 
