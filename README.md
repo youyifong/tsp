@@ -145,6 +145,8 @@ Output
 
 ## Image stitching
 
+Run command in the directory where the json file resides.
+
 > python -m tsp stitchimages --json AS_Les_layout_by_percentage.json --imgfolder CD3
 
 - --json A configuration file 
