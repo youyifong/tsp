@@ -46,7 +46,7 @@ def main():
     parser.add_argument('--saveas', type=str, help='save file name for overlaymasks or colortp')
     parser.add_argument('--predfolder', type=str, help='checkprediction prediction folder')
     parser.add_argument('--gtfolder', type=str, help='checkprediction ground truth folder')
-    parser.add_argument('--imgfolder', type=str, help='checkprediction image folder')
+    parser.add_argument('--imgfolder', type=str, help='image folder')
     parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
@@ -201,11 +201,11 @@ def main():
 
         
     elif args.action=="stitchimages":
-        if args.json == None:
+        if args.json == None or args.imgfolder==None:
             sys.exit("ERROR: --json required")            
 
         with open(args.json) as config_file:
-            config = json.load(config_file)
+            config = json.load(config_file, args.imgfolder+"/")
         
         dostitch(config)
 

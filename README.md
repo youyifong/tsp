@@ -143,6 +143,20 @@ Output
 - _MFI.csv: contains the x-y coordinates and MFI for each mask 
 
 
+## Image stitching
+
+> python -m tsp stitchimages --json AS_Les_layout_by_percentage.json --imgfolder CD3
+
+- --json A configuration file 
+
+- --imgfolder Name of the folder containing images at all positions to be stitched together
+
+Output 
+
+- A new image file named *wholeslide*.png will be saved.
+
+ 
+
 ## Image alignment
 
 > python -m tsp alignimages --ref_image xx  --f '*.png'

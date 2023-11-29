@@ -1,10 +1,8 @@
 from PIL import Image
 import cv2, os, glob
 
-# assume
-directory='./'
 
-def dostitch (config):
+def dostitch (config, directory):
     nrows=config['nrows']
     ncols=config['ncols']
     right_margin_overlap = config['rightMarginOverlap']
