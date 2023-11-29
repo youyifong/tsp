@@ -228,11 +228,15 @@ The program creates two png files, one mask file and one mask outline file.
  
 - --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. 
 
-- --saveas is required and tells the output mask png file name
+- --saveas Output mask file name without ext
+
+Optional input:
 
 - --width: dimension of the image
 
 - --height: dimension of the image
+
+- --imagefile: can also be provided in lieu of width and height to provide dimension info
 
 
 To unzip, e.g.

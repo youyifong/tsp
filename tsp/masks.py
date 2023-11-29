@@ -37,10 +37,14 @@ def roifiles2mask(files, width, height, saveas, save_masks_only=False):
             
     masks = np.array(masks, dtype=np.uint16) # resulting masks
     outlines = masks_to_outlines(masks)
-    plt.imsave(saveas + ".png", outlines, cmap='gray')
-    if not save_masks_only:
-        imsave(saveas+'_id.png', masks)    
+    
+    filename=os.path.splitext(saveas)[0]
+    fileext=os.path.splitext(saveas)[1]
+    plt.imsave(filename+"_m"+fileext, outlines, cmap='gray')
     print("masks saved to: "+saveas)
+    if not save_masks_only:
+        # create an outline file
+        imsave(filename+"_o"+fileext, masks)    
 
 
 
