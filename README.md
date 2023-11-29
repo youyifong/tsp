@@ -29,7 +29,7 @@ Required input:
 For the cytoplasm channel, 0 means grayscale; for the nucleus channel, 0 means no nuclei. 
 E.g. [3,0] that means cytoplasm signal is in the blue channel and no nuclei; [0,0] means cytoplasm is taken from a grayscale image and no nuclei.
 
-- --model Cellpose model to use, e.g. cyto, cytotrain7/c7, c7s, cs. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al. c7s is c7-shrinked, cs is cyto-shrinked.
+- --model Cellpose model to use, e.g. cyto, cytotrain7/c7, c7s, c7s2, cs. cyto is the Cellpose default, cytotrain7 is the model from Sunwoo et al. c7s is c7-shrinked, cs is cyto-shrinked, c7s2 is c7s + more.
 
 
 Optional input:
