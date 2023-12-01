@@ -6,6 +6,7 @@ def dostitch (config, directory):
     nrows=config['nrows']
     ncols=config['ncols']
     right_margin_overlap = config['rightMarginOverlap']
+    left_margin_overlap = config['leftMarginOverlap']
     top_margin_overlap = config['topMarginOverlap']
     panels = config['panels']
     
@@ -16,7 +17,15 @@ def dostitch (config, directory):
     subjectid=filename.split('_')[0]
     marker= os.path.splitext(filename)[0].split('_')[2]
     
-    width_reduced = int(width * (1-right_margin_overlap))
+    if right_margin_overlap is not None and left_margin_overlap is not None:
+        exit("unexpected situation: both left_margin_overlap and right_margin_overlap are present")
+    if right_margin_overlap is not None:
+        width_reduced = int(width * (1-right_margin_overlap))
+    elif left_margin_overlap is not None:
+        width_reduced = int(width * (1-left_margin_overlap))
+    else:
+        exit("either rightMarginOverlap or rightMarginOverlap has to be present")    
+    
     height_reduced = int(height * (1-top_margin_overlap))
     
     # New image width and height
@@ -31,8 +40,11 @@ def dostitch (config, directory):
             if position=='empty':
                 im = Image.new('RGB', (width_reduced, height_reduced))
             else:
-                pattern = f'{subjectid}_{position}_*'            
-                im = Image.open(glob.glob(directory + pattern)[0]).crop((0, height-height_reduced, width_reduced, height))
+                pattern = f'{subjectid}_{position}_*'
+                if right_margin_overlap is not None:
+                    im = Image.open(glob.glob(directory + pattern)[0]).crop((0, height-height_reduced, width_reduced, height))
+                elif left_margin_overlap is not None:
+                    im = Image.open(glob.glob(directory + pattern)[0]).crop((width-width_reduced, height-height_reduced, width, height))
                 
             # Compute the position where the next image should be pasted
             x_offset = width_reduced * j
