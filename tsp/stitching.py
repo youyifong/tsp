@@ -5,8 +5,10 @@ import cv2, os, glob
 def dostitch (config, directory):
     nrows=config['nrows']
     ncols=config['ncols']
-    right_margin_overlap = config['rightMarginOverlap']
-    left_margin_overlap = config['leftMarginOverlap']
+    
+    # left and right are optional
+    right_margin_overlap = config.get('rightMarginOverlap')
+    left_margin_overlap = config.get('leftMarginOverlap')    
     top_margin_overlap = config['topMarginOverlap']
     panels = config['panels']
     

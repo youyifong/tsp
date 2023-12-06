@@ -203,6 +203,7 @@ def main():
         if args.json == None or args.imgfolder==None:
             sys.exit("ERROR: --json required")            
 
+        # with open('D:/DeepLearning/images_from_K/cell_phenotyping/Cellscape_layout_by_percentage.json') as config_file:
         with open(args.json) as config_file:
             config = json.load(config_file)
         
