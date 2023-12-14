@@ -33,8 +33,11 @@ def run_cellpose(files, channels,
     elif(pretrained == 'cs'): # starting with cyto and trained with shrink gt from Youyi
         model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/shared/cellpose_trained_models/cellpose_residual_on_style_on_concatenation_off_train_2023_09_12_15_55_26.655197') 
         
-    elif(pretrained == 'c7s2'): # starting with c7s2 and trained with new gt from K
+    elif(pretrained == 'c7s2'): # starting with c7s and trained with new gt from K
         model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/shared/cellpose_trained_models/cellpose_residual_on_style_on_concatenation_off_train_2023_09_12_21_34_27.005038') 
+        
+    elif(pretrained == 'c7s3'): # starting with c7s2 and trained with new gt from K
+        model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/shared/cellpose_trained_models/cellpose_residual_on_style_on_concatenation_off_ROI_3_2023_12_14_14_00_27.160229') 
         
         
         # model = models.CellposeModel(gpu=gpu, pretrained_model='/fh/fast/fong_y/tissuenet_1.0/images/train/models/cellpose_residual_on_style_on_concatenation_off_train_2022_04_21_13_47_58.317948') # trained on tissuenet using cyto initial weights
