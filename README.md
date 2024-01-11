@@ -85,7 +85,7 @@ All files are saved to the current working directory, which may or may not be th
 The command above looks for marker1+ marker2+ marker3- cells.  Let K be the number of markers. 
 
 Required input:
-- --f List of K file names. For the first file, it is the mask file name. For the rest, it depends on the method. For mask-mask analyses, it is the mask file name; for mask-intensity analyses, it is the image file name. 
+- --f List of K file names. For the first file, it is the mask file name. For the rest, it depends on the method. For mask-mask analyses, it is the mask file name; **for mask-intensity analyses, it is the image file name**. 
 
 - --m List of K-1 values from Mask, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. Under mask, overlap between A and B is computed for individual B cells, not all B cells.
 
