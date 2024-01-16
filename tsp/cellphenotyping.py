@@ -190,9 +190,9 @@ def DoubleStain(maskA, maskB, positive, cutoff, channel, method, cutoff2=1.1):
             double_mask_idx = mask_indices[not ((res >= cutoff) | (resB >= cutoff2))]            
     else:
         if positive:
-            double_mask_idx = mask_indices[res < cutoff]
-        else:
             double_mask_idx = mask_indices[res >= cutoff]
+        else:
+            double_mask_idx = mask_indices[res < cutoff]
 
     return res, len(double_mask_idx), double_mask_idx
 
