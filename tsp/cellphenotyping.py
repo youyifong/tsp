@@ -51,7 +51,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         if(method == 'Mask'):
             pos_rate, num_double_cell, double_mask_idx = DoubleStainMask(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method, cutoff2=cutoff2)
         else:
-            pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, imgB=imgB, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_thresholds=pixel_pos_threshold)
+            pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, imgB=imgB, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_threshold=pixel_pos_threshold)
 
         # for the last file, examine a series of cutoffs. this step does not take too much time
         if(i == n_markers-1):
