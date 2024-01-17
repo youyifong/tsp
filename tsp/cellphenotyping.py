@@ -45,13 +45,13 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             # maskB = datB['masks']
             maskB = imread(files[i+1])
         else:
-            image_comp = imread(files[i+1])
+            imgB = imread(files[i+1])
         
         # Double staining #
         if(method == 'Mask'):
             pos_rate, num_double_cell, double_mask_idx = DoubleStainMask(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method, cutoff2=cutoff2)
         else:
-            pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_thresholds=pixel_pos_threshold)
+            pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, imgB=imgB, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_thresholds=pixel_pos_threshold)
 
         # for the last file, examine a series of cutoffs. this step does not take too much time
         if(i == n_markers-1):

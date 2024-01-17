@@ -91,7 +91,7 @@ Required input:
     * Mask:: Overlap between A and B is computed for individual B cells, not all B cells.
     * Intensity_avg_all
     * Intensity_total
-    * Intensity_pos: pixels above a threshold, default 100, are calle positive. A cell with over a default 50% positive pixels is called positive.
+    * Intensity_pos: pixels above a threshold, default 100, are called positive. A cell with over a default 50% positive pixels is called positive.
 
 - --c List of K-1 cutoff values for deciding if markers are present.
 
