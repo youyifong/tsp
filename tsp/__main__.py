@@ -66,9 +66,10 @@ def main():
     parser.add_argument('--color', type=str, help='checkprediction image folder')
 
     # for cellphenotyping 
-    parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total)')
+    parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total/Intensity_pos)')
     parser.add_argument('--c', type=str, help='cutoff') 
     parser.add_argument('--c2', type=str, help='cutoff 2', required=False) 
+    parser.add_argument('--pixel_pos_threshold', type=str, help='', required=False) 
     parser.add_argument('--p', type=str, help='(True/False). Positive or Negative')
     parser.add_argument('--n', type=str, help='marker names')
             
@@ -143,7 +144,12 @@ def main():
         else:
             cutoffs2 = [1 for c in cutoffs]
         
-        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=cutoffs, channels=channels, methods=methods, save_plot=args.s, cutoffs2=cutoffs2)
+        if args.pixel_pos_threshold is not None:
+            pixel_pos_thresholds = [float(c) for c in args.pixel_pos_threshold[1:-1].split(",") ]
+        else:
+            pixel_pos_thresholds = [100 for c in cutoffs]
+        
+        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=cutoffs, channels=channels, methods=methods, save_plot=args.s, cutoffs2=cutoffs2, pixel_pos_thresholds=pixel_pos_thresholds)
         
         
     elif args.action=='intensityanalysis':        

@@ -87,7 +87,11 @@ The command above looks for marker1+ marker2+ marker3- cells.  Let K be the numb
 Required input:
 - --f List of K file names. For the first file, it is the mask file name. For the rest, it depends on the method. For mask-mask analyses, it is the mask file name; **for mask-intensity analyses, it is the image file name**. 
 
-- --m List of K-1 values from Mask, Intensity_avg_all, or Intensity_total. Methods for finding multistained cells. Under mask, overlap between A and B is computed for individual B cells, not all B cells.
+- --m List of K-1 values for methods for finding multistained cells.
+    * Mask:: Overlap between A and B is computed for individual B cells, not all B cells.
+    * Intensity_avg_all
+    * Intensity_total
+    * Intensity_pos: pixels above a threshold, default 100, are calle positive. A cell with over a default 50% positive pixels is called positive.
 
 - --c List of K-1 cutoff values for deciding if markers are present.
 

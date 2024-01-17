@@ -10,7 +10,7 @@ import timeit
 from scipy import ndimage
 
 
-def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot, cutoffs2):
+def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot, cutoffs2, pixel_pos_thresholds):
     
     plus_minus = ['+' if positives[l] else '-' for l in range(len(marker_names))]
     filenames=[os.path.splitext(f)[0] for f in files]
@@ -35,6 +35,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         positive=positives[i]
         cutoff=cutoffs[i]
         cutoff2=cutoffs2[i]
+        pixel_pos_threshold=pixel_pos_thresholds[i]
         method=methods[i]
         channel=channels[i] if channels is not None else None
             
@@ -43,22 +44,20 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             # datB = np.load(os.path.splitext(files[i+1])[0] + '_seg.npy', allow_pickle=True).item()
             # maskB = datB['masks']
             maskB = imread(files[i+1])
-        elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-            image_comp = imread(files[i+1])
         else:
-            sys.exit("method incorrectly specified")
+            image_comp = imread(files[i+1])
         
         # Double staining #
         if(method == 'Mask'):
-            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method, cutoff2=cutoff2)
-        elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-            pos_rate, num_double_cell, double_mask_idx = DoubleStain(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channel=channel, method=method)
+            pos_rate, num_double_cell, double_mask_idx = DoubleStainMask(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method, cutoff2=cutoff2)
+        else:
+            pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, maskB=image_comp, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_thresholds=pixel_pos_threshold)
 
         # for the last file, examine a series of cutoffs. this step does not take too much time
         if(i == n_markers-1):
             if(method == 'Mask'):
                 cutoff_all = list(np.around(np.linspace(start=0, stop=1, num=11),1)) # [0,0.1,...,0.9,1]                
-            elif(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
+            else:
                 cutoff_all = list(np.around(np.quantile(pos_rate, np.linspace(start=0, stop=1, num=11)),1)) # quantile
                 #cutoff_all = [0.0,0.5,0.7,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,4.9,5.0,5.5,6.0,7.0,8.0,9.0,10.0] # for severity analysis
             
@@ -139,62 +138,64 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
 
 
 # Utilites for double staining analysis
-def DoubleStain(maskA, maskB, positive, cutoff, channel, method, cutoff2=1.1):
+def DoubleStainMask(maskA, maskB, positive, cutoff, channel, method, cutoff2=1.1):
     
-    # Pre-processing #
-    if(method == 'Intensity_avg_pos' or method == 'Intensity_avg_all' or method == 'Intensity_total'):
-        if maskB.ndim==3:
-            if channel is not None: 
-                maskB = maskB[:,:,channel]
-            else:
-                sys.exit("--l is required when intensity is used and image is RGB")
-
-        maskB = maskB * (99/255) # normalization 255 for 8 bit, 65535 for 16 bit grayscale
+    tab = np.histogram2d(maskA.flatten(), maskB.flatten(), bins=[np.append(np.unique(maskA), np.inf), np.append(np.unique(maskB), np.inf)])[0]
     
-    # Double staining #
+    size, mask_indices = np.histogram(maskA, bins=np.append(np.unique(maskA), np.inf))
+    res = tab[1:,1:].max(axis=1) / size[1:]
     
+    sizeB, mask_indicesB = np.histogram(maskB, bins=np.append(np.unique(maskB), np.inf))
+    # denominator is the size of B cell that has max overlap with A
+    resB = tab[1:,1:].max(axis=1) / sizeB[1:][tab[1:,1:].argmax(axis=1)] 
     
-    if method =="Mask":
-        tab = np.histogram2d(maskA.flatten(), maskB.flatten(), bins=[np.append(np.unique(maskA), np.inf), np.append(np.unique(maskB), np.inf)])[0]
+    mask_indices=mask_indices[1:-1]
         
-        size, mask_indices = np.histogram(maskA, bins=np.append(np.unique(maskA), np.inf))
-        res = tab[1:,1:].max(axis=1) / size[1:]
-        
-        sizeB, mask_indicesB = np.histogram(maskB, bins=np.append(np.unique(maskB), np.inf))
-        # denominator is the size of B cell that has max overlap with A
-        resB = tab[1:,1:].max(axis=1) / sizeB[1:][tab[1:,1:].argmax(axis=1)] 
-        
-        mask_indices=mask_indices[1:-1]
-        
+    if positive:
+        double_mask_idx = mask_indices[(res >= cutoff) | (resB >= cutoff2)]
     else:
-        mask_indices = np.unique(maskA, return_counts=True)[0][1:]
-        if method == 'Intensity_total':
-            res = ndimage.sum(maskB, labels=maskA, index=mask_indices)
-        elif method == 'Intensity_avg_all':
-            res  = ndimage.mean(maskB, labels=maskA, index=mask_indices)
-        else:
-            sys.exit(f"DoubleStain: method not found - {method}")
-
-    #         if(method == 'Intensity_avg_pos'):
-    #             intensity_temp_arr = np.array(intensity_temp)
-    #             int_norm_avg_pos = sum(intensity_temp_arr[intensity_temp_arr != 0]) / sum(intensity_temp_arr != 0)
-    #             if(math.isnan(int_norm_avg_pos)):
-    #                 res.append(0) # average intensities of positive pixels after normalization
-    #             else:
-    #                 res.append(int_norm_avg_pos) # average intensities of positive pixels after normalization
-    
-    if method =="Mask":
-        if positive:
-            double_mask_idx = mask_indices[(res >= cutoff) | (resB >= cutoff2)]
-        else:
-            double_mask_idx = mask_indices[not ((res >= cutoff) | (resB >= cutoff2))]            
-    else:
-        if positive:
-            double_mask_idx = mask_indices[res >= cutoff]
-        else:
-            double_mask_idx = mask_indices[res < cutoff]
+        double_mask_idx = mask_indices[not ((res >= cutoff) | (resB >= cutoff2))]            
 
     return res, len(double_mask_idx), double_mask_idx
+
+
+def DoubleStainIntensity(maskA, imgB, positive, cutoff, channel, method, pixel_pos_threshold):
+    
+    # Pre-processing #
+    if imgB.ndim==3:
+        if channel is not None: 
+            imgB = imgB[:,:,channel]
+        else:
+            sys.exit("--l is required when intensity is used and image is RGB")
+
+    if method != 'Intensity_pos':
+        imgB = imgB * (99/255) # normalization 255 for 8 bit, 65535 for 16 bit grayscale    
+
+    mask_indices = np.unique(maskA, return_counts=True)[0][1:]
+    if method == 'Intensity_total':
+        res = ndimage.sum(imgB, labels=maskA, index=mask_indices)
+    elif method == 'Intensity_avg_all':
+        res = ndimage.mean(imgB, labels=maskA, index=mask_indices)
+    elif method == 'Intensity_pos':
+        res = ndimage.mean((imgB > pixel_pos_threshold).astype(int), labels=maskA, index=mask_indices)
+    else:
+        sys.exit(f"DoubleStain: method not found - {method}")
+
+#         if(method == 'Intensity_avg_pos'):
+#             intensity_temp_arr = np.array(intensity_temp)
+#             int_norm_avg_pos = sum(intensity_temp_arr[intensity_temp_arr != 0]) / sum(intensity_temp_arr != 0)
+#             if(math.isnan(int_norm_avg_pos)):
+#                 res.append(0) # average intensities of positive pixels after normalization
+#             else:
+#                 res.append(int_norm_avg_pos) # average intensities of positive pixels after normalization
+
+    if positive:
+        double_mask_idx = mask_indices[res >= cutoff]
+    else:
+        double_mask_idx = mask_indices[res < cutoff]
+
+    return res, len(double_mask_idx), double_mask_idx
+
 
 
 
