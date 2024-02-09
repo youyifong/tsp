@@ -10,7 +10,7 @@ import timeit
 from scipy import ndimage
 
 
-def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot, cutoffs2, pixel_pos_thresholds):
+def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot, cutoffs2, pixel_pos_thresholds, mask_dilation):
     
     plus_minus = ['+' if positives[l] else '-' for l in range(len(marker_names))]
     filenames=[os.path.splitext(f)[0] for f in files]
@@ -51,7 +51,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         if(method == 'Mask'):
             pos_rate, num_double_cell, double_mask_idx = DoubleStainMask(maskA=maskA, maskB=maskB, positive=positive, cutoff=cutoff, channel=channel, method=method, cutoff2=cutoff2)
         else:
-            pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, imgB=imgB, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_threshold=pixel_pos_threshold)
+            pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, imgB=imgB, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_threshold=pixel_pos_threshold, mask_dilation=mask_dilation)
 
         # for the last file, examine a series of cutoffs. this step does not take too much time
         if(i == n_markers-1):
@@ -159,7 +159,7 @@ def DoubleStainMask(maskA, maskB, positive, cutoff, channel, method, cutoff2=1.1
     return res, len(double_mask_idx), double_mask_idx
 
 
-def DoubleStainIntensity(maskA, imgB, positive, cutoff, channel, method, pixel_pos_threshold):
+def DoubleStainIntensity(maskA, imgB, positive, cutoff, channel, method, pixel_pos_threshold, mask_dilation):
     
     # Pre-processing #
     if imgB.ndim==3:
@@ -171,7 +171,31 @@ def DoubleStainIntensity(maskA, imgB, positive, cutoff, channel, method, pixel_p
     if method != 'Intensity_pos':
         imgB = imgB * (99/255) # normalization 255 for 8 bit, 65535 for 16 bit grayscale    
 
-    mask_indices = np.unique(maskA, return_counts=True)[0][1:]
+    mask_indices = np.unique(maskA)[1:]
+    
+    # dilate or erode masks if necessary
+    if mask_dilation!=0:
+        # Generate a structure element (kernel) for erosion
+        # This creates a 2D kernel for 2D images; adjust dimensions for 3D images if necessary
+        structure_element = np.ones((2*abs(mask_dilation)+1, 2*abs(mask_dilation)+1))
+
+        mod_masks = np.zeros_like(maskA)
+        
+        for mask_value in mask_indices:
+            # Create a binary mask for the current value
+            binary_mask = (maskA == mask_value)
+            
+            # Apply binary dilation/erosion
+            if mask_dilation>0:
+                mod_binary_mask = ndimage.binary_dilation(binary_mask, structure=structure_element).astype(binary_mask.dtype)
+            else:                      
+                mod_binary_mask = ndimage.binary_erosion(binary_mask, structure=structure_element).astype(binary_mask.dtype)
+            
+            # Combine mod masks, assuming non-overlapping masks for simplicity
+            mod_masks += mod_binary_mask * mask_value
+
+        maskA = mod_masks
+        
     if method == 'Intensity_total':
         res = ndimage.sum(imgB, labels=maskA, index=mask_indices)
     elif method == 'Intensity_mean':

@@ -108,6 +108,8 @@ Optional input:
 
 - --s If present, additional image files will be saved.
 
+- --mask_dilation An integer that defaults to 0. When doing mask-intensity analyses, a positive/negative mask_dilation causes the masks the be dilated/eroded by that number of pixels on all sides.
+
 Output 
 
 - _counts_multistain.txt: cell counts, one row for each additional marker
