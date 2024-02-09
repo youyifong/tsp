@@ -173,6 +173,7 @@ def save_stuff(masks, imgfilename, model, channels, save_outlines_only=True, sav
     else:
         im = img[:,:,(channels[0]-1)]
     avg_intensities = ndimage.mean(im, labels=masks, index=mask_indices)
+    median_intensities = ndimage.median(im, labels=masks, index=mask_indices)
     total_intensities = ndimage.sum(im, labels=masks, index=mask_indices)
 
     centers=GetCenterCoor(masks)
@@ -195,6 +196,7 @@ def save_stuff(masks, imgfilename, model, channels, save_outlines_only=True, sav
         "center_y": y_coor,
         "size": sizes,
         "tfi": total_intensities,
+        "medfi": median_intensities,
         "mfi": avg_intensities
     })
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
