@@ -174,8 +174,10 @@ def DoubleStainIntensity(maskA, imgB, positive, cutoff, channel, method, pixel_p
     mask_indices = np.unique(maskA, return_counts=True)[0][1:]
     if method == 'Intensity_total':
         res = ndimage.sum(imgB, labels=maskA, index=mask_indices)
-    elif method == 'Intensity_avg_all':
+    elif method == 'Intensity_mean':
         res = ndimage.mean(imgB, labels=maskA, index=mask_indices)
+    elif method == 'Intensity_median':
+        res = ndimage.median(imgB, labels=maskA, index=mask_indices)
     elif method == 'Intensity_pos':
         res = ndimage.mean((imgB > pixel_pos_threshold).astype(int), labels=maskA, index=mask_indices)
     else:

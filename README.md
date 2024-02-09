@@ -89,7 +89,8 @@ Required input:
 
 - --m List of K-1 values for methods for finding multistained cells.
     * Mask:: Overlap between A and B is computed for individual B cells, not all B cells.
-    * Intensity_avg_all
+    * Intensity_mean
+    * Intensity_median
     * Intensity_total
     * Intensity_pos: pixels above a threshold, default 100, are called positive. A cell with over a default 50% positive pixels is called positive.
 

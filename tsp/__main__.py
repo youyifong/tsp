@@ -66,7 +66,7 @@ def main():
     parser.add_argument('--color', type=str, help='checkprediction image folder')
 
     # for cellphenotyping 
-    parser.add_argument('--m', type=str, help='(Mask/Intensity_avg/Intensity_total/Intensity_pos)')
+    parser.add_argument('--m', type=str, help='(Mask/Intensity_mean/Intensity_total/Intensity_pos/Intensity_median)')
     parser.add_argument('--c', type=str, help='cutoff') 
     parser.add_argument('--c2', type=str, help='cutoff 2', required=False) 
     parser.add_argument('--pixel_pos_threshold', type=str, help='', required=False) 
@@ -124,8 +124,7 @@ def main():
     elif args.action=='cellphenotyping':        
         #files=["M872956_JML_Position8_CD3_img.png","M872956_JML_Position8_CD4_img.png","M872956_JML_Position8_CD8_img.png"]; marker_names=["CD4","CD8"]; positives=[True,False]; cutoffs=[.5,.5]; channels=None; methods=["Mask","Mask"]; save_plot=True
         #files=["JM_Les_CD3_stitched_gray_alignedtoCD45_m_cytotrain7.png","JM_Les_CD8a_stitched_gray_alignedtoCD45_m_cytotrain7.png"]; marker_names=["CD8"]; positives=[True]; cutoffs=[.5]; cutoffs2=[.9]; channels=None; methods=["Mask","Mask"]; save_plot=True
-        
-        
+                
         # get a list of file names from --f
         files = args.f[1:-1].split(",") 
         if len(files)==0: sys.exit ("no files found")
