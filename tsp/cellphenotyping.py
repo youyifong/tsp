@@ -10,7 +10,7 @@ import timeit
 from scipy import ndimage
 
 
-def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot, cutoffs2, pixel_pos_thresholds, mask_dilation):
+def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods, save_plot, cutoffs2, pixel_pos_thresholds, mask_dilations):
     
     plus_minus = ['+' if positives[l] else '-' for l in range(len(marker_names))]
     filenames=[os.path.splitext(f)[0] for f in files]
@@ -35,6 +35,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         positive=positives[i]
         cutoff=cutoffs[i]
         cutoff2=cutoffs2[i]
+        mask_dilation=mask_dilations[i]
         pixel_pos_threshold=pixel_pos_thresholds[i]
         method=methods[i]
         channel=channels[i] if channels is not None else None

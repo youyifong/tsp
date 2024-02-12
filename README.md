@@ -108,7 +108,7 @@ Optional input:
 
 - --s If present, additional image files will be saved.
 
-- --mask_dilation An integer that defaults to 0. When doing mask-intensity analyses, a positive/negative mask_dilation causes the masks the be dilated/eroded by that number of pixels on all sides.
+- --mask_dilations A list of integers. When doing mask-intensity analyses, a positive/negative mask_dilation causes the masks the be dilated/eroded by that number of pixels on all sides. E.g., [1,-1]. 
 
 Output 
 

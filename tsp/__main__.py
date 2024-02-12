@@ -72,7 +72,7 @@ def main():
     parser.add_argument('--pixel_pos_threshold', type=str, help='', required=False) 
     parser.add_argument('--p', type=str, help='(True/False). Positive or Negative')
     parser.add_argument('--n', type=str, help='marker names')
-    parser.add_argument('--mask_dilation', type=int, help='the number of pixels to dilate on all sides. A negative number means shrinking', default=0)
+    parser.add_argument('--mask_dilations', type=str, help='for intensity, we can specify the numbers of pixels to dilate on all sides. A negative number means shrinking', required=False)
             
     # shared
     parser.add_argument('--f', type=str, help='files') 
@@ -144,12 +144,17 @@ def main():
         else:
             cutoffs2 = [1 for c in cutoffs]
         
+        if args.mask_dilations is not None:
+            mask_dilations = [int(c) for c in args.mask_dilations[1:-1].split(",") ]
+        else:
+            mask_dilations = [0 for c in cutoffs]
+        
         if args.pixel_pos_threshold is not None:
             pixel_pos_thresholds = [float(c) for c in args.pixel_pos_threshold[1:-1].split(",") ]
         else:
             pixel_pos_thresholds = [100 for c in cutoffs]
         
-        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=cutoffs, channels=channels, methods=methods, save_plot=args.s, cutoffs2=cutoffs2, pixel_pos_thresholds=pixel_pos_thresholds, mask_dilation=args.mask_dilation)
+        StainingAnalysis(files=files, marker_names=marker_names, positives=[p=='True' for p in positives], cutoffs=cutoffs, channels=channels, methods=methods, save_plot=args.s, cutoffs2=cutoffs2, pixel_pos_thresholds=pixel_pos_thresholds, mask_dilations=mask_dilations)
         
         
     elif args.action=='intensityanalysis':        
