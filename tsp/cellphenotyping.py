@@ -91,20 +91,22 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         ncell=len(sizes)
     
         centers=GetCenterCoor(masks[i+1])
-        y_coor, x_coor = zip(*centers)
-        # turn tuples into arrays to use as.type later
-        y_coor=np.array(y_coor); x_coor=np.array(x_coor)
-    
-        ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
-        mask_info = pd.DataFrame({
-            "center_x": x_coor, 
-            "center_y": y_coor,
-            "size": sizes
-        })
-        mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
-        mask_info=mask_info.round().astype(int)
-        mask_info.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
-    
+        if len(centers)>0:
+            y_coor, x_coor = zip(*centers)
+            # turn tuples into arrays to use as.type later
+            y_coor=np.array(y_coor); x_coor=np.array(x_coor)
+        
+            ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
+            mask_info = pd.DataFrame({
+                "center_x": x_coor, 
+                "center_y": y_coor,
+                "size": sizes
+            })
+            mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+            mask_info=mask_info.round().astype(int)
+            mask_info.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
+        else:
+            print("no masks found")
 
     print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
