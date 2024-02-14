@@ -230,15 +230,11 @@ Appends region membership as new columns and save as a new _regmem.csv file.
 
 ### Convert roi files into mask png files
 
-First, unzip the roi zip file, e.g.
-
-> unzip CF_Les_Pos7_CD3+CD8+_RoiSet_865.zip -d CF_Les_Pos7_CD3+CD8+_RoiSet_865 
-
 The program creates two png files, one mask file and one mask outline file. 
 
 > python -m tsp roifiles2mask --f "eg1/*" --width 1392 --height 1040 --saveas fname.png
  
-- --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. 
+- --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], (unzip CF_Les_Pos7_CD3+CD8+_RoiSet_865.zip -d CF_Les_Pos7_CD3+CD8+_RoiSet_865) or a pattern to match file names, e.g. 'xx*.png' (The quotes around file name pattern are required, because otherwise it will be expanded by shell.), or a single zip file name 
 
 - --saveas Output mask file name
 
@@ -250,6 +246,9 @@ Optional input:
 
 - --imagefile: can also be provided in lieu of width and height to provide dimension info
 
+
+### Dilate/erode masks
+> python -m tsp dilatemasks --maskfile mask1.png --dilation -1
 
 ### Compare two mask files to get AP
 > python -m tsp AP --mask1 mask1.png --mask2 mask2.png 

@@ -12,6 +12,8 @@ from tsp.cellphenotyping import StainingAnalysis
 from tsp.intensityanalysis import IntensityAnalysis
 from tsp.geom import dist2boundary, region_membership
 from tsp.split_dataset import split_dataset_by_class
+from scipy import ndimage
+
 
 import timeit
 start_time = timeit.default_timer()
@@ -27,7 +29,7 @@ def main():
         runcellpose, \
         cellphenotyping, \
         dist2boundary, regionmembership, \
-        AP, checkprediction, mask2outline, roifiles2mask, overlaymasks,\
+        AP, checkprediction, mask2outline, roifiles2mask, overlaymasks, dilatemasks,\
         splitdata')
     
     # for stitchimages
@@ -50,6 +52,8 @@ def main():
     parser.add_argument('--width', type=int, help='width of image', required=False, default=1392)
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
+    parser.add_argument('--dilation', type=int, help='number of pixels to dilate', required=False, default=1240)
+
             
     # for runcellpose prediction
     parser.add_argument('--model', type=str, help='Pre-trained model')
@@ -304,6 +308,43 @@ def main():
         
         roifiles2mask (files, width, height, saveas=args.saveas)
 
+
+    elif args.action=='dilatemasks':
+        if args.dilation == None:
+            sys.exit("ERROR: --dilation is a required argument")            
+        dilation=args.dilation    
+        
+        masks  =imread(args.maskfile)    
+        mask_indices = np.unique(masks)[1:]
+                
+        if dilation!=0:
+            # Generate a structure element (kernel) for erosion
+            # This creates a 2D kernel for 2D images; adjust dimensions for 3D images if necessary
+            structure_element = np.ones((2*abs(dilation)+1, 2*abs(dilation)+1))
+    
+            mod_masks = np.zeros_like(masks)
+            
+            for mask_value in mask_indices:
+                # Create a binary mask for the current value
+                binary_mask = (masks == mask_value)
+                
+                # Apply binary dilation/erosion
+                if dilation>0:
+                    mod_binary_mask = ndimage.binary_dilation(binary_mask, structure=structure_element).astype(binary_mask.dtype)
+                else:                      
+                    mod_binary_mask = ndimage.binary_erosion(binary_mask, structure=structure_element).astype(binary_mask.dtype)
+                
+                # Combine mod masks, assuming non-overlapping masks for simplicity
+                mod_masks += mod_binary_mask * mask_value
+        else:
+            mod_masks = masks
+            
+        filename=os.path.splitext(args.maskfile)[0]
+        fileext=os.path.splitext(args.maskfile)[1]
+        imsave(filename+"_d"+dilation+fileext, masks)    
+
+                    
+        
 
     elif args.action=='overlaymasks':
         # add masks to images    
