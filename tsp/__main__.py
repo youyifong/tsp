@@ -341,7 +341,7 @@ def main():
             
         filename=os.path.splitext(args.maskfile)[0]
         fileext=os.path.splitext(args.maskfile)[1]
-        imsave(filename+"_d"+dilation+fileext, masks)    
+        imsave(filename+"_d"+str(dilation)+fileext, masks)    
 
                     
         
