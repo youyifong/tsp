@@ -32,7 +32,7 @@ def roifiles2mask(files, width, height, saveas):
     print("number of roi files: "+str(len(rois)))
     
     if extension == ".zip":
-        keys = rois.keys()
+        keys = list(rois.keys())
     
     
     for idx in range(len(rois)):
