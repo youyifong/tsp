@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from read_roi import read_roi_file 
+from read_roi import read_roi_file, read_roi_zip
 from PIL import Image, ImageDraw
 from scipy import ndimage
 from cellpose import utils, io
@@ -10,18 +10,33 @@ from tsp import imread, imsave
 import skimage.io
 from skimage import img_as_ubyte, img_as_uint
 from tsp.AP import masks_to_outlines
-
-
+import sys
 
 
 # From .roi files to masks file
 def roifiles2mask(files, width, height, saveas):
-    print("number of roi files: "+str(len(files)))
     masks = Image.new('I', (width, height), 0)
-    for idx in range(len(files)):
-        mask_temp = read_roi_file(files[idx])
-        filename = files[idx].split(os.sep)[-1][:-4]
-        mask_temp = mask_temp[filename]
+    
+    _, extension = os.path.splitext(files[0])
+
+    if extension == ".zip":
+        if len(files)>1:
+            sys.exit("one zip file at a time")            
+        rois = read_roi_zip(files[0])
+    else:
+        rois = []        
+        for idx in range(len(files)):
+            roi_file = files[idx]
+            rois = rois.append(read_roi_file(roi_file))
+        
+    print("number of roi files: "+str(len(rois)))
+    for idx in range(len(rois)):
+        roi_file = files[idx]
+        roi = rois[idx]
+        
+        filename = roi_file.split(os.sep)[-1][:-4]
+        mask_temp = roi[filename]
+        
         if mask_temp['type'] == 'rectangle':
             x = [mask_temp['left'], mask_temp['left']+mask_temp['width'], mask_temp['left']+mask_temp['width'], mask_temp['left']]
             y = [mask_temp['top'],  mask_temp['top'], mask_temp['top']+mask_temp['height'], mask_temp['top']+mask_temp['height']]

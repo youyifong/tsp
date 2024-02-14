@@ -36,7 +36,7 @@ Install our fork of Cellpose (could take some time)
 
 Install additional python packages 
 
->pip install matplotlib read_roi pytz pandas scikit-image shapely
+>pip install matplotlib read_roi pytz pandas scikit-image shapely 
  
 
 ## Refresh
