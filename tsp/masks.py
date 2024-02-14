@@ -30,13 +30,18 @@ def roifiles2mask(files, width, height, saveas):
             rois.append(read_roi_file(roi_file))
         
     print("number of roi files: "+str(len(rois)))
+    
+    if extension == ".zip":
+        keys = rois.keys()
+    
+    
     for idx in range(len(rois)):
-        roi_file = files[idx]
-        filename = roi_file.split(os.sep)[-1][:-4]
         
         if extension == ".zip":
-            mask_temp = rois[filename]                
+            mask_temp = rois[keys[idx]]                
         else:
+            roi_file = files[idx]
+            filename = roi_file.split(os.sep)[-1][:-4]
             mask_temp = rois[idx][filename]
                 
         if mask_temp['type'] == 'rectangle':
