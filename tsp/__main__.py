@@ -13,6 +13,7 @@ from tsp.intensityanalysis import IntensityAnalysis
 from tsp.geom import dist2boundary, region_membership
 from tsp.split_dataset import split_dataset_by_class
 from scipy import ndimage
+import matplotlib.pyplot as plt
 
 
 import timeit
@@ -341,10 +342,12 @@ def main():
             
         filename=os.path.splitext(args.maskfile)[0]
         fileext=os.path.splitext(args.maskfile)[1]
-        imsave(filename+"_d"+str(dilation)+fileext, masks)    
+        imsave(filename+"_d"+str(dilation)+fileext, mod_masks)    
 
-                    
-        
+        # save an outline file
+        outlines = masks_to_outlines(mod_masks)
+        plt.imsave(filename+"_d"+str(dilation)+"_o"+fileext, outlines, cmap='gray')
+                            
 
     elif args.action=='overlaymasks':
         # add masks to images    
