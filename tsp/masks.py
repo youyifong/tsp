@@ -27,7 +27,7 @@ def roifiles2mask(files, width, height, saveas):
         rois = []        
         for idx in range(len(files)):
             roi_file = files[idx]
-            rois = rois.append(read_roi_file(roi_file))
+            rois.append(read_roi_file(roi_file))
         
     print("number of roi files: "+str(len(rois)))
     for idx in range(len(rois)):
