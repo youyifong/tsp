@@ -192,13 +192,10 @@ def save_stuff(masks, imgfilename, model, channels, save_outlines_only=True, sav
 
     if(channels == [0,0]):
         im = img
+        if len(im.shape)>2:
+            sys.exit("channels is [0,0], but image is 3-dimensional")
     else:
         im = img[:,:,(channels[0]-1)]
-    
-    print(im.shape)
-    print(masks.shape)
-    print(mask_indices)
-    
     avg_intensities = ndimage.mean(im, labels=masks, index=mask_indices)
     median_intensities = ndimage.median(im, labels=masks, index=mask_indices)
     total_intensities = ndimage.sum(im, labels=masks, index=mask_indices)
