@@ -327,6 +327,7 @@ def main():
             
             for mask_value in mask_indices:
                 # Create a binary mask for the current value
+                print(mask_value)
                 binary_mask = (masks == mask_value)
                 
                 # Apply binary dilation/erosion
