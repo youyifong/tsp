@@ -317,7 +317,7 @@ def main():
         dilation=args.dilation    
         
         masks  =imread(args.maskfile)    
-        mask_indices = np.unique(masks)[1:10]
+        mask_indices = np.unique(masks)[1:]
                 
         if dilation!=0:
             # Generate a structure element (kernel) for erosion
