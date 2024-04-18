@@ -248,7 +248,17 @@ Optional input:
 
 
 ### Dilate/erode masks
+
+Create a new mask file in which each mask is dilated or eroded by the amount specified. This file takes about 1 min for every 100 masks.
+
 > python -m tsp dilatemasks --maskfile mask1.png --dilation -1
+
+Output 
+
+- A new mask file 
+- A new mask outline file 
+- A csv file with mask x,y coordinates and size
+
 
 ### Compare two mask files to get AP
 > python -m tsp AP --mask1 mask1.png --mask2 mask2.png 

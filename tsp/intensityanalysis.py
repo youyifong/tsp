@@ -22,9 +22,10 @@ def IntensityAnalysis(mask_file, image_files, channel=None):
         im = imread(image_files[i])
         if channel is not None: im = im[:,:,channel]
         res.append(ndimage.mean(im, labels=masks, index=mask_indices))
+        res.append(ndimage.median(im, labels=masks, index=mask_indices))
         
     res = pd.DataFrame(res).T
-    res.columns = ["name", "x","y"] + [os.path.splitext(f)[0] for f in image_files]
+    res.columns = ["name", "x", "y"] + [x + os.path.splitext(f)[0]  for f in image_files for x in ["meanfi_", "medianfi_"]]
     res.to_csv(os.path.splitext(mask_file)[0] + "_MFI.csv", header=True, index=False, sep=',')
 
 
