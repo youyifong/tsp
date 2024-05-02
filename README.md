@@ -257,7 +257,8 @@ Output
 
 - A new mask file 
 - A new mask outline file 
-- A csv file with mask x,y coordinates and size
+- A text file (_cp_outlines.txt) that can be converted to roi by ImageJ if imagej_roi_converter.py from Cellpose is run as a macro after opening image file
+
 
 
 ### Compare two mask files to get AP

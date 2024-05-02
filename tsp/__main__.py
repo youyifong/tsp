@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.metrics.cluster import adjusted_rand_score
 import pandas as pd
 
+from cellpose import utils, io
+
 from tsp import imread, imsave, image_to_rgb, normalize99
 from tsp.masks import roifiles2mask, GetCenterCoor
 from tsp.AP import mask2outline, masks_to_outlines, tp_fp_fn, tpfpfn, csi, bias, color_fp_fn, compute_iou, average_dice
@@ -350,24 +352,29 @@ def main():
         outlines = masks_to_outlines(mod_masks)
         plt.imsave(filename+"_d"+str(dilation)+"_o"+fileext, outlines, cmap='gray')
         
-        ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
-        centers=GetCenterCoor(mod_masks)
-        y_coor, x_coor = zip(*centers)
-                # turn tuples into arrays to use as.type later
-        y_coor=np.array(y_coor); x_coor=np.array(x_coor)
-        # get size
-        tmp=np.unique(mod_masks, return_counts=True)
-        sizes = tmp[1][1:]#.tolist()    # keep it as an array     
-        ncell=len(sizes)
-        # make a data frame
-        mask_info = pd.DataFrame({
-            "center_x": x_coor, 
-            "center_y": y_coor,
-            "size": sizes
-        })
-        mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
-        mask_info=mask_info.round().astype(int)
-        mask_info.to_csv(filename + "_d"+str(dilation) +".csv", header=True, index=True, sep=',')
+        # save _cp_outline to convert to roi by ImageJ
+        outlines_list = utils.outlines_list(mod_masks)
+        io.outlines_to_text(filename, outlines_list)
+
+
+        # ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
+        # centers=GetCenterCoor(mod_masks)
+        # y_coor, x_coor = zip(*centers)
+        #         # turn tuples into arrays to use as.type later
+        # y_coor=np.array(y_coor); x_coor=np.array(x_coor)
+        # # get size
+        # tmp=np.unique(mod_masks, return_counts=True)
+        # sizes = tmp[1][1:]#.tolist()    # keep it as an array     
+        # ncell=len(sizes)
+        # # make a data frame
+        # mask_info = pd.DataFrame({
+        #     "center_x": x_coor, 
+        #     "center_y": y_coor,
+        #     "size": sizes
+        # })
+        # mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+        # mask_info=mask_info.round().astype(int)
+        # mask_info.to_csv(filename + "_d"+str(dilation) +".csv", header=True, index=True, sep=',')
 
                             
 
