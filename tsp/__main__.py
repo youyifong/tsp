@@ -436,7 +436,7 @@ def main():
         res_mat = []
         csi_vec=[]
         for gt_file_name in gt_file_names:
-            img_name = gt_file_name.split('_masks')[0]
+            img_name = gt_file_name.split('_mask')[0]
             if args.verbose: print(img_name, end="\t")
             gt_path = sorted(glob.glob(args.gtfolder+'/'+img_name+"*"))[0] 
             pred_path = sorted(glob.glob(args.predfolder+'/'+img_name+"*"))[0] 
