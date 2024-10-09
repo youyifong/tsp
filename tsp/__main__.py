@@ -436,7 +436,7 @@ def main():
         res_mat = []
         csi_vec=[]
         for gt_file_name in gt_file_names:
-            img_name = gt_file_name.split('_mask')[0]
+            img_name = gt_file_name.split('_masks')[0]
             if args.verbose: print(img_name, end="\t")
             gt_path = sorted(glob.glob(args.gtfolder+'/'+img_name+"*"))[0] 
             pred_path = sorted(glob.glob(args.predfolder+'/'+img_name+"*"))[0] 
@@ -584,11 +584,13 @@ def main():
             res_temp = np.array([res_mat])
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
         elif args.metric=='csi':
-            #APs at threshold of 0.5
+            print("APs at threshold of 0.5-1.0")
+            print(res_mat)
             res_temp = list(list(zip(*res_mat))[0]) # AP at threshold of 0.5
             # res_temp.append(np.mean(res_temp))
             res_temp = np.array([res_temp]) 
             #print(" \\\\\n".join([" & ".join(map(str,line)) for line in res_temp])) # latex table format
+            print("APs at threshold of 0.5")
             print(" \\\\\n".join([",".join(map(str,line)) for line in res_temp])) # csv format
         elif args.metric=='tpfpfn':
             res_temp = np.array([res_mat])
