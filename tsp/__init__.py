@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 # copied from cellpose
 # it use cv2.imread to read (for non-tiff files) and then converts the image from BGR to RGB 
+# for png files, it is closest to skimage.io.imread
 def imread(filename):
     ext = os.path.splitext(filename)[-1]
     if ext== '.tif' or ext=='.tiff':
@@ -36,8 +37,9 @@ def imread(filename):
         try:
             # -1 means cv2.IMREAD_UNCHANGED
             img = cv2.imread(filename, -1)
-            if img.ndim > 2:
-                img = img[..., [2,1,0]] # this is needed because cv2 uses BGR instead of RGB
+            # don't do the following switch because we used -1 flag above
+            # if img.ndim > 2:
+            #     img = img[..., [2,1,0]] # this is needed because cv2 uses BGR instead of RGB
             return img
         except Exception as e:
             print('ERROR: could not read file, %s'%e)
@@ -51,7 +53,6 @@ def imread(filename):
             print('ERROR: could not read masks from file, %s'%e)
             return None
 
-# modified from cellpose
 def imsave(filename, arr):
     ext = os.path.splitext(filename)[-1]
     if ext== '.tif' or ext=='.tiff':
@@ -62,6 +63,9 @@ def imsave(filename, arr):
         #     arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
         cv2.imwrite(filename, arr)
 
+# an alias for imsave
+def imwrite(filename, arr):
+    imsave(filename, arr)
 
 
 def normalize99(Y, lower=1,upper=99):

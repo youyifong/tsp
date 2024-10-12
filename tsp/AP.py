@@ -239,7 +239,7 @@ color_dict = {
     "blue":  np.array([0, 0, 255]),
     # Add more color labels and RGB values as needed
 }
-# col is a list of keys from color_dict; if not supplied, white outlines will be saved
+# col is a list of keys from color_dict, same length as the number of masks; if not supplied, white outlines will be saved
 def mask2outline(mask_file, col=None):
     masks = imread(mask_file)
     if col is None:
