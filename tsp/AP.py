@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os, cv2, warnings
 import numpy as np
 from scipy import ndimage
-from tsp import imread, imsave
+from tsp import imread
 import skimage.io
 from skimage import img_as_ubyte
 from skimage.measure import regionprops
@@ -239,12 +239,13 @@ color_dict = {
     "blue":  np.array([0, 0, 255]),
     # Add more color labels and RGB values as needed
 }
-# col is a list of keys from color_dict
+# col is a list of keys from color_dict; if not supplied, white outlines will be saved
 def mask2outline(mask_file, col=None):
     masks = imread(mask_file)
     if col is None:
         outlines = masks_to_outlines(masks)        
         with warnings.catch_warnings():
+            # even when using img_as_ubyte, there may be low contrast warning if there are two few outlines, thus suppress warnings
             warnings.simplefilter("ignore", category=UserWarning)
             skimage.io.imsave(os.path.splitext(mask_file)[0] + "_outline.png", img_as_ubyte(outlines))
     else:
