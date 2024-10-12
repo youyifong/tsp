@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import os, cv2
+import os, cv2, warnings
 import numpy as np
 from scipy import ndimage
 from tsp import imread, imsave
@@ -231,18 +231,22 @@ def masks_to_outlines(masks):
                 outlines[vr, vc] = 1
         return outlines    
     
+    
+    
 color_dict = {
     "red":   np.array([255, 0, 0]),
     "green": np.array([0, 255, 0]),
     "blue":  np.array([0, 0, 255]),
     # Add more color labels and RGB values as needed
 }
-    
+# col is a list of keys from color_dict
 def mask2outline(mask_file, col=None):
     masks = imread(mask_file)
     if col is None:
-        outlines = masks_to_outlines(masks)
-        skimage.io.imsave(os.path.splitext(mask_file)[0] + "_outline.png", img_as_ubyte(outlines))
+        outlines = masks_to_outlines(masks)        
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=UserWarning)
+            skimage.io.imsave(os.path.splitext(mask_file)[0] + "_outline.png", img_as_ubyte(outlines))
     else:
         colcode = [color_dict[i] for i in col]
 
