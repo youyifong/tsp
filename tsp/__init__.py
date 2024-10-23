@@ -33,17 +33,19 @@ def imread(filename):
                     img[i] = page.asarray()
                 img = img.reshape(full_shape)            
         return img
+    
     elif ext != '.npy':
+        # png, jpg, etc
         try:
             # -1 means cv2.IMREAD_UNCHANGED
             img = cv2.imread(filename, -1)
-            # don't do the following switch because we used -1 flag above
-            # if img.ndim > 2:
-            #     img = img[..., [2,1,0]] # this is needed because cv2 uses BGR instead of RGB
+            if img.ndim > 2:
+                img = img[..., [2,1,0]] # this is needed because cv2 uses BGR instead of RGB even with -1 flag
             return img
         except Exception as e:
             print('ERROR: could not read file, %s'%e)
             return None
+    
     else:
         try:
             dat = np.load(filename, allow_pickle=True).item()
