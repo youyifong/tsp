@@ -17,7 +17,7 @@ def imread(filename):
                 full_shape = tif.shaped_metadata[0]['shape']
             except:
                 try:
-                    page = tif.series[0][0]
+                    # page = tif.series[0][0]
                     full_shape = tif.series[0].shape
                 except:
                     ltif = 0
@@ -36,11 +36,13 @@ def imread(filename):
     
     elif ext != '.npy':
         # png, jpg, etc
+        # assumes RGB or grayscale
+
         try:
             # -1 means as is and keeps alpha channel for png
             img = cv2.imread(filename, -1)
-            # this is needed because cv2 uses BGR instead of RGB
             if img.ndim > 2:
+                # needed because cv2.imread saves img in BGR instead of RGB
                 img = img[..., [2,1,0]]
             return img
         except Exception as e:
@@ -56,13 +58,24 @@ def imread(filename):
             print('ERROR: could not read masks from file, %s'%e)
             return None
 
-def imsave(filename, arr):
+
+def imsave(filename, img):
+    """
+    Args:
+        filename:
+        img: an image array in RGB format
+    """
+
     ext = os.path.splitext(filename)[-1]
     if ext== '.tif' or ext=='.tiff':
         tifffile.imsave(filename, arr)
     else:
-        # assume arr is RGB
-        cv2.imwrite(filename, arr)
+        if img.ndim > 2:
+            # needed because cv2.imwrite expects img in BGR instead of RGB
+            img = img[..., [2, 1, 0]]
+        cv2.imwrite(filename, img)
+
+
 
 # an alias for imsave
 def imwrite(filename, arr):
