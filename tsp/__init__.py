@@ -37,10 +37,11 @@ def imread(filename):
     elif ext != '.npy':
         # png, jpg, etc
         try:
-            # -1 means cv2.IMREAD_UNCHANGED
+            # -1 means as is and keeps alpha channel for png
             img = cv2.imread(filename, -1)
+            # this is needed because cv2 uses BGR instead of RGB
             if img.ndim > 2:
-                img = img[..., [2,1,0]] # this is needed because cv2 uses BGR instead of RGB even with -1 flag
+                img = img[..., [2,1,0]]
             return img
         except Exception as e:
             print('ERROR: could not read file, %s'%e)
@@ -60,9 +61,7 @@ def imsave(filename, arr):
     if ext== '.tif' or ext=='.tiff':
         tifffile.imsave(filename, arr)
     else:
-        ## this only makes sense if arr is from cv2
-        # if len(arr.shape)>2:
-        #     arr = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
+        # assume arr is RGB
         cv2.imwrite(filename, arr)
 
 # an alias for imsave
