@@ -37,10 +37,10 @@ def imread(filename):
     elif ext != '.npy':
         # png, jpg, etc
         # assumes RGB or grayscale
-
         try:
-            # -1 means as is and keeps alpha channel for png
+            # -1 means as is: alpha channel if kept if exists, 1 channel file is read as 2-dim instead of 3-dim
             img = cv2.imread(filename, -1)
+            # but this following step removes alpha channel
             if img.ndim > 2:
                 # needed because cv2.imread saves img in BGR instead of RGB
                 img = img[..., [2,1,0]]
@@ -68,7 +68,7 @@ def imsave(filename, img):
 
     ext = os.path.splitext(filename)[-1]
     if ext== '.tif' or ext=='.tiff':
-        tifffile.imsave(filename, arr)
+        tifffile.imsave(filename, img)
     else:
         if img.ndim > 2:
             # needed because cv2.imwrite expects img in BGR instead of RGB
