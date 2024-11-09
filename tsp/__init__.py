@@ -42,7 +42,7 @@ def imread(filename):
             img = cv2.imread(filename, -1)
             # but this following step removes alpha channel
             if img.ndim > 2:
-                # needed because cv2.imread saves img in BGR instead of RGB
+                # needed because cv2.imread reads img as BGR instead of RGB
                 img = img[..., [2,1,0]]
             return img
         except Exception as e:
