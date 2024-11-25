@@ -1,5 +1,6 @@
 from PIL import Image
 import cv2, os, glob
+from tsp import imread
 
 
 def dostitch (config, directory):
@@ -12,7 +13,7 @@ def dostitch (config, directory):
     top_margin_overlap = config['topMarginOverlap']
     panels = config['panels']
     
-    # assume all position files have the same dimention
+    # assume all position files have the same dimension
     filename = os.listdir(directory)[0] # e.g., M872956_Position1_CD3-BUV395.tiff
     im = cv2.imread(directory+filename, cv2.IMREAD_UNCHANGED)
     height, width = im.shape[:2]
@@ -33,9 +34,15 @@ def dostitch (config, directory):
     # New image width and height
     new_width = width_reduced * ncols
     new_height = height_reduced * nrows
-    
+
+    # find out whether the image is in color or grayscale
+    if len(imread(glob.glob(directory + f'{subjectid}_{panels[0][0]}_*')[0]).shape)==2:
+        mode='L'
+    else:
+        mode='RGB'
+
     # Create a new image with the appropriate size
-    new_image = Image.new('RGB', (new_width, new_height))
+    new_image = Image.new(mode, (new_width, new_height))
     for i in range(nrows):
         for j in range(ncols):
             position = panels[i][j]
