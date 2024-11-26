@@ -36,7 +36,7 @@ def dostitch (config, directory):
     new_height = height_reduced * nrows
 
     # find out whether the image is in color or grayscale
-    if len(imread(glob.glob(directory + f'{subjectid}_{panels[0][0]}_*')[0]).shape)==2:
+    if len(imread(glob.glob(directory + f'{subjectid}_*')[0]).shape)==2:
         mode='L'
     else:
         mode='RGB'
@@ -47,7 +47,7 @@ def dostitch (config, directory):
         for j in range(ncols):
             position = panels[i][j]
             if position=='empty':
-                im = Image.new('RGB', (width_reduced, height_reduced))
+                im = Image.new(mode, (width_reduced, height_reduced))
             else:
                 pattern = f'{subjectid}_{position}_*'
                 if right_margin_overlap is not None:
