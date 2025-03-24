@@ -14,7 +14,7 @@ import sys
 
 
 # From .roi files to masks file
-def roifiles2mask(files, width, height, saveas):
+def roifiles2mask(files, width, height, saveas, outline=True, fill=True):
     masks = Image.new('I', (width, height), 0)
     
     _, extension = os.path.splitext(files[0])
@@ -61,13 +61,18 @@ def roifiles2mask(files, width, height, saveas):
 
     filename=os.path.splitext(saveas)[0]
     fileext=os.path.splitext(saveas)[1]
-    imsave(filename+"_m"+fileext, masks)    
-    
+
+    # save a mask file
+    if fill:
+        imsave(filename+"_m"+fileext, masks)
+        print("masks saved to: " + saveas)
+
     # save an outline file
-    outlines = masks_to_outlines(masks)
-    plt.imsave(filename+"_o"+fileext, outlines, cmap='gray')
-    
-    print("masks saved to: "+saveas)
+    if outline:
+        outlines = masks_to_outlines(masks)
+        plt.imsave(filename+"_o"+fileext, outlines, cmap='gray')
+        print("outline saved to: "+saveas)
+
 
 
 
