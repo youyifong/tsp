@@ -57,6 +57,7 @@ def main():
     parser.add_argument('--height', type=int, help='height of image', required=False, default=1240)
     parser.add_argument('--metric', type=str, help='csi or bias or tpfpfn or coloring', required=False, default='csi')
     parser.add_argument('--dilation', type=int, help='number of pixels to dilate', required=False, default=1240)
+    parser.add_argument('--saveoutlineonly', action='store_true', help='save only outlines from rois', required=False)
 
             
     # for runcellpose prediction
@@ -310,7 +311,7 @@ def main():
         else:
             height, width = args.height, args.width
         
-        roifiles2mask (files, width, height, saveas=args.saveas)
+        roifiles2mask (files, width, height, saveas=args.saveas, outline=True, fill=not args.saveoutlineonly)
 
 
     elif args.action=='dilatemasks':
