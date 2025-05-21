@@ -73,6 +73,25 @@ def roifiles2mask(files, width, height, saveas, outline=True, fill=True):
         plt.imsave(filename+"_o"+fileext, outlines, cmap='gray')
         print("outline saved to: "+saveas)
 
+    ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
+    centers = GetCenterCoor(masks)
+    y_coor, x_coor = zip(*centers); y_coor=list(y_coor); x_coor=list(x_coor)
+
+    tmp=np.unique(masks, return_counts=True)
+    sizes = tmp[1][1:]#.tolist()    # keep it as an array
+    ncell=len(sizes)
+
+    mask_info = pd.DataFrame({
+        "center_x": x_coor,
+        "center_y": y_coor,
+        "size": sizes,
+        "tfi": None,
+        "medfi": None,
+        "mfi": None
+    })
+    mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
+    mask_info=mask_info.round().astype(int)
+    mask_info.to_csv(filename +".csv", header=True, index=True, sep=',')
 
 
 

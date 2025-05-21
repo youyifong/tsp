@@ -230,7 +230,7 @@ Appends region membership as new columns and save as a new _regmem.csv file.
 
 ### Convert roi files into mask png files
 
-The program creates two png files, one mask file and one mask outline file. 
+The program creates two png files, one mask file and one mask outline file, and one csv file with mask-level info. 
 
 > python -m tsp roifiles2mask --f "eg1/*" --width 1392 --height 1040 --saveas fname.png
  
