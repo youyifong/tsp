@@ -155,8 +155,7 @@ Run command in the directory where the json file resides.
 
 > python -m tsp stitchimages --json AS_Les_layout_by_percentage.json --imgfolder CD3
 
-- --json A configuration file 
-
+- --json A configuration file. An example is provided in the repository as AS_Les_layout.json. This file describes the layout of the images to be stitched together, including their positions and dimensions. If marginOverlap is between 0 and 1, it is the percentage of overlap between images in the same row or column. If marginOverlap is larger than 1, it is the number of pixels to overlap. 
 - --imgfolder Name of the folder containing images at all positions to be stitched together
 
 Output 
