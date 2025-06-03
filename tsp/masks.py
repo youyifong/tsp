@@ -84,10 +84,7 @@ def roifiles2mask(files, width, height, saveas, outline=True, fill=True):
     mask_info = pd.DataFrame({
         "center_x": x_coor,
         "center_y": y_coor,
-        "size": sizes,
-        "tfi": None,
-        "medfi": None,
-        "mfi": None
+        "size": sizes
     })
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
     mask_info=mask_info.round().astype(int)
