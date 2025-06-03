@@ -41,9 +41,14 @@ def dostitch (config, directory):
 
     else:
         exit("only one of rightMarginOverlap and rightMarginOverlap should be present")
-    
-    height_reduced = int(height * (1-top_margin_overlap))
-    
+
+    if isinstance(top_margin_overlap, float) and 0 <= top_margin_overlap < 1:
+        height_reduced = int(height * (1 - top_margin_overlap))
+    elif isinstance(top_margin_overlap, int) and top_margin_overlap >= 0:
+        height_reduced = height - top_margin_overlap
+    else:
+        exit("rightMarginOverlap should be a float between 0 and 1 or an integer >= 0")
+
     # New image width and height
     new_width = width_reduced * ncols
     new_height = height_reduced * nrows
