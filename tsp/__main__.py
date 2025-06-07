@@ -46,7 +46,7 @@ def main():
     parser.add_argument('--mode', type=str, help='mode of collapsing: max, avg', default='max')
 
     # for alignment images
-    parser.add_argument('--alignmentmode', type=str, help='mode of alignment. See help', default='MOTION_TRANSLATION')
+    parser.add_argument('--alignmentmode', type=str, help='mode of alignment. See help', default='MOTION_HOMOGRAPHY')
 
     # for mask-related actions
     parser.add_argument('--mask1', type=str, help='mask file 1')

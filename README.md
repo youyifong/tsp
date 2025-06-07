@@ -166,7 +166,7 @@ Output
 
 ## Image alignment
 
-> python -m tsp alignimages --ref_image xx  --f '*.png' 
+> python -m tsp alignimages --ref_image xx  --f '*.png' --alignmentmode MOTION_TRANSLATION
 
 - --f A list of file names separated by comma, containing no spaces, e.g., [xx1.png,xx2.png], or a pattern to match file names, e.g. 'xx*.png'. The quotes around file name pattern are required, because otherwise it will be expanded by shell. If the list of files contain ref_image, ref_image will be removed
 
@@ -174,7 +174,7 @@ Optional input:
 
 - --l Channels. If the images are grayscale, the argument is not needed. If the images are RBG, the argument is used to extract the channels of interest from the two images: 1 R, 2 G, 3 B, e.g. [2,2]
 
-- --alignmentmode. MOTION_TRANSLATION (default), MOTION_HOMOGRAPHY, MOTION_AFFINE, MOTION_EUCLIDEAN. MOTION_TRANSLATION is the fastest and only allows shifting the image left/right and up/down. MOTION_HOMOGRAPHY is the slowest and works well for images with perspective distortion. MOTION_AFFINE works well for images with rotation and perspective distortion. MOTION_EUCLIDEAN works well for images with rotation but no perspective distortion.
+- --alignmentmode. MOTION_HOMOGRAPHY (default), MOTION_TRANSLATION, MOTION_AFFINE, MOTION_EUCLIDEAN. MOTION_TRANSLATION is the fastest and only allows shifting the image left/right and up/down. MOTION_HOMOGRAPHY is the slowest and works well for images with perspective distortion. MOTION_AFFINE works well for images with rotation and perspective distortion. MOTION_EUCLIDEAN works well for images with rotation but no perspective distortion.
 
 Output 
 
