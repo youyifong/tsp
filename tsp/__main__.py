@@ -41,10 +41,13 @@ def main():
     
     # for alignimages
     parser.add_argument('--ref_image', type=str, help='reference image')
-    
+
     # for collapse images
     parser.add_argument('--mode', type=str, help='mode of collapsing: max, avg', default='max')
-    
+
+    # for alignment images
+    parser.add_argument('--alignmentmode', type=str, help='mode of alignment. See help', default='MOTION_TRANSLATION')
+
     # for mask-related actions
     parser.add_argument('--mask1', type=str, help='mask file 1')
     parser.add_argument('--mask2', type=str, help='mask file 2')
@@ -245,7 +248,7 @@ def main():
             files.remove(args.ref_image)
                     
         for f in files:
-            doalign (args.ref_image, f, channels)
+            doalign (args.ref_image, f, channels, args.alignmentmode)
 
 
     elif args.action=="collapseimages":

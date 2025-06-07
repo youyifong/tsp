@@ -8,7 +8,7 @@ import os, cv2, sys
 import numpy as np
 from tsp import imsave, imread
 
-def doalign (ref_image, image2, channels):
+def doalign (ref_image, image2, channels, alignmentmode):
     filename, file_extension = os.path.splitext(image2)
 
     image1=imread(ref_image)
@@ -23,8 +23,15 @@ def doalign (ref_image, image2, channels):
     if len(image2.shape)==3: image2 = image2[:,:,channels[1]]
     im2_gray = image2
 
-    # motion models: MOTION_HOMOGRAPHY, MOTION_AFFINE, MOTION_EUCLIDEAN (rigid), MOTION_TRANSLATION 
-    warp_mode = cv2.MOTION_HOMOGRAPHY  
+    # motion models: MOTION_HOMOGRAPHY, MOTION_AFFINE, MOTION_EUCLIDEAN, MOTION_TRANSLATION
+    if alignmentmode == "MOTION_HOMOGRAPHY":
+        warp_mode = cv2.MOTION_HOMOGRAPHY
+    elif alignmentmode == "MOTION_AFFINE":
+        warp_mode = cv2.MOTION_AFFINE
+    elif alignmentmode == "MOTION_EUCLIDEAN":
+        warp_mode = cv2.MOTION_EUCLIDEAN
+    elif alignmentmode == "MOTION_TRANSLATION":
+        warp_mode = cv2.MOTION_TRANSLATION
     warp_matrix = np.eye(3 if warp_mode == cv2.MOTION_HOMOGRAPHY else 2, 3, dtype=np.float32)
     
     number_of_iterations = 15000;         
