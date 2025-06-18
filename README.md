@@ -250,7 +250,7 @@ Optional input:
 
 ### Dilate/erode masks
 
-Create a new mask file in which each mask is dilated or eroded by the amount specified. This file takes about 1 min for every 100 masks.
+Create a new mask file in which each mask is dilated or eroded by the amount specified. This file takes about 20 sec for every 1000 masks.
 
 > python -m tsp dilatemasks --maskfile mask1.png --dilation -1
 

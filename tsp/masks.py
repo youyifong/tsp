@@ -28,7 +28,7 @@ def roifiles2mask(files, width, height, saveas, outline=True, fill=True):
         for idx in range(len(files)):
             roi_file = files[idx]
             rois.append(read_roi_file(roi_file))
-        
+
     print("number of roi files: "+str(len(rois)))
     
     if extension == ".zip":
@@ -196,9 +196,14 @@ def PlotMask_center(mask, img, savefilename, color, add_text=False):
 
 def save_stuff(masks, imgfilename, model, channels, save_outlines_only=True, save_additional_images=False, save_mask_roi=False, img=None):
     if img is None: img = imread(imgfilename)
-        
+
+    # extract the base file name without the extension from a full or relative file path
     filename = os.path.splitext(os.path.basename(imgfilename))[0]
-    
+
+    # make sure a folder named csv exists
+    if not os.path.exists('csv'):
+        os.makedirs('csv')
+
     if len(model)>5:
         # model is a long file name
         model='new'
@@ -246,12 +251,12 @@ def save_stuff(masks, imgfilename, model, channels, save_outlines_only=True, sav
     })
     mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
     mask_info=mask_info.round().astype(int)
-    mask_info.to_csv(filename + "_m_"+model+".csv", header=True, index=True, sep=',')
+    mask_info.to_csv("csv/" + filename + "_m_"+model+".csv", header=True, index=True, sep=',')
         
     # save _cp_outline to convert to roi by ImageJ
     if save_mask_roi:
         outlines_list = utils.outlines_list(masks)
-        io.outlines_to_text(filename, outlines_list)
+        io.outlines_to_text("csv/" + filename, outlines_list)
         
     if save_additional_images:     
         PlotMask_center(mask=masks, img=img, savefilename=filename + "_point_"+model+".png", color='r')

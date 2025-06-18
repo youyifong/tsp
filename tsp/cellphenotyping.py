@@ -31,6 +31,10 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
 
     start_time = timeit.default_timer()
     
+    # make sure a folder named csv exists
+    if not os.path.exists('csv'):
+        os.makedirs('csv')
+
     for i in range(n_markers):
         positive=positives[i]
         cutoff=cutoffs[i]
@@ -73,7 +77,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
                 num_double_cell_cutoff.append(sum(num_cell_temp))
             ncell_res_temp = pd.DataFrame(list(zip(cutoff_all, num_double_cell_cutoff)))
             ncell_res_temp.columns = ["Cutoff", "Cell_count"]
-            ncell_res_temp.to_csv(output_file_name + "_counts_lastcutoff.txt", header=True, index=None, sep=',')
+            ncell_res_temp.to_csv("csv/" + output_file_name + "_counts_lastcutoff.txt", header=True, index=None, sep=',')
         
         pos_rates.append(pos_rate)
         num_cells.append(num_double_cell)
@@ -105,7 +109,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             })
             mask_info.index = [f"Cell_{i}" for i in range(1,ncell+1)]
             mask_info=mask_info.round().astype(int)
-            mask_info.to_csv(output_file_name + "_masks.csv", header=True, index=True, sep=',')
+            mask_info.to_csv("csv/" + output_file_name + "_masks.csv", header=True, index=True, sep=',')
         else:
             print("no masks found")
 
@@ -120,7 +124,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             filenames_save.append("-" + files[i+1])
     ncell_res = pd.DataFrame(list(zip(filenames_save, num_cells)))
     ncell_res.columns = ["File_name", "Cell_count"]
-    ncell_res.to_csv(output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
+    ncell_res.to_csv("csv/" + output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
 
     print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
     

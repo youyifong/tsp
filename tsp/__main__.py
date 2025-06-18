@@ -113,7 +113,8 @@ def main():
     if args.action=='runcellpose':
         if args.f == None or args.model == None or args.l == None :
             sys.exit("ERROR: --f, --model, --l are required arguments")            
-        
+
+        # files could be ['x/file1.txt', 'x/notes.txt']
         files = args.f[1:-1].split(",") if args.f[0]=='[' else glob.glob(args.f)
         if len(files)==0: 
             sys.exit ("no files found")
@@ -146,11 +147,14 @@ def main():
             print(files)
             
         positives = args.p[1:-1].split(",") 
-        cutoffs = [float(c) for c in args.c[1:-1].split(",")]
-        methods = args.m[1:-1].split(",")             
         marker_names = args.n[1:-1].split(",")
         channels = [int(i)-1 for i in args.l[1:-1].split(",")] if args.l is not None else None
-        
+
+        methods = args.m[1:-1].split(",")
+        cutoffs = args.c[1:-1].split(",")
+        # convert cutoffs to integer if the corresponding method is not "Mask" else to float
+        cutoffs = [float(c) if m != "Mask" else int(c) for c, m in zip(cutoffs, methods)]
+
         if args.c2 is not None:
             cutoffs2 = [float(c) for c in args.c2[1:-1].split(",") ]
         else:
@@ -320,9 +324,13 @@ def main():
     elif args.action=='dilatemasks':
         if args.dilation == None:
             sys.exit("ERROR: --dilation is a required argument")            
-        dilation=args.dilation    
-        
-        masks  =imread(args.maskfile)    
+        dilation=args.dilation
+
+        # make sure a folder named csv exists
+        if not os.path.exists('csv'):
+            os.makedirs('csv')
+
+        masks  =imread(args.maskfile)
         mask_indices = np.unique(masks)[1:]
                 
         if dilation!=0:
@@ -350,7 +358,7 @@ def main():
             
         filename=os.path.splitext(args.maskfile)[0]
         fileext=os.path.splitext(args.maskfile)[1]
-        imsave(filename+"_d"+str(dilation)+fileext, mod_masks)    
+        imsave(filename+"_d"+str(dilation)+fileext, mod_masks)
 
         # save an outline file
         outlines = masks_to_outlines(mod_masks)
@@ -358,7 +366,7 @@ def main():
         
         # save _cp_outline to convert to roi by ImageJ
         outlines_list = utils.outlines_list(mod_masks)
-        io.outlines_to_text(filename, outlines_list)
+        io.outlines_to_text("csv/" + filename, outlines_list)
 
 
         # ## Save a csv file of mask info. One row per mask, columns include size, center_x, center_y
