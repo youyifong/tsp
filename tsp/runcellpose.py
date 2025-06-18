@@ -20,6 +20,10 @@ def run_cellpose(files, channels,
     else :
         gpu = False
         
+    # make sure a folder named csv exists
+    if not os.path.exists('csv'):
+        os.makedirs('csv')
+
     # Declare model #
     if(pretrained in ['cyto']):
         model = models.Cellpose(gpu=gpu, model_type=pretrained)
@@ -73,7 +77,7 @@ def run_cellpose(files, channels,
     ncells_mat = pd.DataFrame(list(zip(files,ncells)))
     ncells_mat.columns = ["File_name","Cell_count"]
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    ncells_mat.to_csv("cellpose_counts_"+timestr+".txt", header=True, index=None, sep=',')
+    ncells_mat.to_csv("csv/cellpose_counts_"+timestr+".txt", header=True, index=None, sep=',')
 
 
 
