@@ -153,7 +153,7 @@ def main():
         methods = args.m[1:-1].split(",")
         cutoffs = args.c[1:-1].split(",")
         # convert cutoffs to integer if the corresponding method is not "Mask" else to float
-        cutoffs = [float(c) if m != "Mask" else int(float(c)) for c, m in zip(cutoffs, methods)]
+        cutoffs = [float(c) if m == "Mask" else int(float(c)) for c, m in zip(cutoffs, methods)]
 
         if args.c2 is not None:
             cutoffs2 = [float(c) for c in args.c2[1:-1].split(",") ]
