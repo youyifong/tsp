@@ -55,7 +55,7 @@ def run_cellpose(files, channels,
     ncells = []
     for file in files :
 
-        img = io.imread(file); 
+        img = io.imread(file)
         filename = os.path.splitext(file)[0]
         if(pretrained == 'cyto'):
             masks, flows, styles, diams = model.eval(img, diameter=diameter, channels=channels, flow_threshold=flow, cellprob_threshold=cellprob, min_size=min_size, normalize_100=normalize_100)

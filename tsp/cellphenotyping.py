@@ -85,7 +85,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         maskA = GetMaskCutoff(mask=maskA, act_mask_idx=double_mask_idx)
         masks.append(maskA)
         
-        print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
+        # print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
     
     # save masks to a csv file
@@ -124,9 +124,10 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             filenames_save.append("-" + files[i+1])
     ncell_res = pd.DataFrame(list(zip(filenames_save, num_cells)))
     ncell_res.columns = ["File_name", "Cell_count"]
+    print(ncell_res)
     ncell_res.to_csv("csv/" + output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
 
-    print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
+    # print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
     
     for i in range(1, len(masks)):
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
@@ -141,7 +142,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     # for i in range(len(files)-1):
     #     np.savez(file=output_file_name + '_seg', img=image_base, masks=masks[i+1])
             
-    print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
+    # print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
 
 # Utilites for double staining analysis
