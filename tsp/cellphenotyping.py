@@ -25,7 +25,9 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     # maskA = datA['masks']
     maskA = imread(files[0])
     masks.append(maskA)
-    num_cells.append(maskA.max())
+
+    # number of unique cells in maskA
+    num_cells.append(len(np.unique(maskA)))
     
     n_markers = len(files)-1 # not counting ref marker
 
@@ -113,7 +115,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         else:
             print("no masks found")
 
-    print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
+    # print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
 
     # save counts
     filenames_save = [files[0]] # first filename
