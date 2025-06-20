@@ -27,7 +27,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     masks.append(maskA)
 
     # number of unique cells in maskA
-    num_cells.append(len(np.unique(maskA)))
+    num_cells.append(len(np.unique(maskA))-1) # -1 to exclude background
     
     n_markers = len(files)-1 # not counting ref marker
 
