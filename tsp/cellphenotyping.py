@@ -5,7 +5,7 @@ from tsp.masks import GetCenterCoor #, PlotMask_outline, PlotMask_center
 from tsp import imread
 import skimage.io
 from skimage import img_as_ubyte, img_as_uint
-from cellpose import utils
+from cellpose import utils, io
 import timeit
 from scipy import ndimage
 
@@ -61,7 +61,7 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
             pos_rate, num_double_cell, double_mask_idx = DoubleStainIntensity(maskA=maskA, imgB=imgB, positive=positive, cutoff=cutoff, channel=channel, method=method, pixel_pos_threshold=pixel_pos_threshold, mask_dilation=mask_dilation)
 
         # for the last file, examine a series of cutoffs. this step does not take too much time
-        if(i == n_markers-1):
+        if(i == n_markers-1 and pos_rate!=[]):
             if(method == 'Mask'):
                 cutoff_all = list(np.around(np.linspace(start=0, stop=1, num=11),1)) # [0,0.1,...,0.9,1]                
             else:
@@ -115,8 +115,6 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         else:
             print("no masks found")
 
-    # print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
-
     # save counts
     filenames_save = [files[0]] # first filename
     for i in range(len(files)-1):
@@ -129,12 +127,12 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
     print(ncell_res)
     ncell_res.to_csv("csv/" + output_file_name + "_counts_multistain.txt", header=True, index=None, sep=',')
 
-    # print(f"time spent {timeit.default_timer() - start_time}"); start_time = timeit.default_timer()
-    
+    # save masks
     for i in range(1, len(masks)):
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
         skimage.io.imsave(staged_output_file_names[i] + '_o.png', img_as_ubyte(utils.masks_to_outlines(masks[i])), check_contrast=False)
         skimage.io.imsave(staged_output_file_names[i] + '_m.png', img_as_uint(masks[i]), check_contrast=False)
+        io.outlines_to_text(staged_output_file_names[i] + '.txt', utils.outlines_list(masks[i])) # save masks as roi
 
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_fill.png',    color=[255,255,255], fill=True)
         if(save_plot): skimage.io.imsave(staged_output_file_names[i] + '_masks_fill.png', img_as_ubyte(masks[i]!=0))

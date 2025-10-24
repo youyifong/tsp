@@ -124,6 +124,8 @@ Output
 
 - _masks_fill.png (with --s): K grayscale files with masks as filled shapes
 
+- _txt: roi files
+
 <!--- - _point.png (with --s): K grayscale files with each mask drawn as a point. --->
 
 
