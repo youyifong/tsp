@@ -132,7 +132,9 @@ def StainingAnalysis(files, marker_names, positives, cutoffs, channels, methods,
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_outline.png', color=mask_color)
         skimage.io.imsave(staged_output_file_names[i] + '_o.png', img_as_ubyte(utils.masks_to_outlines(masks[i])), check_contrast=False)
         skimage.io.imsave(staged_output_file_names[i] + '_m.png', img_as_uint(masks[i]), check_contrast=False)
-        io.outlines_to_text(staged_output_file_names[i] + '.txt', utils.outlines_list(masks[i])) # save masks as roi
+
+        # save masks as roi
+        io.outlines_to_text(staged_output_file_names[i], utils.outlines_list(masks[i]))
 
         # PlotMask_outline(mask=masks[i], img=files[i], savefilename=staged_output_file_names[i] + '_fill.png',    color=[255,255,255], fill=True)
         if(save_plot): skimage.io.imsave(staged_output_file_names[i] + '_masks_fill.png', img_as_ubyte(masks[i]!=0))
